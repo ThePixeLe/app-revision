@@ -422,6 +422,18 @@
   font-weight: 600;
   cursor: pointer;
   transition: all var(--transition-fast);
+  text-decoration: none;
+  display: inline-block;
+
+  &.primary {
+    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+    color: white;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+    }
+  }
 
   &.export {
     background: var(--accent-primary);
@@ -449,6 +461,44 @@
 
     &:hover {
       background: var(--bg-hover);
+    }
+  }
+}
+
+// ============================================================
+// PLANNING SECTION
+// ============================================================
+
+.planning-section {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+
+  .section-icon {
+    color: #8b5cf6;
+  }
+}
+
+.planning-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-lg);
+  background: rgba(139, 92, 246, 0.1);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+
+  .action-info {
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    p {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin: var(--spacing-sm) 0 0;
     }
   }
 }

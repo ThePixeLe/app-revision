@@ -333,6 +333,24 @@ export const routes: Routes = [
     }
   },
 
+  /**
+   * PARAMÈTRES DU PLANNING
+   * ----------------------
+   * Configuration avancée du planning.
+   *
+   * Affiche :
+   * - Changement de date de début
+   * - Création de nouveaux plannings depuis templates
+   * - Export/Import du planning
+   */
+  {
+    path: 'settings/planning',
+    loadComponent: () =>
+      import('./features/settings/planning-settings.component')
+        .then(m => m.PlanningSettingsComponent),
+    title: 'Planning | Paramètres | Study Tracker Pro'
+  },
+
   // ============================================================
   // ROUTE 404 (PAGE NON TROUVÉE)
   // ============================================================

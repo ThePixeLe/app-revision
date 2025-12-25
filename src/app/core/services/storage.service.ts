@@ -50,6 +50,8 @@ export enum StorageKeys {
 
   // Planning et journées
   PLANNING_DAYS = 'planning_days',
+  PLANNING_CONFIG = 'planning_config',
+  PLANNING_CONFIGS_LIST = 'planning_configs_list',
   CURRENT_DAY = 'current_day',
 
   // Exercices

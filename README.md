@@ -1,6 +1,6 @@
 # 🎓 Study Tracker Pro
 
-> Votre assistant d'apprentissage interactif pour maîtriser l'Algèbre de Boole, l'Algorithmique et Java en 12 jours.
+> Votre assistant d'apprentissage interactif et personnalisable pour maîtriser n'importe quel sujet avec un planning flexible.
 
 [![Angular](https://img.shields.io/badge/Angular-17-DD0031?logo=angular)](https://angular.io/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript)](https://www.typescriptlang.org/)
@@ -13,10 +13,12 @@
 
 **Study Tracker Pro** est une application web interactive développée avec Angular 17, conçue pour accompagner un programme d'apprentissage intensif de 12 jours couvrant :
 
-- 🔵 **Algèbre de Boole** (2 jours) - Tables de vérité, simplifications, Karnaugh
-- 🟣 **Algorithmique** (4 jours) - Conditions, boucles, tableaux, conception
-- 🟢 **Java** (4 jours) - Syntaxe, structures, exercices pratiques
-- 🟠 **Consolidation** (2 jours) - Révisions et projets de synthèse
+- 🔵 **Algèbre de Boole** - Tables de vérité, simplifications, Karnaugh
+- 🟣 **Algorithmique** - Conditions, boucles, tableaux, conception
+- ☕ **Java** - Syntaxe, structures, exercices pratiques
+- 🧩 **POO** - Classes, héritage, polymorphisme, encapsulation
+- 🗄️ **Base de données** - SQL, SELECT, INSERT, UPDATE, DELETE
+- 🟠 **Consolidation** - Révisions et projets de synthèse
 
 ---
 
@@ -28,11 +30,15 @@
 - **Badges et quêtes** à débloquer au fur et à mesure
 - **Streak counter** pour maintenir la motivation
 
-### 📅 Planning intelligent
+### 📅 Planning intelligent et flexible
+- **Planning personnalisable** - Changez la date de début à tout moment
+- **Templates prédéfinis** - Algo/Java, POO/BDD, Web Dev, Python Data Science
+- **Créez vos propres plannings** - Pour n'importe quel sujet de révision
+- **Export/Import JSON** - Sauvegardez et restaurez votre progression
 - **Calendrier interactif** avec drag & drop
 - **Intégration Apple Calendar** (notifications macOS)
 - **Vue par jour/semaine** avec objectifs détaillés
-- **Code couleur** par matière (Algèbre/Algo/Java)
+- **Code couleur** par matière
 
 ### 📝 Gestionnaire d'exercices
 - **100+ exercices** répartis en 3 catégories
@@ -60,10 +66,21 @@
 - **Export PDF** du bilan complet
 
 ### 📚 Bibliothèque de ressources
-- **Tous les PDFs** organisés et accessibles
-- **Recherche full-text**
-- **Marque-pages** personnalisés
-- **Annotations** en ligne
+- **Tous les PDFs** organisés par catégorie (Algo, Java, POO, BDD)
+- **Scan automatique** - Déposez vos PDFs dans `assets/docs/`, ils sont détectés automatiquement
+- **Marque-pages** personnalisés (favoris)
+- **6 catégories** : Algèbre, Algo, Java, POO, BDD, Général
+
+### 🤖 Chatbot IA intégré
+- **Ollama** - IA locale gratuite (DeepSeek, Qwen, Llama...)
+- **Détection automatique** du modèle disponible
+- **Aide contextuelle** sur Algo, Java, POO, SQL
+- **Mode FAQ** de secours si Ollama n'est pas lancé
+
+### 🌐 Exercices externes
+- **Intégration** TMC MOOC.fi, GeeksforGeeks, LeetCode, HackerRank
+- **Suivi unifié** de tous vos exercices (internes + externes)
+- **XP et statistiques** comptabilisés
 
 ### 🏆 Leaderboard
 - **Compare tes performances** (avec toi-même ou d'autres)
@@ -113,11 +130,33 @@ npm install
 ### Étape 4 : Configurer l'environnement
 
 1. **Copiez vos PDFs** dans le dossier `src/assets/docs/`
+   - Les PDFs sont détectés automatiquement au lancement !
+   - Nomenclature recommandée : `Algo 01 - Titre.pdf`, `Java 02 - Titre.pdf`
 
 2. **Vérifiez la configuration Tailwind** :
    - Le fichier `tailwind.config.js` doit pointer vers `./src/**/*.{html,ts}`
 
 3. **Optionnel** : Configurez l'intégration Apple Calendar (voir section dédiée)
+
+### Étape 5 : Configurer Ollama (optionnel, pour le chatbot IA)
+
+1. **Téléchargez Ollama** : [ollama.com/download](https://ollama.com/download)
+
+2. **Installez un modèle** :
+   ```bash
+   ollama pull llama3.2        # Recommandé (3.8 GB)
+   # ou
+   ollama pull deepseek-v3     # Plus puissant
+   # ou
+   ollama pull qwen3-coder     # Spécialisé code
+   ```
+
+3. **Lancez Ollama** (dans un terminal séparé) :
+   ```bash
+   ollama serve
+   ```
+
+4. Le chatbot détecte automatiquement le modèle disponible !
 
 ---
 
@@ -162,7 +201,7 @@ app-revision/
 │   ├── app/
 │   │   ├── core/              # Services, modèles, guards
 │   │   │   ├── services/      # 8 services principaux
-│   │   │   ├── models/        # 6 interfaces TypeScript
+│   │   │   ├── models/        # 7 interfaces TypeScript
 │   │   │   ├── guards/        # Route guards
 │   │   │   └── interceptors/  # HTTP interceptors
 │   │   │
@@ -174,7 +213,8 @@ app-revision/
 │   │   │   ├── revision/      # Flashcards & Quiz
 │   │   │   ├── pomodoro/      # Timer Pomodoro
 │   │   │   ├── profile/       # Profil & Stats
-│   │   │   └── resources/     # Bibliothèque PDF
+│   │   │   ├── resources/     # Bibliothèque PDF
+│   │   │   └── settings/      # Paramètres (planning flexible)
 │   │   │
 │   │   └── shared/            # Composants réutilisables
 │   │       ├── components/
@@ -226,10 +266,13 @@ app-revision/
 | **GamificationService** | Système XP, badges, quêtes |
 | **CalendarSyncService** | Synchronisation Apple Calendar |
 | **PomodoroService** | Timer Pomodoro avec statistiques |
+| **ChatbotService** | Chatbot IA avec Ollama + FAQ fallback |
+| **ResourceService** | Chargement dynamique des PDFs |
 
 ### Modèles de données
 
 - **Day** : Représente une journée du planning
+- **PlanningConfig** : Configuration flexible du planning (dates, templates, phases)
 - **Exercise** : Un exercice (algo, Java, etc.)
 - **Evaluation** : Auto-évaluation d'un chapitre
 - **Progress** : Progression globale de l'utilisateur
@@ -244,34 +287,75 @@ L'application utilise un code couleur cohérent :
 
 - 🔵 **Bleu** (#3B82F6) → Algèbre de Boole
 - 🟣 **Violet** (#8B5CF6) → Algorithmique
-- 🟢 **Vert** (#10B981) → Java
-- 🟠 **Orange** (#F59E0B) → Consolidation
+- 🟠 **Orange** (#F97316) → Java
+- 🩷 **Rose** (#EC4899) → POO
+- 🩵 **Cyan** (#06B6D4) → Base de données
+- ⚫ **Gris** (#64748B) → Général
 
 ---
 
-## 📊 Programme détaillé (12 jours)
+## 📊 Templates de planning disponibles
 
-### Phase 1 : Algèbre de Boole (2 jours)
-- Tables de vérité et opérateurs
-- Théorèmes de De Morgan
-- Simplification avec Karnaugh
+L'application propose **5 templates prédéfinis** que vous pouvez personnaliser :
 
-### Phase 2 : Algorithmique (4 jours)
-- Structures conditionnelles (9 exercices)
-- Boucles et itérations (9 exercices)
-- Tableaux et structures de données (9 exercices)
-- Conception descendante
+### 1. Algo + Java (12 jours) - *Template par défaut*
+| Phase | Durée | Contenu |
+|-------|-------|---------|
+| 🔵 Algèbre de Boole | 2 jours | Tables de vérité, De Morgan, Karnaugh |
+| 🟣 Algorithmique | 4 jours | Conditions, boucles, tableaux, conception |
+| ☕ Java | 4 jours | Syntaxe, structures, projets |
+| 📚 Consolidation | 2 jours | Révisions, projet final |
 
-### Phase 3 : Java (4 jours)
-- Syntaxe de base et variables
-- Structures conditionnelles en Java
-- Boucles et tableaux en Java
-- Projets de synthèse
+### 2. POO + BDD (10 jours)
+| Phase | Durée | Contenu |
+|-------|-------|---------|
+| 🧩 POO Bases | 3 jours | Classes, objets, encapsulation |
+| 🔧 POO Avancé | 3 jours | Héritage, polymorphisme, interfaces |
+| 🗄️ Base de données | 3 jours | SQL, SELECT, JOIN, CRUD |
+| 🚀 Projet Final | 1 jour | Application complète |
 
-### Phase 4 : Consolidation (2 jours)
-- Révisions espacées
-- Projets complets
-- Auto-évaluation finale
+### 3. Web Development (14 jours)
+| Phase | Durée | Contenu |
+|-------|-------|---------|
+| 🌐 HTML/CSS | 3 jours | Structure, styles, responsive |
+| ⚡ JavaScript | 4 jours | ES6+, DOM, async |
+| 📘 TypeScript | 3 jours | Types, interfaces, génériques |
+| 🅰️ Framework | 3 jours | Angular/React/Vue |
+| 🚀 Projet Web | 1 jour | Application complète |
+
+### 4. Python Data Science (7 jours)
+| Phase | Durée | Contenu |
+|-------|-------|---------|
+| 🐍 Python Bases | 2 jours | Syntaxe, fonctions, OOP |
+| 📊 NumPy/Pandas | 2 jours | Arrays, DataFrames, manipulation |
+| 📈 Visualisation | 2 jours | Matplotlib, Seaborn, Plotly |
+| 🚀 Projet Data | 1 jour | Analyse complète |
+
+### 5. Planning Vide (Personnalisé)
+Créez votre propre planning de zéro avec vos propres phases et durées.
+
+---
+
+## 🔧 Personnaliser le planning
+
+### Changer la date de début
+1. Allez dans **Paramètres** (⚙️)
+2. Cliquez sur **"Configurer le planning"**
+3. Sélectionnez une nouvelle date de début
+4. Cliquez sur **"Appliquer"**
+
+Toutes les dates du planning seront automatiquement recalculées !
+
+### Créer un nouveau planning
+1. Allez dans **Paramètres > Planning**
+2. Choisissez un **template** dans la grille
+3. Donnez un nom personnalisé (optionnel)
+4. Sélectionnez la date de début
+5. Cliquez sur **"Créer le nouveau planning"**
+
+### Sauvegarder / Restaurer
+- **Export** : Téléchargez votre planning + progression en JSON
+- **Import** : Restaurez un planning exporté sur n'importe quel appareil
 
 ---
 
@@ -336,18 +420,24 @@ Ce projet est sous licence **MIT**. Voir le fichier [LICENSE](LICENSE) pour plus
 
 ## 🎯 Roadmap
 
-### Version actuelle : 1.0.0
-- ✅ Dashboard interactif
-- ✅ Planning avec calendrier
+### Version actuelle : 1.0.3
+- ✅ Dashboard interactif avec graphiques (Chart.js)
+- ✅ Planning avec calendrier (FullCalendar)
 - ✅ Gestionnaire d'exercices
 - ✅ Pomodoro Timer
 - ✅ Système de révision
 - ✅ Auto-évaluation
-- ✅ Gamification complète
+- ✅ Gamification complète (XP, badges, quêtes)
+- ✅ **Chatbot IA** avec Ollama (DeepSeek, Qwen, Llama...)
+- ✅ **Scan automatique des PDFs**
+- ✅ **Exercices externes** (TMC MOOC.fi, GeeksforGeeks...)
+- ✅ **6 catégories** : Algèbre, Algo, Java, POO, BDD, Général
+- ✅ **Planning flexible** - Date de début personnalisable
+- ✅ **5 templates de planning** - Algo/Java, POO/BDD, Web Dev, Python, Personnalisé
+- ✅ **Export/Import** - Sauvegardez et restaurez votre progression
 
 ### Version 1.1.0 (à venir)
 - [ ] Mode collaboratif (partage de progression)
-- [ ] Chatbot d'aide intégré
 - [ ] Export du code vers GitHub automatique
 - [ ] Synchronisation multi-appareils
 - [ ] Application mobile (Ionic)

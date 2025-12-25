@@ -40,6 +40,16 @@ import { map, tap } from 'rxjs/operators';
 // Import des modèles
 import { Day, Session } from '../models/day.model';
 
+// Import de la configuration flexible
+import {
+  PlanningConfig,
+  CustomPhase,
+  PLANNING_TEMPLATES,
+  createDefaultConfig,
+  createConfigFromTemplate,
+  generateConfigId
+} from '../models/planning-config.model';
+
 // Import du service de stockage
 import { StorageService, StorageKeys } from './storage.service';
 
@@ -141,6 +151,21 @@ export class PlanningService {
    * Observable public de l'indice
    */
   public currentDayIndex$: Observable<number> = this.currentDayIndexSubject.asObservable();
+
+  /**
+   * BehaviorSubject pour la configuration du planning
+   */
+  private configSubject = new BehaviorSubject<PlanningConfig | null>(null);
+
+  /**
+   * Observable public de la configuration
+   */
+  public config$: Observable<PlanningConfig | null> = this.configSubject.asObservable();
+
+  /**
+   * Liste des templates disponibles
+   */
+  public readonly templates = PLANNING_TEMPLATES;
 
   /**
    * Constructeur
@@ -1143,6 +1168,313 @@ export class PlanningService {
         this.createDefaultPlanning();
         console.log('✅ Planning réinitialisé !');
       })
+    );
+  }
+
+  // ============================================================
+  // MÉTHODES PUBLIQUES - CONFIGURATION FLEXIBLE
+  // ============================================================
+
+  /**
+   * OBTENIR LA CONFIGURATION ACTUELLE
+   * ---------------------------------
+   * Retourne la configuration du planning actif.
+   */
+  getConfig(): PlanningConfig | null {
+    return this.configSubject.value;
+  }
+
+  /**
+   * CHANGER LA DATE DE DÉBUT
+   * -----------------------
+   * Recalcule toutes les dates du planning à partir de la nouvelle date.
+   *
+   * @param newStartDate - Nouvelle date de début
+   * @returns Observable confirmant la mise à jour
+   *
+   * Exemple :
+   * ```typescript
+   * this.planningService.setStartDate(new Date('2025-01-15'))
+   *   .subscribe(() => console.log('Dates recalculées !'));
+   * ```
+   */
+  setStartDate(newStartDate: Date): Observable<Day[]> {
+    console.log('📅 Changement de date de début:', newStartDate.toLocaleDateString('fr-FR'));
+
+    const days = this.daysSubject.value;
+
+    // Recalcule toutes les dates
+    const updatedDays = days.map((day, index) => {
+      const newDate = new Date(newStartDate);
+      newDate.setDate(newDate.getDate() + index);
+      return {
+        ...day,
+        date: newDate
+      };
+    });
+
+    // Met à jour la configuration si elle existe
+    const config = this.configSubject.value;
+    if (config) {
+      const updatedConfig = {
+        ...config,
+        startDate: newStartDate,
+        endDate: new Date(newStartDate.getTime() + (config.totalDays - 1) * 24 * 60 * 60 * 1000),
+        updatedAt: new Date()
+      };
+      this.configSubject.next(updatedConfig);
+      this.storageService.set(StorageKeys.PLANNING_CONFIG, updatedConfig).subscribe();
+    }
+
+    // Met à jour les jours
+    this.daysSubject.next(updatedDays);
+
+    return this.savePlanning(updatedDays).pipe(
+      tap(() => {
+        console.log('✅ Dates recalculées depuis:', newStartDate.toLocaleDateString('fr-FR'));
+        this.identifyCurrentDay();
+      })
+    );
+  }
+
+  /**
+   * CRÉER UN NOUVEAU PLANNING DEPUIS UN TEMPLATE
+   * --------------------------------------------
+   * Permet de créer un planning personnalisé.
+   *
+   * @param templateIndex - Index du template (0-4)
+   * @param startDate - Date de début
+   * @param customName - Nom personnalisé (optionnel)
+   * @returns Observable confirmant la création
+   */
+  createPlanningFromTemplate(
+    templateIndex: number,
+    startDate: Date,
+    customName?: string
+  ): Observable<Day[]> {
+    console.log('📝 Création d\'un nouveau planning depuis template:', templateIndex);
+
+    // Crée la configuration
+    const config = createConfigFromTemplate(templateIndex, startDate, customName);
+    this.configSubject.next(config);
+
+    // Génère les jours selon le template
+    const days = this.generateDaysFromConfig(config);
+
+    // Sauvegarde la configuration
+    this.storageService.set(StorageKeys.PLANNING_CONFIG, config).subscribe();
+
+    // Met à jour et sauvegarde les jours
+    this.daysSubject.next(days);
+
+    return this.savePlanning(days).pipe(
+      tap(() => {
+        console.log('✅ Nouveau planning créé:', config.name);
+        this.identifyCurrentDay();
+      })
+    );
+  }
+
+  /**
+   * GÉNÉRER LES JOURS À PARTIR D'UNE CONFIGURATION
+   * ----------------------------------------------
+   * Crée les objets Day[] selon la config.
+   */
+  private generateDaysFromConfig(config: PlanningConfig): Day[] {
+    const days: Day[] = [];
+    let dayCounter = 0;
+
+    // Pour chaque phase
+    for (const phase of config.phases) {
+      // Pour chaque jour de cette phase
+      for (let i = 0; i < phase.daysCount; i++) {
+        dayCounter++;
+        const dayDate = new Date(config.startDate);
+        dayDate.setDate(dayDate.getDate() + dayCounter - 1);
+
+        days.push({
+          id: `day-${dayCounter}`,
+          date: dayDate,
+          phase: phase.id as any,
+          title: `${phase.name} - Jour ${i + 1}`,
+          objectives: [`Objectif 1 pour ${phase.name}`, `Objectif 2 pour ${phase.name}`],
+          sessions: [
+            this.createSession(
+              `day-${dayCounter}-morning`,
+              `day-${dayCounter}`,
+              'matin',
+              120,
+              [`Sujet 1 - ${phase.name}`],
+              [],
+              []
+            ),
+            this.createSession(
+              `day-${dayCounter}-afternoon`,
+              `day-${dayCounter}`,
+              'apres-midi',
+              120,
+              [`Sujet 2 - ${phase.name}`],
+              [],
+              []
+            )
+          ],
+          completed: false,
+          xpEarned: 0,
+          notes: ''
+        });
+      }
+    }
+
+    return days;
+  }
+
+  /**
+   * SAUVEGARDER LA CONFIGURATION
+   * ---------------------------
+   * Sauvegarde la configuration actuelle dans le storage.
+   */
+  saveConfig(config: PlanningConfig): Observable<PlanningConfig> {
+    const updatedConfig = {
+      ...config,
+      updatedAt: new Date()
+    };
+    this.configSubject.next(updatedConfig);
+    return this.storageService.set(StorageKeys.PLANNING_CONFIG, updatedConfig);
+  }
+
+  /**
+   * CHARGER LA CONFIGURATION
+   * -----------------------
+   * Charge la configuration depuis le storage.
+   */
+  loadConfig(): Observable<PlanningConfig | null> {
+    return this.storageService.get<PlanningConfig>(StorageKeys.PLANNING_CONFIG).pipe(
+      tap(config => {
+        if (config) {
+          // Convertit les dates string en Date
+          config.startDate = new Date(config.startDate);
+          if (config.endDate) config.endDate = new Date(config.endDate);
+          config.createdAt = new Date(config.createdAt);
+          config.updatedAt = new Date(config.updatedAt);
+
+          this.configSubject.next(config);
+          console.log('✅ Configuration chargée:', config.name);
+        }
+      })
+    );
+  }
+
+  /**
+   * METTRE À JOUR UN JOUR PERSONNALISÉ
+   * ---------------------------------
+   * Permet de modifier le titre, objectifs, sessions d'un jour.
+   */
+  updateDay(dayId: string, updates: Partial<Day>): Observable<Day[]> {
+    const days = this.daysSubject.value;
+
+    const updatedDays = days.map(day => {
+      if (day.id === dayId) {
+        return { ...day, ...updates };
+      }
+      return day;
+    });
+
+    this.daysSubject.next(updatedDays);
+
+    return this.savePlanning(updatedDays).pipe(
+      tap(() => console.log(`✅ Jour ${dayId} mis à jour`))
+    );
+  }
+
+  /**
+   * AJOUTER UNE SESSION À UN JOUR
+   * ----------------------------
+   */
+  addSessionToDay(dayId: string, session: Session): Observable<Day[]> {
+    const days = this.daysSubject.value;
+
+    const updatedDays = days.map(day => {
+      if (day.id === dayId) {
+        return {
+          ...day,
+          sessions: [...day.sessions, session]
+        };
+      }
+      return day;
+    });
+
+    this.daysSubject.next(updatedDays);
+
+    return this.savePlanning(updatedDays).pipe(
+      tap(() => console.log(`✅ Session ajoutée au jour ${dayId}`))
+    );
+  }
+
+  /**
+   * OBTENIR LA DATE DE DÉBUT ACTUELLE
+   * ---------------------------------
+   */
+  getStartDate(): Date {
+    const days = this.daysSubject.value;
+    if (days.length > 0) {
+      return new Date(days[0].date);
+    }
+    return new Date();
+  }
+
+  /**
+   * OBTENIR LA DATE DE FIN
+   * ---------------------
+   */
+  getEndDate(): Date {
+    const days = this.daysSubject.value;
+    if (days.length > 0) {
+      return new Date(days[days.length - 1].date);
+    }
+    return new Date();
+  }
+
+  /**
+   * EXPORTER LE PLANNING AU FORMAT JSON
+   * -----------------------------------
+   * Pour backup ou partage.
+   */
+  exportPlanning(): { config: PlanningConfig | null; days: Day[] } {
+    return {
+      config: this.configSubject.value,
+      days: this.daysSubject.value
+    };
+  }
+
+  /**
+   * IMPORTER UN PLANNING DEPUIS JSON
+   * --------------------------------
+   * Restaure un planning exporté.
+   */
+  importPlanning(data: { config: PlanningConfig; days: Day[] }): Observable<void> {
+    console.log('📥 Import du planning:', data.config?.name);
+
+    // Met à jour la configuration
+    if (data.config) {
+      data.config.startDate = new Date(data.config.startDate);
+      if (data.config.endDate) data.config.endDate = new Date(data.config.endDate);
+      this.configSubject.next(data.config);
+      this.storageService.set(StorageKeys.PLANNING_CONFIG, data.config).subscribe();
+    }
+
+    // Met à jour les jours
+    const days = data.days.map(d => ({
+      ...d,
+      date: new Date(d.date)
+    }));
+    this.daysSubject.next(days);
+
+    return this.savePlanning(days).pipe(
+      tap(() => {
+        console.log('✅ Planning importé avec succès');
+        this.identifyCurrentDay();
+      }),
+      map(() => undefined)
     );
   }
 }
