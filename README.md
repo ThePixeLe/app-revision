@@ -13,6 +13,10 @@
 
 **Study Tracker Pro** est une application web interactive développée avec Angular 17, conçue pour accompagner un programme d'apprentissage intensif de 12 jours couvrant :
 
+> **Note** : Ce projet a démarré comme un outil personnel pour mes propres révisions. C'est pourquoi il n'intègre pas encore de pipeline CI/CD (GitHub Actions), de conteneurisation (Docker), ni d'infrastructure DevOps complète. Ces améliorations sont prévues dans les futures versions pour faciliter le déploiement et la contribution collaborative.
+
+Le programme couvre :
+
 - 🔵 **Algèbre de Boole** - Tables de vérité, simplifications, Karnaugh
 - 🟣 **Algorithmique** - Conditions, boucles, tableaux, conception
 - ☕ **Java** - Syntaxe, structures, exercices pratiques
@@ -488,6 +492,13 @@ Ce projet est sous licence **MIT**. Voir le fichier [LICENSE](LICENSE) pour plus
 - [ ] Export du code vers GitHub automatique
 - [ ] Synchronisation multi-appareils
 - [ ] Application mobile (Ionic)
+
+### Version 1.2.0 (DevOps)
+
+- [ ] **Docker** - Conteneurisation de l'application
+- [ ] **GitHub Actions** - Pipeline CI/CD automatisé
+- [ ] **Tests automatisés** - Unit tests, E2E avec Cypress
+- [ ] **Déploiement automatique** - Vercel / Netlify / GitHub Pages
 
 ### Version 2.0.0 (futur)
 
