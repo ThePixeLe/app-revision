@@ -186,6 +186,51 @@
       "description": "Cours interactif Java pour débutants.",
       "icon": "🎮",
       "recommended": false
+    },
+    {
+      "id": "link-11",
+      "title": "TMC MOOC.fi - Java Programming",
+      "url": "https://tmc.mooc.fi/org/mooc",
+      "category": "java",
+      "description": "Cours Java interactif de l'Université d'Helsinki avec exercices auto-corrigés.",
+      "icon": "🇫🇮",
+      "recommended": true
+    },
+    {
+      "id": "link-12",
+      "title": "GeeksforGeeks - Java Tutorial",
+      "url": "https://www.geeksforgeeks.org/java/java/",
+      "category": "java",
+      "description": "Tutoriel Java complet avec exemples et exercices pratiques.",
+      "icon": "👨‍💻",
+      "recommended": true
+    },
+    {
+      "id": "link-13",
+      "title": "UKonline - Apprendre Java",
+      "url": "https://www.ukonline.be/cours/java/apprendre-java",
+      "category": "java",
+      "description": "Cours Java en français, clair et progressif.",
+      "icon": "🇧🇪",
+      "recommended": true
+    },
+    {
+      "id": "link-14",
+      "title": "Baeldung - Java Getting Started",
+      "url": "https://www.baeldung.com/get-started-with-java-series",
+      "category": "java",
+      "description": "Série d'articles pour débuter en Java, référence pour développeurs.",
+      "icon": "📖",
+      "recommended": true
+    },
+    {
+      "id": "link-15",
+      "title": "Maxicours - Algèbre de Boole",
+      "url": "https://www.maxicours.com/se/cours/algebre-de-boole/",
+      "category": "algebre",
+      "description": "Cours complet sur l'algèbre de Boole en français.",
+      "icon": "🧮",
+      "recommended": true
     }
   ],
 
