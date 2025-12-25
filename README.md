@@ -25,12 +25,14 @@
 ## ✨ Fonctionnalités
 
 ### 🎯 Suivi de progression
+
 - **Dashboard interactif** avec statistiques en temps réel
 - **Système XP et niveaux** pour gamifier l'apprentissage
 - **Badges et quêtes** à débloquer au fur et à mesure
 - **Streak counter** pour maintenir la motivation
 
 ### 📅 Planning intelligent et flexible
+
 - **Planning personnalisable** - Changez la date de début à tout moment
 - **Templates prédéfinis** - Algo/Java, POO/BDD, Web Dev, Python Data Science
 - **Créez vos propres plannings** - Pour n'importe quel sujet de révision
@@ -41,24 +43,28 @@
 - **Code couleur** par matière
 
 ### 📝 Gestionnaire d'exercices
+
 - **100+ exercices** répartis en 3 catégories
 - **Suivi de statut** : À faire / En cours / Terminé / Révisé
 - **Timer par exercice** pour mesurer le temps passé
 - **Upload de solutions** (pseudo-code, organigramme, code Java)
 
 ### ⏱️ Pomodoro Timer
+
 - **Sessions de 25 minutes** avec pauses automatiques
 - **Notifications sonores** et visuelles
 - **Statistiques de focus** par jour/semaine
 - **Intégration** avec le planning
 
 ### 🔄 Système de révision espacée
+
 - **Algorithme de répétition** intelligent (J-1, J-3, J-7)
 - **Flashcards** interactives
 - **Quiz chronométrés** avec correction détaillée
 - **Mode examen blanc** pour s'auto-évaluer
 
 ### 📊 Auto-évaluation
+
 - **Notes sur 10** par chapitre
 - **Ce que tu maîtrises** ✅
 - **Points à revoir** ⚠️
@@ -66,23 +72,27 @@
 - **Export PDF** du bilan complet
 
 ### 📚 Bibliothèque de ressources
+
 - **Tous les PDFs** organisés par catégorie (Algo, Java, POO, BDD)
 - **Scan automatique** - Déposez vos PDFs dans `assets/docs/`, ils sont détectés automatiquement
 - **Marque-pages** personnalisés (favoris)
 - **6 catégories** : Algèbre, Algo, Java, POO, BDD, Général
 
 ### 🤖 Chatbot IA intégré
+
 - **Ollama** - IA locale gratuite (DeepSeek, Qwen, Llama...)
 - **Détection automatique** du modèle disponible
 - **Aide contextuelle** sur Algo, Java, POO, SQL
 - **Mode FAQ** de secours si Ollama n'est pas lancé
 
 ### 🌐 Exercices externes
+
 - **Intégration** TMC MOOC.fi, GeeksforGeeks, LeetCode, HackerRank
 - **Suivi unifié** de tous vos exercices (internes + externes)
 - **XP et statistiques** comptabilisés
 
 ### 🏆 Leaderboard
+
 - **Compare tes performances** (avec toi-même ou d'autres)
 - **Stats détaillées** : heures de travail, exercices complétés, scores
 - **Graphiques de progression** (Chart.js)
@@ -339,6 +349,7 @@ Créez votre propre planning de zéro avec vos propres phases et durées.
 ## 🔧 Personnaliser le planning
 
 ### Changer la date de début
+
 1. Allez dans **Paramètres** (⚙️)
 2. Cliquez sur **"Configurer le planning"**
 3. Sélectionnez une nouvelle date de début
@@ -347,6 +358,7 @@ Créez votre propre planning de zéro avec vos propres phases et durées.
 Toutes les dates du planning seront automatiquement recalculées !
 
 ### Créer un nouveau planning
+
 1. Allez dans **Paramètres > Planning**
 2. Choisissez un **template** dans la grille
 3. Donnez un nom personnalisé (optionnel)
@@ -354,6 +366,7 @@ Toutes les dates du planning seront automatiquement recalculées !
 5. Cliquez sur **"Créer le nouveau planning"**
 
 ### Sauvegarder / Restaurer
+
 - **Export** : Téléchargez votre planning + progression en JSON
 - **Import** : Restaurez un planning exporté sur n'importe quel appareil
 
@@ -421,6 +434,7 @@ Ce projet est sous licence **MIT**. Voir le fichier [LICENSE](LICENSE) pour plus
 ## 🎯 Roadmap
 
 ### Version actuelle : 1.0.3
+
 - ✅ Dashboard interactif avec graphiques (Chart.js)
 - ✅ Planning avec calendrier (FullCalendar)
 - ✅ Gestionnaire d'exercices
@@ -437,12 +451,14 @@ Ce projet est sous licence **MIT**. Voir le fichier [LICENSE](LICENSE) pour plus
 - ✅ **Export/Import** - Sauvegardez et restaurez votre progression
 
 ### Version 1.1.0 (à venir)
+
 - [ ] Mode collaboratif (partage de progression)
 - [ ] Export du code vers GitHub automatique
 - [ ] Synchronisation multi-appareils
 - [ ] Application mobile (Ionic)
 
 ### Version 2.0.0 (futur)
+
 - [ ] Mode hors-ligne complet (PWA)
 - [ ] Intégration avec LMS (Moodle, etc.)
 - [ ] Générateur d'exercices IA
