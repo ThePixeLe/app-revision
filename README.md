@@ -85,6 +85,15 @@
 - **Aide contextuelle** sur Algo, Java, POO, SQL
 - **Mode FAQ** de secours si Ollama n'est pas lancé
 
+### 🧠 Générateur d'exercices IA
+
+- **Génération automatique** d'exercices personnalisés avec Ollama
+- **6 sujets** : Algèbre de Boole, Conditions, Boucles, Tableaux, Fonctions, Java
+- **4 niveaux de difficulté** : Facile, Moyen, Difficile, Expert
+- **5 formats** : QCM, Complétion de code, Debugging, Pseudo-code, Implémentation
+- **Options** : Inclure solution, inclure indices
+- **Sauvegarde** directe dans la liste d'exercices avec XP
+
 ### 🌐 Exercices externes
 
 - **Intégration** TMC MOOC.fi, GeeksforGeeks, LeetCode, HackerRank
@@ -168,7 +177,20 @@ npm install
    ollama serve
    ```
 
-4. Le chatbot détecte automatiquement le modèle disponible !
+4. Le chatbot et le générateur d'exercices détectent automatiquement le modèle disponible !
+
+### Utiliser le générateur d'exercices IA
+
+1. Allez sur la page **Exercices**
+2. Cliquez sur le bouton **"Générer avec IA"** (violet)
+3. Configurez votre exercice :
+   - **Sujet** : Algèbre de Boole, Conditions, Boucles, Tableaux, Fonctions, Java
+   - **Difficulté** : Facile, Moyen, Difficile, Expert
+   - **Format** : QCM, Complétion de code, Debugging, Pseudo-code, Implémentation
+   - **Options** : Inclure solution, inclure indices
+4. Cliquez sur **"Générer"**
+5. Prévisualisez l'exercice, puis **"Sauvegarder"** ou **"Régénérer"**
+6. L'exercice est ajouté à votre liste avec les XP correspondants !
 
 ---
 
@@ -279,6 +301,7 @@ app-revision/
 | **CalendarSyncService** | Synchronisation Apple Calendar |
 | **PomodoroService** | Timer Pomodoro avec statistiques |
 | **ChatbotService** | Chatbot IA avec Ollama + FAQ fallback |
+| **ExerciseGeneratorService** | Générateur d'exercices IA avec Ollama |
 | **ResourceService** | Chargement dynamique des PDFs |
 
 ### Modèles de données
@@ -441,7 +464,7 @@ Ce projet est sous licence **MIT**. Voir le fichier [LICENSE](LICENSE) pour plus
 
 ## 🎯 Roadmap
 
-### Version actuelle : 1.0.3
+### Version actuelle : 1.0.4
 
 - ✅ Dashboard interactif avec graphiques (Chart.js)
 - ✅ Planning avec calendrier (FullCalendar)
@@ -457,6 +480,7 @@ Ce projet est sous licence **MIT**. Voir le fichier [LICENSE](LICENSE) pour plus
 - ✅ **Planning flexible** - Date de début personnalisable
 - ✅ **5 templates de planning** - Algo/Java, POO/BDD, Web Dev, Python, Personnalisé
 - ✅ **Export/Import** - Sauvegardez et restaurez votre progression
+- ✅ **Générateur d'exercices IA** - Crée des exercices personnalisés avec Ollama
 
 ### Version 1.1.0 (à venir)
 
@@ -469,7 +493,6 @@ Ce projet est sous licence **MIT**. Voir le fichier [LICENSE](LICENSE) pour plus
 
 - [ ] Mode hors-ligne complet (PWA)
 - [ ] Intégration avec LMS (Moodle, etc.)
-- [ ] Générateur d'exercices IA
 - [ ] Analyse prédictive de réussite
 
 ---

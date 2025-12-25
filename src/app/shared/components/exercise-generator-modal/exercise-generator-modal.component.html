@@ -1,0 +1,266 @@
+<!--
+  exercise-generator-modal.component.html
+
+  Modal de génération d'exercices avec IA.
+
+  Structure :
+  ==========
+  1. Overlay sombre (ferme au clic)
+  2. Container du modal
+     - Header avec titre et bouton fermer
+     - Warning Ollama si non disponible
+     - Formulaire de configuration OU
+     - État de chargement OU
+     - Aperçu de l'exercice généré
+     - Message d'erreur si échec
+
+  Auteur: H1m0t3p3
+  Date: 25 décembre 2024
+-->
+
+<div class="modal-overlay" (click)="closeModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+
+    <!-- ========================================== -->
+    <!-- HEADER -->
+    <!-- ========================================== -->
+    <header class="modal-header">
+      <div class="header-title">
+        <span class="header-icon">🤖</span>
+        <div>
+          <h2>Générateur d'exercices IA</h2>
+          <p class="header-subtitle" *ngIf="isOllamaAvailable && modelName">
+            Propulsé par {{ modelName.split(':')[0] }}
+          </p>
+        </div>
+      </div>
+      <button class="close-btn" (click)="closeModal()" aria-label="Fermer">
+        <span>✕</span>
+      </button>
+    </header>
+
+    <!-- ========================================== -->
+    <!-- WARNING OLLAMA NON DISPONIBLE -->
+    <!-- ========================================== -->
+    <div class="ollama-warning" *ngIf="!isOllamaAvailable && status !== 'checking'">
+      <div class="warning-icon">⚠️</div>
+      <div class="warning-content">
+        <h3>Ollama non disponible</h3>
+        <p>Pour utiliser le générateur IA, lancez Ollama dans un terminal :</p>
+        <code>ollama serve</code>
+        <button class="btn-refresh" (click)="refreshOllamaStatus()">
+          🔄 Réessayer
+        </button>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- FORMULAIRE DE CONFIGURATION -->
+    <!-- ========================================== -->
+    <form class="config-form" *ngIf="isOllamaAvailable && !generatedExercise && status !== 'generating'">
+
+      <!-- Type d'exercice -->
+      <div class="form-group">
+        <label class="form-label">Sujet</label>
+        <div class="type-grid">
+          <button
+            *ngFor="let type of exerciseTypes"
+            type="button"
+            class="type-btn"
+            [class.selected]="selectedType === type.value"
+            (click)="selectedType = type.value">
+            <span class="type-icon">{{ type.icon }}</span>
+            <span class="type-label">{{ type.label }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Difficulté -->
+      <div class="form-group">
+        <label class="form-label">Difficulté</label>
+        <div class="difficulty-btns">
+          <button
+            *ngFor="let diff of difficulties"
+            type="button"
+            class="difficulty-btn"
+            [class.selected]="selectedDifficulty === diff.value"
+            [style.--diff-color]="diff.color"
+            (click)="selectedDifficulty = diff.value">
+            {{ diff.label }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Format -->
+      <div class="form-group">
+        <label class="form-label">Format de l'exercice</label>
+        <div class="format-grid">
+          <button
+            *ngFor="let format of formats"
+            type="button"
+            class="format-btn"
+            [class.selected]="selectedFormat === format.value"
+            (click)="selectedFormat = format.value">
+            <span class="format-icon">{{ format.icon }}</span>
+            <span class="format-label">{{ format.label }}</span>
+            <span class="format-desc">{{ format.description }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Options -->
+      <div class="form-group options-group">
+        <label class="toggle-label">
+          <input type="checkbox" [(ngModel)]="includeSolution" name="includeSolution">
+          <span class="toggle-text">Inclure la solution</span>
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" [(ngModel)]="includeHints" name="includeHints">
+          <span class="toggle-text">Inclure des indices</span>
+        </label>
+      </div>
+
+      <!-- Bouton Générer -->
+      <button
+        type="button"
+        class="btn-generate"
+        (click)="generateExercise()"
+        [disabled]="!isOllamaAvailable">
+        <span class="btn-icon">✨</span>
+        <span>Générer un exercice</span>
+      </button>
+
+    </form>
+
+    <!-- ========================================== -->
+    <!-- ÉTAT DE CHARGEMENT -->
+    <!-- ========================================== -->
+    <div class="loading-state" *ngIf="status === 'generating' || status === 'checking'">
+      <div class="spinner"></div>
+      <p class="loading-text">
+        {{ status === 'checking' ? 'Connexion à Ollama...' : 'Génération en cours...' }}
+      </p>
+      <p class="loading-hint">
+        {{ status === 'checking' ? 'Vérification du modèle IA' : 'L\'IA réfléchit à ton exercice' }}
+      </p>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- APERÇU DE L'EXERCICE GÉNÉRÉ -->
+    <!-- ========================================== -->
+    <div class="preview-section" *ngIf="generatedExercise && status === 'success'">
+
+      <!-- Badge de succès -->
+      <div class="generation-badge">
+        <span class="badge-icon">✓</span>
+        <span>Exercice généré en {{ formatGenerationTime() }}</span>
+      </div>
+
+      <!-- Aperçu -->
+      <div class="exercise-preview">
+        <h3 class="preview-title">{{ generatedExercise.title }}</h3>
+
+        <div class="preview-meta">
+          <span class="meta-tag type">{{ selectedType }}</span>
+          <span class="meta-tag difficulty" [attr.data-diff]="selectedDifficulty">
+            {{ selectedDifficulty }}
+          </span>
+          <span class="meta-tag format">{{ selectedFormat }}</span>
+        </div>
+
+        <div class="preview-description">
+          <h4>Énoncé</h4>
+          <p>{{ generatedExercise.description }}</p>
+        </div>
+
+        <!-- Options QCM -->
+        <div class="preview-options" *ngIf="generatedExercise.options">
+          <h4>Options</h4>
+          <ul class="options-list">
+            <li *ngFor="let opt of generatedExercise.options; let i = index"
+                [class.correct]="opt.isCorrect">
+              <span class="option-letter">{{ ['A', 'B', 'C', 'D'][i] }})</span>
+              {{ opt.text }}
+              <span class="correct-badge" *ngIf="opt.isCorrect">✓</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Code Snippet -->
+        <div class="preview-code" *ngIf="generatedExercise.codeSnippet">
+          <h4>Code</h4>
+          <pre><code>{{ generatedExercise.codeSnippet }}</code></pre>
+        </div>
+
+        <!-- Indices -->
+        <details class="preview-hints" *ngIf="generatedExercise.hints?.length">
+          <summary>💡 Indices ({{ generatedExercise.hints?.length }})</summary>
+          <ol>
+            <li *ngFor="let hint of generatedExercise.hints">{{ hint }}</li>
+          </ol>
+        </details>
+
+        <!-- Solution -->
+        <details class="preview-solution" *ngIf="generatedExercise.solution">
+          <summary>🔑 Solution</summary>
+          <div class="solution-content">
+            <div *ngIf="generatedExercise.solution.pseudoCode">
+              <h5>Pseudo-code</h5>
+              <pre>{{ generatedExercise.solution.pseudoCode }}</pre>
+            </div>
+            <div *ngIf="generatedExercise.solution.javaCode">
+              <h5>Java</h5>
+              <pre><code>{{ generatedExercise.solution.javaCode }}</code></pre>
+            </div>
+            <div *ngIf="generatedExercise.solution.explanation">
+              <h5>Explication</h5>
+              <p>{{ generatedExercise.solution.explanation }}</p>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Actions -->
+      <div class="preview-actions">
+        <button class="btn-back" (click)="backToForm()">
+          ← Modifier
+        </button>
+        <button class="btn-regenerate" (click)="regenerate()">
+          🔄 Régénérer
+        </button>
+        <button class="btn-save" (click)="saveExercise()" [disabled]="isSaving">
+          {{ isSaving ? 'Sauvegarde...' : '💾 Sauvegarder' }}
+        </button>
+      </div>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MESSAGE D'ERREUR -->
+    <!-- ========================================== -->
+    <div class="error-state" *ngIf="errorMessage && status === 'error'">
+      <div class="error-icon">❌</div>
+      <p class="error-text">{{ errorMessage }}</p>
+      <div class="error-actions">
+        <button class="btn-back" (click)="backToForm()">
+          ← Modifier les paramètres
+        </button>
+        <button class="btn-retry" (click)="generateExercise()">
+          🔄 Réessayer
+        </button>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- SUCCÈS DE SAUVEGARDE -->
+    <!-- ========================================== -->
+    <div class="success-overlay" *ngIf="showSuccess">
+      <div class="success-content">
+        <span class="success-icon">✓</span>
+        <h3>Exercice sauvegardé !</h3>
+        <p>+{{ calculateXP() }} XP</p>
+      </div>
+    </div>
+
+  </div>
+</div>

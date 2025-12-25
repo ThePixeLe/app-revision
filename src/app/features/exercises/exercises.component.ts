@@ -39,6 +39,9 @@ import { takeUntil } from 'rxjs/operators';
 // Import des services
 import { ExerciseService } from '../../core/services/exercise.service';
 
+// Import du modal de génération IA
+import { ExerciseGeneratorModalComponent } from '../../shared/components/exercise-generator-modal/exercise-generator-modal.component';
+
 // Import des modèles et fonctions utilitaires
 import {
   Exercise,
@@ -68,7 +71,7 @@ interface FilterOption {
 @Component({
   selector: 'app-exercises',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, ExerciseGeneratorModalComponent],
   templateUrl: './exercises.component.html',
   styleUrls: ['./exercises.component.scss']
 })
@@ -181,6 +184,11 @@ export class ExercisesComponent implements OnInit, OnDestroy {
    * Vue actuelle (grille ou liste)
    */
   viewMode: 'grid' | 'list' = 'grid';
+
+  /**
+   * Affiche le modal de génération IA
+   */
+  showGeneratorModal: boolean = false;
 
   // ============================================================
   // CONSTRUCTEUR
@@ -682,6 +690,36 @@ export class ExercisesComponent implements OnInit, OnDestroy {
    */
   isExerciseDueForReview(exercise: Exercise): boolean {
     return this.exercisesToReview.some(e => e.id === exercise.id);
+  }
+
+  // ============================================================
+  // GÉNÉRATEUR IA
+  // ============================================================
+
+  /**
+   * Ouvrir le modal de génération IA
+   */
+  openGeneratorModal(): void {
+    this.showGeneratorModal = true;
+    console.log('🤖 Ouverture du générateur IA');
+  }
+
+  /**
+   * Fermer le modal de génération IA
+   */
+  closeGeneratorModal(): void {
+    this.showGeneratorModal = false;
+    console.log('🤖 Fermeture du générateur IA');
+  }
+
+  /**
+   * Callback quand un exercice est généré et sauvegardé
+   * L'exercice sera automatiquement ajouté via le service
+   */
+  onExerciseGenerated(exercise: Exercise): void {
+    console.log('✅ Exercice IA sauvegardé:', exercise.title);
+    // Le service met à jour automatiquement la liste
+    // On ferme juste le modal (déjà fait par le composant après délai)
   }
 }
 

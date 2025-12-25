@@ -53,6 +53,12 @@
       </p>
     </div>
 
+    <!-- Bouton Générateur IA -->
+    <button class="generate-btn" (click)="openGeneratorModal()">
+      <span class="btn-icon">🤖</span>
+      <span class="btn-text">Générer avec IA</span>
+    </button>
+
     <!-- Stats rapides -->
     <div class="header-stats" *ngIf="stats">
       <div class="mini-stat">
@@ -360,5 +366,15 @@
       </div>
     </div>
   </section>
+
+  <!-- ========================================== -->
+  <!-- MODAL GÉNÉRATEUR IA -->
+  <!-- ========================================== -->
+
+  <app-exercise-generator-modal
+    *ngIf="showGeneratorModal"
+    (close)="closeGeneratorModal()"
+    (exerciseSaved)="onExerciseGenerated($event)">
+  </app-exercise-generator-modal>
 
 </div>

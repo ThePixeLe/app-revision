@@ -1,0 +1,803 @@
+/**
+ * exercise-generator-modal.component.scss
+ *
+ * Styles du modal de génération d'exercices IA.
+ *
+ * Design inspiré de :
+ * - external-exercise-modal (même projet)
+ * - Style moderne avec glassmorphism
+ * - Dark theme cohérent avec l'app
+ *
+ * Auteur: H1m0t3p3
+ * Date: 25 décembre 2024
+ */
+
+// ============================================================
+// VARIABLES
+// ============================================================
+
+$bg-overlay: rgba(0, 0, 0, 0.75);
+$bg-modal: #1e293b;
+$bg-input: #334155;
+$bg-hover: #475569;
+
+$text-primary: #f8fafc;
+$text-secondary: #94a3b8;
+$text-muted: #64748b;
+
+$accent-primary: #8b5cf6;
+$accent-success: #10b981;
+$accent-warning: #f59e0b;
+$accent-danger: #ef4444;
+
+$radius-sm: 0.5rem;
+$radius-md: 0.75rem;
+$radius-lg: 1rem;
+
+$transition: 200ms ease;
+
+// ============================================================
+// OVERLAY & CONTAINER
+// ============================================================
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: $bg-overlay;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-container {
+  background: $bg-modal;
+  border-radius: $radius-lg;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease;
+  position: relative;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ============================================================
+// HEADER
+// ============================================================
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+
+  .header-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    .header-icon {
+      font-size: 1.75rem;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: $text-primary;
+      margin: 0;
+    }
+
+    .header-subtitle {
+      font-size: 0.75rem;
+      color: $text-muted;
+      margin: 0.25rem 0 0;
+    }
+  }
+
+  .close-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: $radius-sm;
+    color: $text-secondary;
+    cursor: pointer;
+    transition: all $transition;
+    font-size: 1.25rem;
+
+    &:hover {
+      background: $bg-input;
+      color: $text-primary;
+    }
+  }
+}
+
+// ============================================================
+// OLLAMA WARNING
+// ============================================================
+
+.ollama-warning {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: rgba($accent-warning, 0.1);
+  border: 1px solid rgba($accent-warning, 0.3);
+  margin: 1rem;
+  border-radius: $radius-md;
+
+  .warning-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+  }
+
+  .warning-content {
+    h3 {
+      color: $accent-warning;
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 0.5rem;
+    }
+
+    p {
+      color: $text-secondary;
+      font-size: 0.875rem;
+      margin: 0 0 0.75rem;
+    }
+
+    code {
+      display: inline-block;
+      background: $bg-input;
+      padding: 0.5rem 1rem;
+      border-radius: $radius-sm;
+      font-family: monospace;
+      color: $text-primary;
+      margin-bottom: 1rem;
+    }
+
+    .btn-refresh {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: $bg-input;
+      border: none;
+      border-radius: $radius-sm;
+      color: $text-primary;
+      cursor: pointer;
+      transition: background $transition;
+
+      &:hover {
+        background: $bg-hover;
+      }
+    }
+  }
+}
+
+// ============================================================
+// FORMULAIRE
+// ============================================================
+
+.config-form {
+  padding: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  color: $text-primary;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+}
+
+// Type Grid
+.type-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.type-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.75rem 0.5rem;
+  background: $bg-input;
+  border: 2px solid transparent;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: all $transition;
+
+  .type-icon {
+    font-size: 1.5rem;
+  }
+
+  .type-label {
+    font-size: 0.75rem;
+    color: $text-secondary;
+  }
+
+  &:hover {
+    background: $bg-hover;
+  }
+
+  &.selected {
+    border-color: $accent-primary;
+    background: rgba($accent-primary, 0.1);
+
+    .type-label {
+      color: $text-primary;
+    }
+  }
+}
+
+// Difficulty Buttons
+.difficulty-btns {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.difficulty-btn {
+  flex: 1;
+  min-width: 80px;
+  padding: 0.75rem 1rem;
+  background: $bg-input;
+  border: 2px solid transparent;
+  border-radius: $radius-sm;
+  color: $text-secondary;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all $transition;
+
+  &:hover {
+    background: $bg-hover;
+    color: $text-primary;
+  }
+
+  &.selected {
+    border-color: var(--diff-color, $accent-primary);
+    background: rgba(139, 92, 246, 0.1);
+    color: var(--diff-color, $accent-primary);
+  }
+}
+
+// Format Grid
+.format-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.format-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  padding: 1rem;
+  background: $bg-input;
+  border: 2px solid transparent;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: all $transition;
+  text-align: left;
+
+  .format-icon {
+    font-size: 1.25rem;
+  }
+
+  .format-label {
+    color: $text-primary;
+    font-weight: 500;
+    font-size: 0.875rem;
+  }
+
+  .format-desc {
+    color: $text-muted;
+    font-size: 0.75rem;
+  }
+
+  &:hover {
+    background: $bg-hover;
+  }
+
+  &.selected {
+    border-color: $accent-primary;
+    background: rgba($accent-primary, 0.1);
+  }
+}
+
+// Options
+.options-group {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: $accent-primary;
+  }
+
+  .toggle-text {
+    color: $text-secondary;
+    font-size: 0.875rem;
+  }
+}
+
+// Generate Button
+.btn-generate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, $accent-primary 0%, #6366f1 100%);
+  border: none;
+  border-radius: $radius-md;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all $transition;
+
+  .btn-icon {
+    font-size: 1.25rem;
+  }
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba($accent-primary, 0.4);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// ============================================================
+// LOADING STATE
+// ============================================================
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+
+  .spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid $bg-input;
+    border-top-color: $accent-primary;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  .loading-text {
+    color: $text-primary;
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin: 1.5rem 0 0.5rem;
+  }
+
+  .loading-hint {
+    color: $text-muted;
+    font-size: 0.875rem;
+    margin: 0;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// ============================================================
+// PREVIEW SECTION
+// ============================================================
+
+.preview-section {
+  padding: 1.5rem;
+}
+
+.generation-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba($accent-success, 0.1);
+  color: $accent-success;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+
+  .badge-icon {
+    font-size: 1rem;
+  }
+}
+
+.exercise-preview {
+  background: $bg-input;
+  border-radius: $radius-md;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.preview-title {
+  color: $text-primary;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem;
+}
+
+.preview-meta {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+
+  .meta-tag {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: capitalize;
+
+    &.type {
+      background: rgba($accent-primary, 0.2);
+      color: $accent-primary;
+    }
+
+    &.difficulty {
+      &[data-diff="facile"] { background: rgba($accent-success, 0.2); color: $accent-success; }
+      &[data-diff="moyen"] { background: rgba($accent-warning, 0.2); color: $accent-warning; }
+      &[data-diff="difficile"] { background: rgba(#f97316, 0.2); color: #f97316; }
+      &[data-diff="expert"] { background: rgba($accent-danger, 0.2); color: $accent-danger; }
+    }
+
+    &.format {
+      background: rgba($text-muted, 0.2);
+      color: $text-secondary;
+    }
+  }
+}
+
+.preview-description {
+  h4 {
+    color: $text-secondary;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 0.5rem;
+  }
+
+  p {
+    color: $text-primary;
+    line-height: 1.6;
+    margin: 0;
+    white-space: pre-wrap;
+  }
+}
+
+.preview-options {
+  margin-top: 1rem;
+
+  h4 {
+    color: $text-secondary;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 0.5rem;
+  }
+
+  .options-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: rgba($bg-modal, 0.5);
+      border-radius: $radius-sm;
+      margin-bottom: 0.5rem;
+      color: $text-primary;
+
+      .option-letter {
+        font-weight: 600;
+        color: $text-muted;
+      }
+
+      &.correct {
+        background: rgba($accent-success, 0.1);
+        border: 1px solid rgba($accent-success, 0.3);
+      }
+
+      .correct-badge {
+        margin-left: auto;
+        color: $accent-success;
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+.preview-code {
+  margin-top: 1rem;
+
+  h4 {
+    color: $text-secondary;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 0.5rem;
+  }
+
+  pre {
+    background: #0f172a;
+    border-radius: $radius-sm;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 0;
+
+    code {
+      color: #e2e8f0;
+      font-family: 'Fira Code', 'Monaco', monospace;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+  }
+}
+
+.preview-hints,
+.preview-solution {
+  margin-top: 1rem;
+  background: rgba($bg-modal, 0.5);
+  border-radius: $radius-sm;
+
+  summary {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    color: $text-secondary;
+    font-weight: 500;
+
+    &:hover {
+      color: $text-primary;
+    }
+  }
+
+  ol, .solution-content {
+    padding: 0 1rem 1rem;
+    margin: 0;
+    color: $text-primary;
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  .solution-content {
+    h5 {
+      color: $text-secondary;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      margin: 0.75rem 0 0.5rem;
+    }
+
+    pre {
+      background: #0f172a;
+      padding: 0.75rem;
+      border-radius: $radius-sm;
+      overflow-x: auto;
+      font-size: 0.8rem;
+    }
+
+    p {
+      margin: 0;
+      line-height: 1.6;
+    }
+  }
+}
+
+// Preview Actions
+.preview-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+
+  button {
+    flex: 1;
+    min-width: 120px;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: $radius-sm;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all $transition;
+  }
+
+  .btn-back {
+    background: $bg-input;
+    color: $text-secondary;
+
+    &:hover {
+      background: $bg-hover;
+      color: $text-primary;
+    }
+  }
+
+  .btn-regenerate {
+    background: rgba($accent-warning, 0.2);
+    color: $accent-warning;
+
+    &:hover {
+      background: rgba($accent-warning, 0.3);
+    }
+  }
+
+  .btn-save {
+    background: $accent-success;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: darken($accent-success, 10%);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// ============================================================
+// ERROR STATE
+// ============================================================
+
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem 2rem;
+  text-align: center;
+
+  .error-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .error-text {
+    color: $accent-danger;
+    font-size: 1rem;
+    margin: 0 0 1.5rem;
+  }
+
+  .error-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    button {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: $radius-sm;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all $transition;
+    }
+
+    .btn-back {
+      background: $bg-input;
+      color: $text-secondary;
+
+      &:hover {
+        background: $bg-hover;
+        color: $text-primary;
+      }
+    }
+
+    .btn-retry {
+      background: $accent-primary;
+      color: white;
+
+      &:hover {
+        background: darken($accent-primary, 10%);
+      }
+    }
+  }
+}
+
+// ============================================================
+// SUCCESS OVERLAY
+// ============================================================
+
+.success-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba($bg-modal, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-lg;
+  animation: fadeIn 0.3s ease;
+
+  .success-content {
+    text-align: center;
+
+    .success-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 64px;
+      height: 64px;
+      background: $accent-success;
+      border-radius: 50%;
+      margin: 0 auto 1rem;
+      font-size: 2rem;
+      color: white;
+    }
+
+    h3 {
+      color: $text-primary;
+      font-size: 1.25rem;
+      margin: 0 0 0.5rem;
+    }
+
+    p {
+      color: $accent-success;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0;
+    }
+  }
+}
