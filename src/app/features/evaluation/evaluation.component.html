@@ -1,0 +1,338 @@
+<!--
+  evaluation.component.html
+
+  Template de la page Auto-évaluation.
+
+  Deux modes :
+  1. Mode Liste : Affiche les chapitres à évaluer
+  2. Mode Édition : Formulaire d'évaluation d'un chapitre
+
+  Auteur: H1m0t3p3
+  Date: 24 décembre 2024
+-->
+
+<div class="evaluation-container">
+
+  <!-- ========================================== -->
+  <!-- MODE LISTE -->
+  <!-- ========================================== -->
+  <ng-container *ngIf="!isEditMode">
+
+    <!-- Header -->
+    <header class="evaluation-header">
+      <div class="header-content">
+        <h1 class="page-title">📝 Auto-évaluation</h1>
+        <p class="page-subtitle">
+          Fais le point sur ta compréhension de chaque chapitre
+        </p>
+      </div>
+
+      <!-- Stats -->
+      <div class="header-stats">
+        <div class="stat-item">
+          <span class="stat-value">{{ stats.averageScore }}/10</span>
+          <span class="stat-label">Moyenne</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">{{ stats.totalEvaluations }}</span>
+          <span class="stat-label">Évaluations</span>
+        </div>
+        <div class="stat-item warning" *ngIf="stats.chaptersToReview > 0">
+          <span class="stat-value">{{ stats.chaptersToReview }}</span>
+          <span class="stat-label">À revoir</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Onglets de catégorie -->
+    <nav class="category-tabs">
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'all'"
+        (click)="setActiveTab('all')">
+        Tous
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'algebre'"
+        (click)="setActiveTab('algebre')">
+        🔵 Algèbre
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'algo'"
+        (click)="setActiveTab('algo')">
+        🟣 Algorithmique
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'java'"
+        (click)="setActiveTab('java')">
+        🟢 Java
+      </button>
+    </nav>
+
+    <!-- Liste des chapitres -->
+    <div class="chapters-list">
+      <article
+        *ngFor="let chapter of getFilteredChapters()"
+        class="chapter-card"
+        [class.evaluated]="chapter.hasEvaluation"
+        (click)="startEvaluation(chapter)">
+
+        <!-- Badge catégorie -->
+        <span
+          class="category-badge"
+          [style.background]="getCategoryColor(chapter.category)">
+          {{ getCategoryIcon(chapter.category) }}
+        </span>
+
+        <!-- Contenu -->
+        <div class="chapter-content">
+          <h3 class="chapter-name">{{ chapter.name }}</h3>
+          <div class="chapter-topics">
+            <span *ngFor="let topic of chapter.topics" class="topic-tag">
+              {{ topic }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Score ou bouton -->
+        <div class="chapter-action">
+          <div *ngIf="chapter.hasEvaluation" class="score-display" [class]="getScoreClass(chapter.lastScore || 0)">
+            <span class="score-value">{{ chapter.lastScore }}/10</span>
+            <span class="score-label">Modifier</span>
+          </div>
+          <div *ngIf="!chapter.hasEvaluation" class="eval-prompt">
+            <span class="prompt-icon">✏️</span>
+            <span class="prompt-text">Évaluer</span>
+          </div>
+        </div>
+
+      </article>
+    </div>
+
+    <!-- Section explicative -->
+    <section class="info-section">
+      <h2>💡 Pourquoi s'auto-évaluer ?</h2>
+      <div class="info-content">
+        <p>
+          L'auto-évaluation développe la <strong>métacognition</strong> :
+          la capacité à comprendre comment tu apprends.
+        </p>
+        <ul>
+          <li>✅ Identifie ce que tu maîtrises déjà</li>
+          <li>⚠️ Repère les points à revoir</li>
+          <li>💬 Note tes questions pour le formateur</li>
+          <li>📈 Suis ta progression au fil du temps</li>
+        </ul>
+      </div>
+    </section>
+
+  </ng-container>
+
+  <!-- ========================================== -->
+  <!-- MODE ÉDITION (Formulaire) -->
+  <!-- ========================================== -->
+  <ng-container *ngIf="isEditMode && currentChapter">
+
+    <!-- Header formulaire -->
+    <header class="form-header">
+      <button class="back-btn" (click)="cancelEdit()">
+        ← Retour
+      </button>
+      <div class="form-title">
+        <span
+          class="category-badge"
+          [style.background]="getCategoryColor(currentChapter.category)">
+          {{ getCategoryIcon(currentChapter.category) }}
+        </span>
+        <h1>{{ currentChapter.name }}</h1>
+      </div>
+    </header>
+
+    <form class="evaluation-form" (ngSubmit)="saveEvaluation()">
+
+      <!-- ===== NOTE GLOBALE ===== -->
+      <section class="form-section">
+        <h2>📊 Note globale</h2>
+        <p class="section-hint">
+          Sur une échelle de 1 à 10, comment évalues-tu ta compréhension ?
+        </p>
+
+        <div class="score-input">
+          <input
+            type="range"
+            min="1"
+            max="10"
+            step="1"
+            [(ngModel)]="evaluationForm.score"
+            name="score"
+            class="score-slider">
+          <div class="score-display-large" [class]="getScoreClass(evaluationForm.score)">
+            {{ evaluationForm.score }}/10
+          </div>
+        </div>
+
+        <div class="score-legend">
+          <span>1 = Pas compris</span>
+          <span>5 = Compris les bases</span>
+          <span>10 = Maîtrise totale</span>
+        </div>
+      </section>
+
+      <!-- ===== POINTS MAÎTRISÉS ===== -->
+      <section class="form-section">
+        <h2>✅ Ce que je maîtrise</h2>
+        <p class="section-hint">
+          Liste les concepts que tu as bien compris
+        </p>
+
+        <!-- Suggestions basées sur les topics du chapitre -->
+        <div class="topic-suggestions">
+          <span class="suggestions-label">Suggestions :</span>
+          <button
+            *ngFor="let topic of currentChapter.topics"
+            type="button"
+            class="suggestion-btn"
+            [class.selected]="evaluationForm.mastered.includes(topic)"
+            (click)="evaluationForm.mastered.includes(topic) ? null : evaluationForm.mastered.push(topic)">
+            {{ topic }}
+          </button>
+        </div>
+
+        <!-- Liste des items -->
+        <ul class="item-list">
+          <li *ngFor="let item of evaluationForm.mastered; let i = index">
+            <span>{{ item }}</span>
+            <button type="button" class="remove-btn" (click)="removeMasteredItem(i)">✕</button>
+          </li>
+        </ul>
+
+        <!-- Ajout personnalisé -->
+        <div class="add-item">
+          <input
+            type="text"
+            placeholder="Ajouter un point maîtrisé..."
+            [(ngModel)]="newMasteredItem"
+            name="newMastered"
+            (keyup.enter)="addMasteredItem()">
+          <button type="button" class="add-btn" (click)="addMasteredItem()">+</button>
+        </div>
+      </section>
+
+      <!-- ===== POINTS À REVOIR ===== -->
+      <section class="form-section warning">
+        <h2>⚠️ Ce que je dois revoir</h2>
+        <p class="section-hint">
+          Liste les concepts qui restent flous ou difficiles
+        </p>
+
+        <!-- Liste des items -->
+        <ul class="item-list">
+          <li *ngFor="let item of evaluationForm.toReview; let i = index">
+            <span>{{ item }}</span>
+            <button type="button" class="remove-btn" (click)="removeToReviewItem(i)">✕</button>
+          </li>
+        </ul>
+
+        <!-- Ajout -->
+        <div class="add-item">
+          <input
+            type="text"
+            placeholder="Ajouter un point à revoir..."
+            [(ngModel)]="newToReviewItem"
+            name="newToReview"
+            (keyup.enter)="addToReviewItem()">
+          <button type="button" class="add-btn" (click)="addToReviewItem()">+</button>
+        </div>
+      </section>
+
+      <!-- ===== QUESTIONS ===== -->
+      <section class="form-section questions">
+        <h2>💬 Questions pour le formateur</h2>
+        <p class="section-hint">
+          Note les questions à poser lors de la prochaine session
+        </p>
+
+        <div class="questions-list">
+          <div
+            *ngFor="let question of evaluationForm.questionsForTeacher; let i = index; trackBy: trackByIndex"
+            class="question-item">
+            <span class="question-number">Q{{ i + 1 }}</span>
+            <input
+              type="text"
+              placeholder="Ta question..."
+              [(ngModel)]="evaluationForm.questionsForTeacher[i]"
+              [name]="'question' + i">
+            <button
+              type="button"
+              class="remove-btn"
+              *ngIf="evaluationForm.questionsForTeacher.length > 1"
+              (click)="removeQuestionField(i)">
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <button type="button" class="add-question-btn" (click)="addQuestionField()">
+          + Ajouter une question
+        </button>
+      </section>
+
+      <!-- ===== NOTES ===== -->
+      <section class="form-section">
+        <h2>📝 Notes personnelles</h2>
+        <textarea
+          class="notes-input"
+          placeholder="Autres remarques, réflexions, ressources utiles..."
+          [(ngModel)]="evaluationForm.notes"
+          name="notes"
+          rows="4">
+        </textarea>
+      </section>
+
+      <!-- ===== ACTIONS ===== -->
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" (click)="cancelEdit()">
+          Annuler
+        </button>
+        <button type="submit" class="btn-save">
+          💾 Sauvegarder l'évaluation
+        </button>
+      </div>
+
+    </form>
+
+  </ng-container>
+
+</div>
+
+<!--
+  Réflexions UX (style David J. Malan)
+  ====================================
+
+  1. POURQUOI un slider pour la note ?
+
+     INTUITIF :
+     Glisser de 1 à 10 est plus naturel que taper un chiffre.
+     Tu SENS ta progression sur l'échelle.
+
+  2. POURQUOI des suggestions de topics ?
+
+     AIDE À LA RÉFLEXION :
+     Les topics du chapitre servent de "prompts".
+     Ça aide à ne rien oublier dans l'évaluation.
+
+  3. POURQUOI séparer maîtrisé/à revoir ?
+
+     CLARTÉ :
+     Une seule liste serait confuse.
+     Deux listes = deux intentions claires.
+
+  4. POURQUOI les questions numérotées ?
+
+     ORGANISATION :
+     Q1, Q2, Q3... C'est plus facile à référencer
+     lors de la discussion avec le formateur.
+-->

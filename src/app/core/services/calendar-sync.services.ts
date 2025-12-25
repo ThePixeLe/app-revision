@@ -492,5 +492,4 @@ directement dans Calendar.app.
  * C'est le job de Calendar.app !
  *
  * Libère ta RAM mentale pour l'apprentissage 🧠
- *
- 
+ */

@@ -1,0 +1,294 @@
+<!--
+  profile.component.html
+
+  Template du profil utilisateur.
+
+  Structure de la page :
+  =====================
+
+  ┌─────────────────────────────────────────────────────────────┐
+  │                     HEADER DU PROFIL                        │
+  │  [Avatar]  [Nom + Titre]  [Niveau + XP Bar]                │
+  ├─────────────────────────────────────────────────────────────┤
+  │                                                             │
+  │   ┌─────────────┐ ┌─────────────┐ ┌─────────────┐          │
+  │   │   STAT 1    │ │   STAT 2    │ │   STAT 3    │          │
+  │   │  Exercices  │ │   Heures    │ │   Streak    │          │
+  │   └─────────────┘ └─────────────┘ └─────────────┘          │
+  │                                                             │
+  ├─────────────────────────────────────────────────────────────┤
+  │                       BADGES                                │
+  │   [Badge 1] [Badge 2] [Badge 3] [Badge 4] [Badge 5] ...    │
+  │                                                             │
+  ├─────────────────────────────────────────────────────────────┤
+  │                   ACTIVITÉ RÉCENTE                          │
+  │   📝 Exercice terminé - Aujourd'hui - +50 XP               │
+  │   🏆 Badge débloqué - Hier - +100 XP                       │
+  │   ⬆️ Niveau 3 atteint - Il y a 2 jours                     │
+  │                                                             │
+  └─────────────────────────────────────────────────────────────┘
+
+  Philosophie de design :
+  ----------------------
+  - Informations importantes en haut (niveau, XP)
+  - Stats de progression visibles d'un coup d'œil
+  - Badges comme récompenses visuelles
+  - Historique pour le contexte
+
+  Auteur: H1m0t3p3
+  Date: 24 décembre 2024
+-->
+
+<div class="profile-container">
+
+  <!-- ========================================== -->
+  <!-- HEADER DU PROFIL -->
+  <!-- ========================================== -->
+  <!--
+    Le header montre l'essentiel :
+    - Qui tu es (avatar, nom)
+    - Où tu en es (niveau, XP)
+  -->
+  <header class="profile-header">
+
+    <!-- Avatar avec indicateur de niveau -->
+    <div class="avatar-container">
+      <div class="avatar">
+        <span class="avatar-emoji">👨‍💻</span>
+      </div>
+      <span class="level-badge">{{ level }}</span>
+    </div>
+
+    <!-- Infos utilisateur -->
+    <div class="user-info">
+      <h1 class="user-name">Étudiant</h1>
+      <p class="user-title">{{ levelTitle }}</p>
+
+      <!-- Barre de progression XP -->
+      <div class="xp-section">
+        <div class="xp-bar-container">
+          <div
+            class="xp-bar-fill"
+            [style.width.%]="levelProgress">
+          </div>
+        </div>
+        <div class="xp-text">
+          <span>{{ currentXP }} XP</span>
+          <span class="xp-next">Prochain niveau : {{ xpForNextLevel }} XP</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Streak actuel (si > 0) -->
+    <div class="streak-display" *ngIf="streak > 0">
+      <span class="streak-icon">🔥</span>
+      <span class="streak-count">{{ streak }}</span>
+      <span class="streak-label">jours</span>
+    </div>
+
+  </header>
+
+  <!-- ========================================== -->
+  <!-- STATISTIQUES RAPIDES -->
+  <!-- ========================================== -->
+  <!--
+    4 cartes de stats pour un aperçu rapide.
+    Chaque carte = une métrique importante.
+  -->
+  <section class="stats-section">
+    <h2 class="section-title">📊 Statistiques</h2>
+
+    <div class="stats-grid">
+
+      <!-- Stat : Exercices complétés -->
+      <div class="stat-card">
+        <span class="stat-icon">✏️</span>
+        <div class="stat-content">
+          <span class="stat-value">
+            {{ stats.completedExercises }}/{{ stats.totalExercises }}
+          </span>
+          <span class="stat-label">Exercices</span>
+        </div>
+        <div class="stat-progress">
+          <div
+            class="stat-progress-fill"
+            [style.width.%]="getCompletionPercentage()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Stat : Temps total -->
+      <div class="stat-card">
+        <span class="stat-icon">⏱️</span>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats.totalHours }}h</span>
+          <span class="stat-label">Temps d'étude</span>
+        </div>
+      </div>
+
+      <!-- Stat : Meilleur streak -->
+      <div class="stat-card">
+        <span class="stat-icon">🔥</span>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats.longestStreak }} jours</span>
+          <span class="stat-label">Meilleur streak</span>
+        </div>
+      </div>
+
+      <!-- Stat : Score moyen -->
+      <div class="stat-card">
+        <span class="stat-icon">⭐</span>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats.averageScore }}/10</span>
+          <span class="stat-label">Score moyen</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- BADGES -->
+  <!-- ========================================== -->
+  <!--
+    Section badges :
+    - Affiche tous les badges (débloqués et verrouillés)
+    - Les verrouillés sont en grisé avec un cadenas
+    - Crée un objectif visuel à atteindre
+  -->
+  <section class="badges-section">
+    <div class="section-header">
+      <h2 class="section-title">🏆 Badges</h2>
+      <span class="badges-count">
+        {{ unlockedBadgesCount }}/{{ badges.length }} débloqués
+      </span>
+    </div>
+
+    <div class="badges-grid">
+      <div
+        *ngFor="let badge of badges"
+        class="badge-card"
+        [class.unlocked]="badge.unlocked"
+        [class.locked]="!badge.unlocked">
+
+        <!-- Icône du badge -->
+        <div class="badge-icon-container">
+          <span class="badge-icon">{{ badge.icon }}</span>
+          <span *ngIf="!badge.unlocked" class="lock-overlay">🔒</span>
+        </div>
+
+        <!-- Nom du badge -->
+        <span class="badge-name">{{ badge.name }}</span>
+
+        <!-- Description (au hover) -->
+        <div class="badge-tooltip">
+          <p>{{ badge.description }}</p>
+          <p *ngIf="badge.unlocked" class="badge-date">
+            Débloqué le {{ badge.unlockedAt | date:'dd/MM/yyyy' }}
+          </p>
+          <p *ngIf="!badge.unlocked" class="badge-condition">
+            {{ badge.description }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- ACTIVITÉ RÉCENTE -->
+  <!-- ========================================== -->
+  <!--
+    Timeline des activités récentes.
+    Montre ce que l'utilisateur a accompli.
+  -->
+  <section class="activity-section">
+    <h2 class="section-title">📜 Activité récente</h2>
+
+    <div class="activity-timeline">
+      <div
+        *ngFor="let activity of recentActivity"
+        class="activity-item">
+
+        <!-- Icône du type d'activité -->
+        <span class="activity-icon">
+          {{ getActivityIcon(activity.type) }}
+        </span>
+
+        <!-- Contenu de l'activité -->
+        <div class="activity-content">
+          <p class="activity-description">{{ activity.description }}</p>
+          <span class="activity-date">
+            {{ formatRelativeDate(activity.date) }}
+          </span>
+        </div>
+
+        <!-- XP gagnés (si applicable) -->
+        <span *ngIf="activity.xpGained" class="activity-xp">
+          +{{ activity.xpGained }} XP
+        </span>
+      </div>
+
+      <!-- Message si aucune activité -->
+      <div *ngIf="recentActivity.length === 0" class="no-activity">
+        <span class="no-activity-icon">📭</span>
+        <p>Aucune activité récente</p>
+        <p class="no-activity-hint">
+          Commence un exercice pour voir ton activité ici !
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- ACTIONS -->
+  <!-- ========================================== -->
+  <footer class="profile-actions">
+    <a routerLink="/settings" class="action-btn secondary">
+      <span>⚙️</span>
+      <span>Paramètres</span>
+    </a>
+    <a routerLink="/exercises" class="action-btn primary">
+      <span>✏️</span>
+      <span>Continuer les exercices</span>
+    </a>
+  </footer>
+
+</div>
+
+<!--
+  Réflexions UX (style David J. Malan)
+  ====================================
+
+  1. POURQUOI la barre de progression XP en haut ?
+
+     C'est la première chose que l'utilisateur veut voir :
+     "Où j'en suis ?"
+
+     La barre de progression répond instantanément
+     sans avoir à lire de chiffres.
+
+  2. POURQUOI montrer les badges verrouillés ?
+
+     GAMIFICATION PSYCHOLOGIQUE :
+     Voir ce qu'on peut débloquer crée le DÉSIR.
+
+     C'est comme voir les niveaux suivants dans un jeu :
+     "Je veux atteindre celui-là !"
+
+  3. POURQUOI le format timeline pour l'activité ?
+
+     Le temps est linéaire, comme une timeline.
+     Ce format est naturel et facile à scanner.
+
+     Alternative : Liste à puces → Moins visuel
+     Alternative : Grille → Perd le sens du temps
+
+  4. POURQUOI le streak est-il si visible ?
+
+     Le streak est un PUISSANT MOTIVATEUR.
+
+     Psychologie : "J'ai 5 jours de streak, je ne veux pas le perdre !"
+     → L'utilisateur revient le lendemain.
+
+     C'est le principe des "séries" sur Duolingo.
+-->

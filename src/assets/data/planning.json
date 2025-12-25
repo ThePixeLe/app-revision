@@ -1,0 +1,474 @@
+{
+  "_comment": "Planning de révision sur 12 jours - App Revision",
+  "_author": "H1m0t3p3",
+  "_date": "24 décembre 2024",
+
+  "days": [
+    {
+      "id": "day-1",
+      "dayNumber": 1,
+      "title": "Introduction & Algèbre de Boole",
+      "subject": "algebre",
+      "description": "Découverte de l'algèbre de Boole et des opérateurs logiques de base.",
+      "objectives": [
+        "Comprendre les opérateurs AND, OR, NOT",
+        "Savoir construire une table de vérité simple",
+        "Identifier les expressions booléennes dans le code"
+      ],
+      "sessions": [
+        {
+          "id": "s1-1",
+          "title": "Théorie : Opérateurs logiques",
+          "type": "theory",
+          "duration": 45,
+          "description": "Lecture du cours sur AND, OR, NOT et XOR"
+        },
+        {
+          "id": "s1-2",
+          "title": "Pratique : Tables de vérité",
+          "type": "practice",
+          "duration": 30,
+          "description": "Construire des tables de vérité à la main"
+        },
+        {
+          "id": "s1-3",
+          "title": "Exercices guidés",
+          "type": "practice",
+          "duration": 45,
+          "description": "Résoudre les exercices de base sur les expressions booléennes"
+        }
+      ],
+      "documents": ["Algo 03 - Algorithmes Introduction - 1.0.1 MD.pdf"],
+      "exerciseIds": [],
+      "estimatedTime": 120,
+      "status": "todo"
+    },
+    {
+      "id": "day-2",
+      "dayNumber": 2,
+      "title": "Simplification & Karnaugh",
+      "subject": "algebre",
+      "description": "Techniques de simplification des expressions booléennes.",
+      "objectives": [
+        "Appliquer les théorèmes de De Morgan",
+        "Utiliser les tableaux de Karnaugh",
+        "Simplifier des expressions complexes"
+      ],
+      "sessions": [
+        {
+          "id": "s2-1",
+          "title": "Théorie : Théorèmes de De Morgan",
+          "type": "theory",
+          "duration": 30,
+          "description": "Comprendre NOT(A AND B) = NOT A OR NOT B"
+        },
+        {
+          "id": "s2-2",
+          "title": "Théorie : Tableaux de Karnaugh",
+          "type": "theory",
+          "duration": 45,
+          "description": "Méthode de simplification graphique"
+        },
+        {
+          "id": "s2-3",
+          "title": "Pratique : Simplification",
+          "type": "practice",
+          "duration": 60,
+          "description": "Exercices de simplification avec Karnaugh"
+        }
+      ],
+      "documents": ["Algo 03 - Algorithmes Introduction - 1.0.1 MD.pdf"],
+      "exerciseIds": [],
+      "estimatedTime": 135,
+      "status": "todo"
+    },
+    {
+      "id": "day-3",
+      "dayNumber": 3,
+      "title": "Introduction aux Algorithmes",
+      "subject": "algo",
+      "description": "Bases de l'algorithmique et du pseudo-code.",
+      "objectives": [
+        "Comprendre ce qu'est un algorithme",
+        "Maîtriser la syntaxe du pseudo-code",
+        "Utiliser les variables et les types de données"
+      ],
+      "sessions": [
+        {
+          "id": "s3-1",
+          "title": "Théorie : Qu'est-ce qu'un algorithme ?",
+          "type": "theory",
+          "duration": 30,
+          "description": "Définition, exemples du quotidien"
+        },
+        {
+          "id": "s3-2",
+          "title": "Théorie : Pseudo-code",
+          "type": "theory",
+          "duration": 45,
+          "description": "Syntaxe et conventions du pseudo-code"
+        },
+        {
+          "id": "s3-3",
+          "title": "Pratique : Variables et entrées/sorties",
+          "type": "practice",
+          "duration": 45,
+          "description": "Écrire ses premiers algorithmes simples"
+        }
+      ],
+      "documents": [
+        "Algo 03 - Algorithmes Introduction - 1.0.1 MD.pdf",
+        "Algo A2 - Algorithmes simples - AFPA.pdf"
+      ],
+      "exerciseIds": [],
+      "estimatedTime": 120,
+      "status": "todo"
+    },
+    {
+      "id": "day-4",
+      "dayNumber": 4,
+      "title": "Structures Conditionnelles",
+      "subject": "algo",
+      "description": "Maîtriser les structures SI...ALORS...SINON.",
+      "objectives": [
+        "Écrire des conditions simples",
+        "Imbriquer des conditions",
+        "Utiliser la structure SELON...CAS"
+      ],
+      "sessions": [
+        {
+          "id": "s4-1",
+          "title": "Théorie : SI...ALORS...SINON",
+          "type": "theory",
+          "duration": 30,
+          "description": "Syntaxe et logique des conditions"
+        },
+        {
+          "id": "s4-2",
+          "title": "Pratique : Exercices conditions",
+          "type": "practice",
+          "duration": 90,
+          "description": "Résoudre les 9 exercices sur les conditions"
+        },
+        {
+          "id": "s4-3",
+          "title": "Révision Jour 1-2",
+          "type": "revision",
+          "duration": 20,
+          "description": "Réviser l'algèbre de Boole"
+        }
+      ],
+      "documents": ["exercice_algo_lesConditions_Mad_V1.0.0 1.pdf"],
+      "exerciseIds": ["ex-cond-1", "ex-cond-1-2", "ex-cond-2", "ex-cond-3", "ex-cond-4"],
+      "estimatedTime": 140,
+      "status": "todo"
+    },
+    {
+      "id": "day-5",
+      "dayNumber": 5,
+      "title": "Conditions Avancées",
+      "subject": "algo",
+      "description": "Exercices avancés sur les conditions.",
+      "objectives": [
+        "Gérer des conditions multiples",
+        "Optimiser la logique conditionnelle",
+        "Éviter les pièges courants"
+      ],
+      "sessions": [
+        {
+          "id": "s5-1",
+          "title": "Pratique : Exercices avancés",
+          "type": "practice",
+          "duration": 90,
+          "description": "Exercices difficiles et experts"
+        },
+        {
+          "id": "s5-2",
+          "title": "Auto-évaluation",
+          "type": "revision",
+          "duration": 30,
+          "description": "Faire le point sur les conditions"
+        }
+      ],
+      "documents": ["exercice_algo_lesConditions_Mad_V1.0.0 1.pdf"],
+      "exerciseIds": ["ex-cond-4-2", "ex-cond-5", "ex-cond-6", "ex-cond-8"],
+      "estimatedTime": 120,
+      "status": "todo"
+    },
+    {
+      "id": "day-6",
+      "dayNumber": 6,
+      "title": "Les Boucles - Partie 1",
+      "subject": "algo",
+      "description": "Introduction aux structures répétitives.",
+      "objectives": [
+        "Comprendre la boucle POUR",
+        "Comprendre la boucle TANT QUE",
+        "Savoir quand utiliser chaque type"
+      ],
+      "sessions": [
+        {
+          "id": "s6-1",
+          "title": "Théorie : Boucles POUR et TANT QUE",
+          "type": "theory",
+          "duration": 45,
+          "description": "Syntaxe et différences"
+        },
+        {
+          "id": "s6-2",
+          "title": "Pratique : Exercices boucles simples",
+          "type": "practice",
+          "duration": 60,
+          "description": "Exercices 1 à 4 sur les boucles"
+        },
+        {
+          "id": "s6-3",
+          "title": "Révision Jour 3-4",
+          "type": "revision",
+          "duration": 20,
+          "description": "Réviser les conditions"
+        }
+      ],
+      "documents": ["exercice_algo_les boucles_mad_v1.0.0 1.pdf"],
+      "exerciseIds": ["ex-boucle-1", "ex-boucle-2", "ex-boucle-3", "ex-boucle-4"],
+      "estimatedTime": 125,
+      "status": "todo"
+    },
+    {
+      "id": "day-7",
+      "dayNumber": 7,
+      "title": "Les Boucles - Partie 2",
+      "subject": "algo",
+      "description": "Boucles avancées et imbriquées.",
+      "objectives": [
+        "Maîtriser les boucles imbriquées",
+        "Résoudre des problèmes complexes",
+        "Calculer factorielles et sommes"
+      ],
+      "sessions": [
+        {
+          "id": "s7-1",
+          "title": "Théorie : Boucles imbriquées",
+          "type": "theory",
+          "duration": 30,
+          "description": "Comment imbriquer les boucles"
+        },
+        {
+          "id": "s7-2",
+          "title": "Pratique : Exercices avancés",
+          "type": "practice",
+          "duration": 90,
+          "description": "Exercices 5 à 9 sur les boucles"
+        }
+      ],
+      "documents": ["exercice_algo_les boucles_mad_v1.0.0 1.pdf"],
+      "exerciseIds": ["ex-boucle-5", "ex-boucle-6", "ex-boucle-7", "ex-boucle-8", "ex-boucle-9"],
+      "estimatedTime": 120,
+      "status": "todo"
+    },
+    {
+      "id": "day-8",
+      "dayNumber": 8,
+      "title": "Les Tableaux",
+      "subject": "algo",
+      "description": "Manipulation des tableaux en algorithmique.",
+      "objectives": [
+        "Déclarer et initialiser un tableau",
+        "Parcourir un tableau avec une boucle",
+        "Effectuer des opérations sur les tableaux"
+      ],
+      "sessions": [
+        {
+          "id": "s8-1",
+          "title": "Théorie : Tableaux",
+          "type": "theory",
+          "duration": 45,
+          "description": "Déclaration, indexation, parcours"
+        },
+        {
+          "id": "s8-2",
+          "title": "Pratique : Exercices tableaux",
+          "type": "practice",
+          "duration": 90,
+          "description": "Les 9 exercices sur les tableaux"
+        },
+        {
+          "id": "s8-3",
+          "title": "Révision Jour 5-6",
+          "type": "revision",
+          "duration": 20,
+          "description": "Réviser les boucles"
+        }
+      ],
+      "documents": ["exercice_algorithme_les_tableaux_Mad_V1.0.0.pdf"],
+      "exerciseIds": ["ex-tableau-1", "ex-tableau-2", "ex-tableau-3", "ex-tableau-4", "ex-tableau-5"],
+      "estimatedTime": 155,
+      "status": "todo"
+    },
+    {
+      "id": "day-9",
+      "dayNumber": 9,
+      "title": "Tableaux Avancés",
+      "subject": "algo",
+      "description": "Exercices avancés sur les tableaux.",
+      "objectives": [
+        "Rechercher dans un tableau",
+        "Calculer des statistiques",
+        "Manipuler plusieurs tableaux"
+      ],
+      "sessions": [
+        {
+          "id": "s9-1",
+          "title": "Pratique : Exercices avancés",
+          "type": "practice",
+          "duration": 90,
+          "description": "Exercices 6 à 9 sur les tableaux"
+        },
+        {
+          "id": "s9-2",
+          "title": "Auto-évaluation Algo",
+          "type": "revision",
+          "duration": 30,
+          "description": "Bilan sur toute la partie algorithmique"
+        }
+      ],
+      "documents": ["exercice_algorithme_les_tableaux_Mad_V1.0.0.pdf"],
+      "exerciseIds": ["ex-tableau-6", "ex-tableau-7", "ex-tableau-8", "ex-tableau-9"],
+      "estimatedTime": 120,
+      "status": "todo"
+    },
+    {
+      "id": "day-10",
+      "dayNumber": 10,
+      "title": "Introduction à Java",
+      "subject": "java",
+      "description": "Premiers pas en programmation Java.",
+      "objectives": [
+        "Comprendre JDK, JRE, JVM",
+        "Écrire et compiler un programme Java",
+        "Utiliser les types primitifs"
+      ],
+      "sessions": [
+        {
+          "id": "s10-1",
+          "title": "Théorie : Bases de Java",
+          "type": "theory",
+          "duration": 45,
+          "description": "Installation, compilation, Hello World"
+        },
+        {
+          "id": "s10-2",
+          "title": "Théorie : Types et variables",
+          "type": "theory",
+          "duration": 45,
+          "description": "int, double, String, boolean"
+        },
+        {
+          "id": "s10-3",
+          "title": "Pratique : Premiers programmes",
+          "type": "practice",
+          "duration": 60,
+          "description": "Écrire ses premiers programmes Java"
+        }
+      ],
+      "documents": [
+        "Java 01 - Bases Java - MD v1.0.0.pdf",
+        "Java 02 - Base Syntaxe - MD v1.0.0.pdf"
+      ],
+      "exerciseIds": [],
+      "estimatedTime": 150,
+      "status": "todo"
+    },
+    {
+      "id": "day-11",
+      "dayNumber": 11,
+      "title": "Structures de Contrôle Java",
+      "subject": "java",
+      "description": "if/else, switch, boucles en Java.",
+      "objectives": [
+        "Traduire les conditions en Java",
+        "Utiliser for, while, do-while",
+        "Maîtriser Scanner pour les entrées"
+      ],
+      "sessions": [
+        {
+          "id": "s11-1",
+          "title": "Théorie : Structures de contrôle",
+          "type": "theory",
+          "duration": 45,
+          "description": "if, switch, for, while en Java"
+        },
+        {
+          "id": "s11-2",
+          "title": "Théorie : Scanner",
+          "type": "theory",
+          "duration": 30,
+          "description": "Lire les entrées utilisateur"
+        },
+        {
+          "id": "s11-3",
+          "title": "Pratique : Conversion Algo → Java",
+          "type": "practice",
+          "duration": 90,
+          "description": "Reprendre les exercices algo en Java"
+        }
+      ],
+      "documents": [
+        "Java 02 - Base Syntaxe - MD v1.0.0.pdf",
+        "Java 03 - Scanner - MD v1.0.0.pdf"
+      ],
+      "exerciseIds": [],
+      "estimatedTime": 165,
+      "status": "todo"
+    },
+    {
+      "id": "day-12",
+      "dayNumber": 12,
+      "title": "Tableaux Java & Révision Finale",
+      "subject": "java",
+      "description": "Tableaux en Java et préparation à l'examen.",
+      "objectives": [
+        "Manipuler les tableaux en Java",
+        "Utiliser la classe Arrays",
+        "Réviser tous les concepts"
+      ],
+      "sessions": [
+        {
+          "id": "s12-1",
+          "title": "Théorie : Tableaux Java",
+          "type": "theory",
+          "duration": 45,
+          "description": "Déclaration, parcours, méthodes utiles"
+        },
+        {
+          "id": "s12-2",
+          "title": "Pratique : Exercices tableaux Java",
+          "type": "practice",
+          "duration": 60,
+          "description": "Exercices sur les tableaux en Java"
+        },
+        {
+          "id": "s12-3",
+          "title": "Révision Générale",
+          "type": "revision",
+          "duration": 60,
+          "description": "Révision de tout le programme"
+        },
+        {
+          "id": "s12-4",
+          "title": "Auto-évaluation Finale",
+          "type": "revision",
+          "duration": 30,
+          "description": "Test blanc et bilan"
+        }
+      ],
+      "documents": [
+        "Java 10 - Programmation_Java_Tableaux.pdf",
+        "Java 11 - Exercice Tableau en java MA.pdf"
+      ],
+      "exerciseIds": [],
+      "estimatedTime": 195,
+      "status": "todo"
+    }
+  ]
+}

@@ -111,6 +111,16 @@ export interface Day {
   // C'est une "computed property" dans la vraie app
   completed: boolean;
 
+  // Statut de la journée (pour affichage)
+  // 'todo' = à faire, 'available' = disponible, 'locked' = verrouillé
+  status?: 'locked' | 'available' | 'in-progress' | 'completed' | 'todo';
+
+  // Numéro du jour (1-12)
+  dayNumber?: number;
+
+  // Sujet principal de la journée (alias pour phase)
+  subject?: string;
+
   // Combien de points XP ont été gagnés aujourd'hui ?
   // XP = Experience Points (comme dans les jeux vidéo !)
   // Ex: 150 XP pour avoir terminé tous les exercices

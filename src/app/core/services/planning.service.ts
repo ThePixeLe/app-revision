@@ -710,6 +710,31 @@ export class PlanningService {
   }
 
   /**
+   * OBTENIR TOUS LES JOURS
+   * ---------------------
+   * Retourne la liste complète des 12 jours.
+   *
+   * @returns Observable de tous les jours
+   */
+  getAllDays(): Observable<Day[]> {
+    return this.days$;
+  }
+
+  /**
+   * OBTENIR UN JOUR PAR SON ID
+   * -------------------------
+   * Recherche un jour spécifique par son identifiant.
+   *
+   * @param dayId - ID du jour (ex: "day-1", "day-5")
+   * @returns Observable du jour ou undefined
+   */
+  getDayById(dayId: string): Observable<Day | undefined> {
+    return this.days$.pipe(
+      map(days => days.find(day => day.id === dayId))
+    );
+  }
+
+  /**
    * OBTENIR LES JOURS EN COURS / À FAIRE
    * -----------------------------------
    * Retourne les jours non terminés.

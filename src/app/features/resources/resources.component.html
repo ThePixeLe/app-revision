@@ -1,0 +1,252 @@
+<!--
+  resources.component.html
+
+  Template de la bibliothèque de ressources.
+
+  Structure :
+  ==========
+
+  ┌─────────────────────────────────────────────────────────────┐
+  │                       HEADER                                │
+  │   📚 Ressources                    [🔍 Recherche]          │
+  ├─────────────────────────────────────────────────────────────┤
+  │   [Tout] [🔵 Algèbre] [🟣 Algo] [🟢 Java] [⭐ Favoris]     │
+  ├─────────────────────────────────────────────────────────────┤
+  │                                                             │
+  │   ┌───────────────────┐ ┌───────────────────┐              │
+  │   │ 📄 PDF            │ │ 📄 PDF            │              │
+  │   │ Titre du doc      │ │ Titre du doc      │              │
+  │   │ Description...    │ │ Description...    │              │
+  │   │ 📊 25 pages       │ │ 📊 40 pages       │              │
+  │   │ [⭐] [📥]        │ │ [⭐] [📥]        │              │
+  │   └───────────────────┘ └───────────────────┘              │
+  │                                                             │
+  └─────────────────────────────────────────────────────────────┘
+
+  Auteur: H1m0t3p3
+  Date: 24 décembre 2024
+-->
+
+<div class="resources-container">
+
+  <!-- ========================================== -->
+  <!-- HEADER -->
+  <!-- ========================================== -->
+  <header class="resources-header">
+    <div class="header-content">
+      <h1 class="page-title">📚 Ressources</h1>
+      <p class="page-subtitle">
+        Tous les documents de cours pour ta formation
+      </p>
+    </div>
+
+    <!-- Barre de recherche -->
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Rechercher un document..."
+        [(ngModel)]="searchTerm"
+        (input)="onSearch()">
+      <button
+        *ngIf="searchTerm"
+        class="clear-btn"
+        (click)="searchTerm = ''; onSearch()">
+        ✕
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- FILTRES PAR CATÉGORIE -->
+  <!-- ========================================== -->
+  <nav class="category-nav">
+    <button
+      *ngFor="let cat of categories"
+      class="category-btn"
+      [class.active]="selectedCategory === cat.id"
+      [style.--cat-color]="cat.color"
+      (click)="selectCategory(cat.id)">
+      <span class="cat-icon">{{ cat.icon }}</span>
+      <span class="cat-label">{{ cat.label }}</span>
+      <span class="cat-count">{{ cat.count }}</span>
+    </button>
+
+    <!-- Bouton favoris -->
+    <button
+      class="category-btn favorites"
+      [class.active]="showFavoritesOnly"
+      (click)="toggleFavorites()">
+      <span class="cat-icon">⭐</span>
+      <span class="cat-label">Favoris</span>
+      <span class="cat-count">{{ getFavoritesCount() }}</span>
+    </button>
+  </nav>
+
+  <!-- ========================================== -->
+  <!-- CONTENU PRINCIPAL -->
+  <!-- ========================================== -->
+  <div class="resources-content">
+
+    <!-- Grille de ressources -->
+    <div class="resources-grid">
+
+      <!-- État vide -->
+      <div *ngIf="filteredResources.length === 0" class="empty-state">
+        <span class="empty-icon">📭</span>
+        <h3>Aucune ressource trouvée</h3>
+        <p *ngIf="searchTerm">Aucun résultat pour "{{ searchTerm }}"</p>
+        <p *ngIf="!searchTerm && showFavoritesOnly">
+          Tu n'as pas encore de favoris. Clique sur ⭐ pour en ajouter !
+        </p>
+      </div>
+
+      <!-- Carte de ressource -->
+      <article
+        *ngFor="let resource of filteredResources"
+        class="resource-card"
+        [class.favorite]="resource.isFavorite"
+        (click)="openResource(resource)">
+
+        <!-- Badge de catégorie -->
+        <div
+          class="resource-category-badge"
+          [style.background]="getCategoryColor(resource.category)">
+          {{ resource.category | titlecase }}
+        </div>
+
+        <!-- Icône type -->
+        <div class="resource-type-icon">
+          {{ getTypeIcon(resource.type) }}
+        </div>
+
+        <!-- Contenu -->
+        <div class="resource-content">
+          <h3 class="resource-title">{{ resource.title }}</h3>
+          <p class="resource-description">{{ resource.description }}</p>
+
+          <!-- Métadonnées -->
+          <div class="resource-meta">
+            <span class="meta-item" *ngIf="resource.pageCount">
+              📄 {{ resource.pageCount }} pages
+            </span>
+            <span class="meta-item" *ngIf="resource.fileSize">
+              💾 {{ resource.fileSize }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="resource-actions">
+          <button
+            class="action-btn favorite-btn"
+            [class.is-favorite]="resource.isFavorite"
+            (click)="toggleFavorite(resource, $event)"
+            title="Ajouter aux favoris">
+            {{ resource.isFavorite ? '⭐' : '☆' }}
+          </button>
+          <button
+            class="action-btn download-btn"
+            (click)="downloadResource(resource, $event)"
+            title="Télécharger">
+            📥
+          </button>
+        </div>
+
+        <!-- Indicateur dernière ouverture -->
+        <div *ngIf="resource.lastOpened" class="last-opened">
+          Ouvert récemment
+        </div>
+
+      </article>
+
+    </div>
+
+  </div>
+
+  <!-- ========================================== -->
+  <!-- SECTION LIENS UTILES -->
+  <!-- ========================================== -->
+  <section class="useful-links">
+    <h2>🔗 Liens utiles</h2>
+    <div class="links-grid">
+
+      <a href="https://www.w3schools.com/java/" target="_blank" class="link-card">
+        <span class="link-icon">☕</span>
+        <div class="link-info">
+          <h3>W3Schools Java</h3>
+          <p>Tutoriels et exemples Java</p>
+        </div>
+        <span class="link-arrow">→</span>
+      </a>
+
+      <a href="https://www.programiz.com/dsa" target="_blank" class="link-card">
+        <span class="link-icon">📊</span>
+        <div class="link-info">
+          <h3>Programiz DSA</h3>
+          <p>Structures de données et algorithmes</p>
+        </div>
+        <span class="link-arrow">→</span>
+      </a>
+
+      <a href="https://visualgo.net/" target="_blank" class="link-card">
+        <span class="link-icon">🎨</span>
+        <div class="link-info">
+          <h3>VisuAlgo</h3>
+          <p>Visualisation d'algorithmes</p>
+        </div>
+        <span class="link-arrow">→</span>
+      </a>
+
+      <a href="https://cs50.harvard.edu/x/2024/" target="_blank" class="link-card">
+        <span class="link-icon">🎓</span>
+        <div class="link-info">
+          <h3>CS50 Harvard</h3>
+          <p>Le cours de David J. Malan</p>
+        </div>
+        <span class="link-arrow">→</span>
+      </a>
+
+    </div>
+  </section>
+
+</div>
+
+<!--
+  Réflexions UX (style David J. Malan)
+  ====================================
+
+  1. POURQUOI une grille plutôt qu'une liste ?
+
+     SCANABILITÉ :
+     En grille, l'œil peut scanner plus rapidement.
+     On voit plus de documents en un coup d'œil.
+
+     Pour une bibliothèque, c'est important :
+     tu cherches souvent visuellement.
+
+  2. POURQUOI les badges de catégorie colorés ?
+
+     RECONNAISSANCE INSTANTANÉE :
+     - Bleu = Algèbre
+     - Violet = Algo
+     - Vert = Java
+
+     Sans lire, tu sais déjà de quoi parle le document.
+
+  3. POURQUOI les métadonnées (pages, taille) ?
+
+     GESTION DES ATTENTES :
+     "Ce PDF fait 50 pages... j'ai le temps pour ça maintenant ?"
+
+     Ça aide à planifier sa session d'étude.
+
+  4. POURQUOI la section "Liens utiles" ?
+
+     OUVERTURE sur l'écosystème :
+     L'apprentissage ne s'arrête pas aux PDFs du cours.
+
+     Ces liens sont des portes vers des ressources
+     complémentaires de qualité.
+-->

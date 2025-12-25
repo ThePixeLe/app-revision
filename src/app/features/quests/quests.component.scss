@@ -1,0 +1,674 @@
+/**
+ * quests.component.scss
+ *
+ * Styles de la page Quêtes.
+ *
+ * Architecture visuelle :
+ * ======================
+ * - Cartes de quêtes colorées par type
+ * - Barres de progression animées
+ * - Panneau de détails coulissant
+ * - États visuels (locked, in-progress, completed)
+ *
+ * Palette de couleurs par type :
+ * - Daily (Quotidienne) : Bleu (#3b82f6)
+ * - Weekly (Hebdo) : Violet (#8b5cf6)
+ * - Main (Principale) : Orange (#f59e0b)
+ * - Side (Bonus) : Vert (#10b981)
+ *
+ * Auteur: H1m0t3p3
+ * Date: 24 décembre 2024
+ */
+
+// ============================================================
+// VARIABLES
+// ============================================================
+
+:host {
+  display: block;
+
+  // Couleurs de base
+  --bg-page: #0f172a;
+  --bg-card: #1e293b;
+  --bg-card-hover: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  // Couleurs par type
+  --color-daily: #3b82f6;
+  --color-weekly: #8b5cf6;
+  --color-main: #f59e0b;
+  --color-side: #10b981;
+
+  // Espacements
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+
+  // Rayons
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+
+  // Transitions
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+}
+
+// ============================================================
+// CONTAINER
+// ============================================================
+
+.quests-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+  min-height: calc(100vh - 57px);
+
+  @media (max-width: 768px) {
+    padding: var(--spacing-md);
+  }
+}
+
+// ============================================================
+// HEADER
+// ============================================================
+
+.quests-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-xl);
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+}
+
+.header-content {
+  .page-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .page-subtitle {
+    color: var(--text-secondary);
+    margin: var(--spacing-sm) 0 0;
+  }
+}
+
+.header-stats {
+  display: flex;
+  gap: var(--spacing-lg);
+
+  .stat-item {
+    text-align: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+
+    .stat-value {
+      display: block;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+  }
+}
+
+// ============================================================
+// ONGLETS
+// ============================================================
+
+.quests-tabs {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  overflow-x: auto;
+
+  // Masquer scrollbar mais garder scroll
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+
+  &:hover {
+    background: var(--bg-card);
+    color: var(--text-primary);
+  }
+
+  &.active {
+    background: var(--bg-card);
+    color: var(--text-primary);
+
+    .tab-count {
+      background: var(--color-daily);
+      color: white;
+    }
+  }
+
+  .tab-icon {
+    font-size: 1rem;
+  }
+
+  .tab-label {
+    font-weight: 500;
+
+    @media (max-width: 480px) {
+      display: none;
+    }
+  }
+
+  .tab-count {
+    padding: 0.125rem 0.5rem;
+    background: var(--bg-card-hover);
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+}
+
+// ============================================================
+// CONTENU
+// ============================================================
+
+.quests-content {
+  display: flex;
+  gap: var(--spacing-xl);
+}
+
+// ============================================================
+// LISTE DES QUÊTES
+// ============================================================
+
+.quests-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+// État vide
+.empty-state {
+  text-align: center;
+  padding: calc(var(--spacing-xl) * 2);
+  color: var(--text-muted);
+
+  .empty-icon {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: var(--spacing-md);
+  }
+
+  h3 {
+    color: var(--text-primary);
+    margin: 0 0 var(--spacing-sm);
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+// ============================================================
+// CARTE DE QUÊTE
+// ============================================================
+
+.quest-card {
+  position: relative;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  // États
+  &.locked {
+    opacity: 0.6;
+    cursor: not-allowed;
+
+    &:hover {
+      transform: none;
+    }
+  }
+
+  &.completed {
+    border: 1px solid rgba(16, 185, 129, 0.3);
+
+    .quest-title {
+      text-decoration: line-through;
+      opacity: 0.7;
+    }
+  }
+
+  &.in-progress {
+    border: 1px solid rgba(59, 130, 246, 0.3);
+  }
+}
+
+.quest-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.quest-type-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+}
+
+.quest-status {
+  font-size: 1.25rem;
+}
+
+.quest-card-body {
+  margin-bottom: var(--spacing-md);
+
+  .quest-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 var(--spacing-sm);
+  }
+
+  .quest-description {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0 0 var(--spacing-md);
+    line-height: 1.5;
+  }
+}
+
+.quest-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+
+  .progress-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--bg-card-hover);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width var(--transition-normal);
+  }
+
+  .progress-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+  }
+}
+
+.quest-card-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+  padding-top: var(--spacing-md);
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.quest-reward,
+.quest-deadline,
+.quest-difficulty {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: 0.8125rem;
+}
+
+.quest-reward {
+  color: var(--color-main);
+  font-weight: 600;
+
+  .reward-badge {
+    padding: 0.125rem 0.5rem;
+    background: rgba(139, 92, 246, 0.2);
+    color: var(--color-weekly);
+    border-radius: 4px;
+    font-size: 0.6875rem;
+  }
+}
+
+.quest-deadline {
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+.quest-difficulty {
+  font-size: 0.75rem;
+}
+
+// Overlay verrouillé
+.locked-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  border-radius: var(--radius-lg);
+
+  .locked-icon {
+    font-size: 2rem;
+  }
+
+  .locked-text {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+  }
+}
+
+// ============================================================
+// PANNEAU DE DÉTAILS
+// ============================================================
+
+.quest-details-panel {
+  width: 350px;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 0;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  position: sticky;
+  top: 80px;
+  opacity: 0;
+  transform: translateX(20px);
+  transition: all var(--transition-normal);
+
+  &.open {
+    opacity: 1;
+    transform: translateX(0);
+    padding: var(--spacing-lg);
+  }
+
+  @media (max-width: 1024px) {
+    position: fixed;
+    right: 0;
+    top: 57px;
+    bottom: 0;
+    width: 100%;
+    max-width: 400px;
+    max-height: none;
+    border-radius: 0;
+    z-index: 100;
+    transform: translateX(100%);
+
+    &.open {
+      transform: translateX(0);
+    }
+  }
+}
+
+.details-content {
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 32px;
+  height: 32px;
+  background: var(--bg-card-hover);
+  border: none;
+  border-radius: 50%;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:hover {
+    background: var(--bg-page);
+    color: var(--text-primary);
+  }
+}
+
+.details-header {
+  margin-bottom: var(--spacing-lg);
+  padding-right: 40px;
+
+  .details-type {
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .details-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: var(--spacing-sm) 0 0;
+  }
+}
+
+.details-section {
+  margin-bottom: var(--spacing-lg);
+
+  h4 {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 var(--spacing-sm);
+  }
+
+  p {
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .flavor-text {
+    font-style: italic;
+    color: var(--text-muted);
+    margin-top: var(--spacing-sm);
+    padding-left: var(--spacing-md);
+    border-left: 2px solid var(--bg-card-hover);
+  }
+}
+
+.objective-display {
+  .objective-progress {
+    height: 12px;
+    background: var(--bg-card-hover);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .objective-bar {
+    height: 100%;
+    border-radius: 6px;
+    transition: width var(--transition-normal);
+  }
+
+  .objective-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+}
+
+.rewards-list,
+.info-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) 0;
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+
+    .reward-icon {
+      font-size: 1rem;
+    }
+
+    .info-label {
+      color: var(--text-muted);
+    }
+  }
+}
+
+.details-actions {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.btn-action {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &.start {
+    background: var(--color-daily);
+    color: white;
+
+    &:hover {
+      background: #2563eb;
+    }
+  }
+
+  &.claim {
+    background: linear-gradient(135deg, var(--color-main), #d97706);
+    color: white;
+    animation: pulse 2s infinite;
+
+    &:hover {
+      transform: scale(1.02);
+    }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(245, 158, 11, 0);
+  }
+}
+
+.in-progress-hint,
+.locked-hint {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.locked-hint {
+  background: rgba(100, 116, 139, 0.1);
+}
+
+// ============================================================
+// RESPONSIVE
+// ============================================================
+
+@media (max-width: 768px) {
+  .quests-content {
+    flex-direction: column;
+  }
+
+  .quest-card-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .quest-deadline {
+    margin-left: 0;
+  }
+}
+
+/**
+ * Réflexions sur le design (style David J. Malan)
+ * ===============================================
+ *
+ * 1. POURQUOI des couleurs par type ?
+ *
+ *    Reconnaissance instantanée :
+ *    - Bleu = Quotidienne (fraîcheur, routine)
+ *    - Violet = Hebdomadaire (mystère, défi)
+ *    - Orange = Principale (importance, urgence)
+ *    - Vert = Bonus (récompense, plaisir)
+ *
+ *    L'œil repère le type sans lire.
+ *
+ * 2. POURQUOI l'animation pulse sur "Claim" ?
+ *
+ *    Attirer l'attention sur l'action :
+ *    "Hé ! Tu as une récompense qui t'attend !"
+ *
+ *    C'est subtil mais efficace.
+ *
+ * 3. POURQUOI le panneau sticky ?
+ *
+ *    En scrollant la liste, le détail reste visible.
+ *    Pas besoin d'aller-retour entre liste et détails.
+ *
+ * 4. POURQUOI l'overlay sur locked ?
+ *
+ *    "Teasing" psychologique :
+ *    Tu VOIS la quête, tu SAIS qu'elle existe,
+ *    mais tu ne peux pas l'atteindre... encore.
+ *
+ *    Ça crée l'ENVIE de progresser pour la débloquer.
+ */

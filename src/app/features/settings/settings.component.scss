@@ -1,0 +1,560 @@
+/**
+ * settings.component.scss
+ *
+ * Styles de la page Paramètres.
+ *
+ * Architecture :
+ * =============
+ * - Sections clairement délimitées
+ * - Sliders personnalisés
+ * - Toggle switches modernes
+ * - Zone de danger stylisée
+ *
+ * Philosophie David J. Malan :
+ * "The visual hierarchy should match the importance hierarchy."
+ *
+ * Auteur: H1m0t3p3
+ * Date: 24 décembre 2024
+ */
+
+// ============================================================
+// VARIABLES
+// ============================================================
+
+:host {
+  display: block;
+
+  // Couleurs
+  --bg-page: #0f172a;
+  --bg-section: #1e293b;
+  --bg-input: #334155;
+  --bg-hover: #475569;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  // Accents
+  --accent-primary: #3b82f6;
+  --accent-success: #10b981;
+  --accent-warning: #f59e0b;
+  --accent-danger: #ef4444;
+
+  // Espacements
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+
+  // Rayons
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+
+  // Transitions
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+}
+
+// ============================================================
+// CONTAINER
+// ============================================================
+
+.settings-container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+
+  @media (max-width: 768px) {
+    padding: var(--spacing-md);
+  }
+}
+
+// ============================================================
+// HEADER
+// ============================================================
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-xl);
+
+  .header-content {
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .page-subtitle {
+      color: var(--text-secondary);
+      margin: var(--spacing-sm) 0 0;
+    }
+  }
+}
+
+.save-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--accent-success);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+
+  .save-icon {
+    font-size: 1rem;
+  }
+}
+
+// ============================================================
+// FEEDBACK TOAST
+// ============================================================
+
+.feedback-toast {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  z-index: 1000;
+  animation: slideIn 0.3s ease;
+
+  &.success {
+    background: rgba(16, 185, 129, 0.9);
+    color: white;
+  }
+
+  &.error {
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+  }
+
+  &.info {
+    background: rgba(59, 130, 246, 0.9);
+    color: white;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+// ============================================================
+// SECTIONS
+// ============================================================
+
+.settings-section {
+  background: var(--bg-section);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+
+  &.danger-zone {
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.05);
+
+    .section-icon {
+      color: var(--accent-danger);
+    }
+
+    .section-title {
+      color: var(--accent-danger);
+    }
+  }
+}
+
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+
+  .section-icon {
+    font-size: 1.5rem;
+  }
+
+  .section-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .section-description {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin: var(--spacing-sm) 0 0;
+  }
+}
+
+// ============================================================
+// SETTINGS GROUP
+// ============================================================
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.setting-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+
+  &.toggle-item {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.setting-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+
+  .label-text {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .label-value {
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+
+  .label-hint {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 400;
+    margin-top: var(--spacing-sm);
+  }
+}
+
+// ============================================================
+// SLIDER
+// ============================================================
+
+.setting-slider {
+  width: 100%;
+  height: 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  outline: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    cursor: pointer;
+    transition: transform var(--transition-fast);
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+
+  &::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    cursor: pointer;
+  }
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+// ============================================================
+// TOGGLE SWITCH
+// ============================================================
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 28px;
+  flex-shrink: 0;
+
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+
+    &:checked + .toggle-slider {
+      background: var(--accent-primary);
+
+      &::before {
+        transform: translateX(24px);
+      }
+    }
+
+    &:focus + .toggle-slider {
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+  }
+
+  .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: var(--bg-input);
+    border-radius: 28px;
+    transition: background var(--transition-fast);
+
+    &::before {
+      position: absolute;
+      content: '';
+      height: 22px;
+      width: 22px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: transform var(--transition-fast);
+    }
+  }
+}
+
+// ============================================================
+// INPUT
+// ============================================================
+
+.setting-input {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-input);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color var(--transition-fast);
+
+  &:focus {
+    border-color: var(--accent-primary);
+  }
+}
+
+// ============================================================
+// BUTTONS
+// ============================================================
+
+.btn-test {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-input);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+
+  &:hover {
+    background: var(--bg-hover);
+  }
+}
+
+// ============================================================
+// DATA ACTIONS
+// ============================================================
+
+.data-group {
+  gap: var(--spacing-md);
+}
+
+.data-action,
+.danger-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  background: rgba(51, 65, 85, 0.3);
+  border-radius: var(--radius-md);
+
+  .action-info {
+    h3 {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    p {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      margin: var(--spacing-sm) 0 0;
+    }
+  }
+}
+
+.btn-action {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &.export {
+    background: var(--accent-primary);
+    color: white;
+
+    &:hover {
+      background: #2563eb;
+    }
+  }
+
+  &.import {
+    background: var(--accent-success);
+    color: white;
+    display: inline-flex;
+    align-items: center;
+
+    &:hover {
+      background: #059669;
+    }
+  }
+
+  &.reset {
+    background: var(--bg-input);
+    color: var(--text-primary);
+
+    &:hover {
+      background: var(--bg-hover);
+    }
+  }
+}
+
+.btn-danger {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--accent-danger);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:hover {
+    background: #dc2626;
+    transform: scale(1.02);
+  }
+}
+
+// ============================================================
+// FOOTER
+// ============================================================
+
+.settings-footer {
+  text-align: center;
+  padding-top: var(--spacing-xl);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+
+  p {
+    margin: var(--spacing-sm) 0;
+  }
+}
+
+// ============================================================
+// RESPONSIVE
+// ============================================================
+
+@media (max-width: 480px) {
+  .settings-header {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .data-action,
+  .danger-action {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-md);
+
+    .btn-action,
+    .btn-danger {
+      width: 100%;
+      text-align: center;
+    }
+  }
+
+  .setting-item.toggle-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+  }
+}
+
+/**
+ * Réflexions sur le design (style David J. Malan)
+ * ===============================================
+ *
+ * 1. POURQUOI les sliders personnalisés ?
+ *
+ *    Les sliders natifs sont LAIDS et inconsistants :
+ *    - Chrome : Un style
+ *    - Firefox : Un autre style
+ *    - Safari : Encore différent
+ *
+ *    En les stylisant nous-mêmes :
+ *    - Cohérence visuelle sur tous les navigateurs
+ *    - Intégration avec notre design system
+ *
+ * 2. POURQUOI les toggle switches plutôt que checkboxes ?
+ *
+ *    Les toggles sont plus MODERNES et plus CLAIRS :
+ *    - ON/OFF est évident visuellement
+ *    - L'animation donne du feedback
+ *    - C'est le standard mobile (iOS, Android)
+ *
+ * 3. POURQUOI la zone danger est-elle stylisée différemment ?
+ *
+ *    C'est du "Design émotionnel".
+ *
+ *    La bordure rouge + fond teinté dit :
+ *    "Attention, tu entres dans une zone différente"
+ *
+ *    C'est le même principe que les panneaux "DANGER" jaune/noir.
+ *
+ * 4. POURQUOI les animations slide-in pour le toast ?
+ *
+ *    Les animations attirent l'attention de façon NATURELLE.
+ *    Un message qui "glisse" de la droite est :
+ *    - Non-intrusif (ne bloque pas l'UI)
+ *    - Visible (mouvement = attention)
+ *    - Satisfaisant (feedback visuel)
+ *
+ * Citation de Don Norman :
+ * "Design is really an act of communication,
+ *  which means having a deep understanding of
+ *  the person with whom the designer is communicating."
+ */

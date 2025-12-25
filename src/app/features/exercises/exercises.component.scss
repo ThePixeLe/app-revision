@@ -1,0 +1,891 @@
+/**
+ * exercises.component.scss
+ *
+ * Styles du composant EXERCISES - Catalogue des exercices.
+ *
+ * Architecture : BEM + CSS Custom Properties + CSS Grid
+ *
+ * Philosophie David J. Malan :
+ * "Good design is invisible. Great design is intuitive."
+ *
+ * Auteur: H1m0t3p3
+ * Date: 24 décembre 2024
+ */
+
+// ============================================================
+// VARIABLES
+// ============================================================
+
+:host {
+  // Couleurs de base
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #334155;
+  --bg-hover: #475569;
+
+  // Couleurs de texte
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  // Couleurs par type d'exercice
+  --type-boole: #a855f7;    // Violet
+  --type-condition: #3b82f6; // Bleu
+  --type-boucle: #06b6d4;    // Cyan
+  --type-tableau: #10b981;   // Émeraude
+  --type-java: #f97316;      // Orange
+
+  // Couleurs par difficulté
+  --diff-facile: #22c55e;
+  --diff-moyen: #eab308;
+  --diff-difficile: #f97316;
+  --diff-expert: #ef4444;
+
+  // Couleurs par statut
+  --status-todo: #64748b;
+  --status-in-progress: #3b82f6;
+  --status-completed: #22c55e;
+  --status-reviewed: #a855f7;
+  --status-blocked: #f97316;
+  --status-failed: #ef4444;
+
+  // Espacements
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+
+  // Bordures
+  --border-radius: 0.75rem;
+  --border-radius-lg: 1rem;
+  --border-radius-full: 9999px;
+
+  // Transitions
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+}
+
+// ============================================================
+// LOADING STATE
+// ============================================================
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: var(--spacing-lg);
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--bg-card);
+  border-top-color: var(--type-condition);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  color: var(--text-secondary);
+}
+
+// ============================================================
+// CONTENEUR PRINCIPAL
+// ============================================================
+
+.exercises-container {
+  min-height: 100vh;
+  padding: var(--spacing-lg);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+// ============================================================
+// HEADER
+// ============================================================
+
+.exercises-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.header-content {
+  flex: 1;
+}
+
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 var(--spacing-sm) 0;
+
+  .title-icon {
+    font-size: 2rem;
+  }
+}
+
+.page-subtitle {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.header-stats {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+.mini-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+
+  .mini-stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  .mini-stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+}
+
+.progress-stat {
+  .progress-circle-mini {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: conic-gradient(var(--diff-facile) var(--progress, 0%), var(--bg-card) 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .progress-value {
+      background: var(--bg-secondary);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+  }
+}
+
+// ============================================================
+// ALERTE RÉVISION
+// ============================================================
+
+.review-alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: var(--border-radius-lg);
+  flex-wrap: wrap;
+}
+
+.alert-content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+
+  .alert-icon {
+    font-size: 1.5rem;
+  }
+
+  .alert-text {
+    display: flex;
+    flex-direction: column;
+
+    strong {
+      color: var(--text-primary);
+    }
+
+    span {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+  }
+}
+
+.alert-action {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: var(--status-reviewed);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+
+  &:hover {
+    transform: translateX(4px);
+    background: #9333ea;
+  }
+}
+
+// ============================================================
+// FILTRES
+// ============================================================
+
+.filters-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-lg);
+}
+
+.filters-row {
+  display: flex;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.search-box {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+  max-width: 400px;
+
+  .search-icon {
+    position: absolute;
+    left: var(--spacing-md);
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: var(--spacing-md);
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+    background: var(--bg-card);
+    border: 1px solid transparent;
+    border-radius: var(--border-radius);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all var(--transition-fast);
+
+    &::placeholder {
+      color: var(--text-muted);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--type-condition);
+      background: var(--bg-hover);
+    }
+  }
+
+  .clear-search {
+    position: absolute;
+    right: var(--spacing-sm);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 50%;
+    background: var(--bg-hover);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 0.75rem;
+
+    &:hover {
+      background: var(--diff-expert);
+      color: white;
+    }
+  }
+}
+
+.filters-group {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.filter-select {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-card);
+  border: 1px solid transparent;
+  border-radius: var(--border-radius);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  min-width: 150px;
+
+  &:focus {
+    outline: none;
+    border-color: var(--type-condition);
+  }
+
+  option {
+    background: var(--bg-card);
+    color: var(--text-primary);
+  }
+}
+
+.filters-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-left: auto;
+}
+
+.reset-btn {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: transparent;
+  border: 1px solid var(--text-muted);
+  border-radius: var(--border-radius);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:hover {
+    border-color: var(--diff-expert);
+    color: var(--diff-expert);
+  }
+}
+
+.view-toggle {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-card);
+  border: none;
+  border-radius: var(--border-radius);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:hover {
+    background: var(--bg-hover);
+  }
+}
+
+.sort-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--bg-card);
+}
+
+.sort-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.sort-options {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.sort-btn {
+  padding: var(--spacing-xs) var(--spacing-md);
+  background: transparent;
+  border: 1px solid var(--bg-card);
+  border-radius: var(--border-radius);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:hover {
+    border-color: var(--text-muted);
+  }
+
+  &.active {
+    background: var(--type-condition);
+    border-color: var(--type-condition);
+    color: white;
+  }
+
+  .sort-indicator {
+    margin-left: var(--spacing-xs);
+  }
+}
+
+// ============================================================
+// RÉSULTATS
+// ============================================================
+
+.results-info {
+  .results-count {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+}
+
+// ============================================================
+// GRILLE D'EXERCICES
+// ============================================================
+
+.exercises-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-lg);
+
+  &.view-list {
+    grid-template-columns: 1fr;
+
+    .exercise-card {
+      flex-direction: row;
+      align-items: center;
+
+      .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+      }
+
+      .card-body {
+        flex: 1;
+
+        .exercise-description {
+          display: none;
+        }
+      }
+
+      .card-footer {
+        flex-direction: row;
+        align-items: center;
+        gap: var(--spacing-lg);
+      }
+    }
+  }
+}
+
+// ============================================================
+// CARTE D'EXERCICE
+// ============================================================
+
+.exercise-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-lg);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-lg);
+  border-left: 4px solid var(--type-color, var(--bg-card));
+  cursor: pointer;
+  transition: all var(--transition-normal);
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  }
+
+  // Couleurs par type
+  &.type-boole { --type-color: var(--type-boole); }
+  &.type-condition { --type-color: var(--type-condition); }
+  &.type-boucle { --type-color: var(--type-boucle); }
+  &.type-tableau { --type-color: var(--type-tableau); }
+  &.type-java { --type-color: var(--type-java); }
+
+  // Statut completed
+  &.status-completed,
+  &.status-reviewed {
+    border-left-color: var(--status-completed);
+  }
+
+  // À réviser
+  &.due-for-review {
+    box-shadow: 0 0 0 2px var(--status-reviewed);
+  }
+}
+
+.review-badge {
+  position: absolute;
+  top: calc(-1 * var(--spacing-sm));
+  right: var(--spacing-md);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--status-reviewed);
+  color: white;
+  border-radius: var(--border-radius);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-md);
+
+  .type-icon {
+    font-size: 1.5rem;
+  }
+
+  .card-badges {
+    display: flex;
+    gap: var(--spacing-xs);
+  }
+}
+
+.difficulty-badge,
+.status-badge {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.difficulty-badge {
+  &.diff-facile { background: rgba(34, 197, 94, 0.2); color: var(--diff-facile); }
+  &.diff-moyen { background: rgba(234, 179, 8, 0.2); color: var(--diff-moyen); }
+  &.diff-difficile { background: rgba(249, 115, 22, 0.2); color: var(--diff-difficile); }
+  &.diff-expert { background: rgba(239, 68, 68, 0.2); color: var(--diff-expert); }
+}
+
+.status-badge {
+  &.status-todo { background: rgba(100, 116, 139, 0.2); color: var(--status-todo); }
+  &.status-in-progress { background: rgba(59, 130, 246, 0.2); color: var(--status-in-progress); }
+  &.status-completed { background: rgba(34, 197, 94, 0.2); color: var(--status-completed); }
+  &.status-reviewed { background: rgba(168, 85, 247, 0.2); color: var(--status-reviewed); }
+  &.status-blocked { background: rgba(249, 115, 22, 0.2); color: var(--status-blocked); }
+  &.status-failed { background: rgba(239, 68, 68, 0.2); color: var(--status-failed); }
+}
+
+.card-body {
+  flex: 1;
+  margin-bottom: var(--spacing-md);
+
+  .exercise-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 var(--spacing-sm) 0;
+  }
+
+  .exercise-description {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+  }
+}
+
+.card-footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+
+  .exercise-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+
+    .meta-item {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+  }
+
+  .card-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--type-color, var(--type-condition));
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+
+    &:hover {
+      filter: brightness(1.1);
+
+      .action-arrow {
+        transform: translateX(4px);
+      }
+    }
+
+    .action-arrow {
+      transition: transform var(--transition-fast);
+    }
+  }
+}
+
+// ============================================================
+// ÉTAT VIDE
+// ============================================================
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--spacing-xl) * 2);
+  text-align: center;
+
+  .empty-icon {
+    font-size: 4rem;
+    margin-bottom: var(--spacing-lg);
+    opacity: 0.5;
+  }
+
+  .empty-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 var(--spacing-sm) 0;
+  }
+
+  .empty-text {
+    color: var(--text-secondary);
+    margin: 0 0 var(--spacing-lg) 0;
+    max-width: 400px;
+  }
+
+  .empty-action {
+    padding: var(--spacing-md) var(--spacing-xl);
+    background: var(--type-condition);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// ============================================================
+// STATISTIQUES
+// ============================================================
+
+.stats-section {
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 var(--spacing-lg) 0;
+  }
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.stats-card {
+  padding: var(--spacing-lg);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-lg);
+
+  .stats-card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 var(--spacing-lg) 0;
+  }
+}
+
+.stats-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.stat-bar-item {
+  .stat-bar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xs);
+
+    .stat-bar-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .stat-bar-value {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+  }
+
+  .stat-bar {
+    height: 8px;
+    background: var(--bg-card);
+    border-radius: var(--border-radius-full);
+    overflow: hidden;
+
+    .stat-bar-fill {
+      height: 100%;
+      border-radius: var(--border-radius-full);
+      transition: width var(--transition-normal);
+
+      &.type-boole { background: var(--type-boole); }
+      &.type-condition { background: var(--type-condition); }
+      &.type-boucle { background: var(--type-boucle); }
+      &.type-tableau { background: var(--type-tableau); }
+      &.type-java { background: var(--type-java); }
+
+      &.diff-facile { background: var(--diff-facile); }
+      &.diff-moyen { background: var(--diff-moyen); }
+      &.diff-difficile { background: var(--diff-difficile); }
+      &.diff-expert { background: var(--diff-expert); }
+    }
+  }
+}
+
+// ============================================================
+// RESPONSIVE
+// ============================================================
+
+@media (max-width: 768px) {
+  .exercises-container {
+    padding: var(--spacing-md);
+  }
+
+  .exercises-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-stats {
+    justify-content: center;
+  }
+
+  .filters-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-box {
+    max-width: 100%;
+  }
+
+  .filters-group {
+    flex-direction: column;
+
+    .filter-select {
+      min-width: 100%;
+    }
+  }
+
+  .filters-actions {
+    margin-left: 0;
+    justify-content: space-between;
+  }
+
+  .sort-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+
+  .sort-options {
+    flex-wrap: wrap;
+  }
+
+  .exercises-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .review-alert {
+    flex-direction: column;
+    text-align: center;
+
+    .alert-content {
+      flex-direction: column;
+    }
+
+    .alert-action {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+/**
+ * Réflexions sur le design (style David J. Malan)
+ * ==============================================
+ *
+ * 1. POURQUOI des couleurs par type ?
+ *
+ *    "Color coding" = reconnaissance instantanée.
+ *
+ *    Sans couleurs : "Quel type est cet exercice ?" → lire le texte
+ *    Avec couleurs : "Violet = Algèbre de Boole" → 0.1 seconde
+ *
+ *    Le cerveau traite les couleurs AVANT le texte.
+ *
+ * 2. POURQUOI la bordure gauche colorée ?
+ *
+ *    C'est un "affordance visuel" subtil.
+ *
+ *    - Rappelle les onglets de classeur
+ *    - Crée une hiérarchie visuelle sans être intrusif
+ *    - Permet de scanner rapidement la page
+ *
+ * 3. POURQUOI l'animation au survol ?
+ *
+ *    Feedback immédiat = confiance utilisateur.
+ *
+ *    "Est-ce que je peux cliquer ici ?"
+ *    → La carte se soulève = "Oui, clique !"
+ *
+ *    C'est de l'affordance (Don Norman).
+ *
+ * 4. POURQUOI les badges de difficulté ET de statut ?
+ *
+ *    Deux informations essentielles à première vue :
+ *    - "Est-ce que je peux le faire ?" (difficulté)
+ *    - "L'ai-je déjà fait ?" (statut)
+ *
+ *    Ces badges répondent aux deux questions
+ *    sans avoir à ouvrir l'exercice.
+ *
+ * Citation de Steve Jobs :
+ * "Simple can be harder than complex.
+ *  You have to work hard to get your thinking clean
+ *  to make it simple."
+ */

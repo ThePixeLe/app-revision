@@ -1,0 +1,364 @@
+<!--
+  exercises.component.html
+
+  Template du composant EXERCISES - Catalogue des exercices.
+
+  Structure de la page :
+  =====================
+  1. Header avec statistiques globales
+  2. Alerte de révision (si exercices à réviser)
+  3. Barre de filtres et recherche
+  4. Grille/Liste des exercices
+  5. État vide si aucun résultat
+
+  Design inspiré de :
+  - LeetCode (filtres par difficulté)
+  - Notion (vue grille/liste)
+  - Duolingo (progression visuelle)
+
+  Philosophie David J. Malan :
+  "Make it easy for users to find what they're looking for."
+
+  Auteur: H1m0t3p3
+  Date: 24 décembre 2024
+-->
+
+<!-- ============================================================ -->
+<!-- LOADING STATE -->
+<!-- ============================================================ -->
+
+<div *ngIf="isLoading" class="loading-container">
+  <div class="loading-spinner"></div>
+  <p class="loading-text">Chargement des exercices...</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- MAIN CONTENT -->
+<!-- ============================================================ -->
+
+<div *ngIf="!isLoading" class="exercises-container">
+
+  <!-- ========================================== -->
+  <!-- HEADER -->
+  <!-- ========================================== -->
+
+  <header class="exercises-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <span class="title-icon">✏️</span>
+        Exercices
+      </h1>
+      <p class="page-subtitle">
+        Pratique et perfectionne tes compétences en algorithmique
+      </p>
+    </div>
+
+    <!-- Stats rapides -->
+    <div class="header-stats" *ngIf="stats">
+      <div class="mini-stat">
+        <span class="mini-stat-value">{{ stats.completed }}</span>
+        <span class="mini-stat-label">Terminés</span>
+      </div>
+      <div class="mini-stat">
+        <span class="mini-stat-value">{{ stats.total }}</span>
+        <span class="mini-stat-label">Total</span>
+      </div>
+      <div class="mini-stat progress-stat">
+        <div class="progress-circle-mini">
+          <span class="progress-value">{{ getCompletionPercentage() }}%</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- ALERTE RÉVISION -->
+  <!-- ========================================== -->
+
+  <div *ngIf="exercisesToReview.length > 0" class="review-alert">
+    <div class="alert-content">
+      <span class="alert-icon">📚</span>
+      <div class="alert-text">
+        <strong>{{ exercisesToReview.length }} exercice{{ exercisesToReview.length > 1 ? 's' : '' }} à réviser</strong>
+        <span>La révision espacée renforce ta mémoire !</span>
+      </div>
+    </div>
+    <button class="alert-action" (click)="goToReview()">
+      Réviser maintenant
+      <span class="action-arrow">→</span>
+    </button>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- BARRE DE FILTRES -->
+  <!-- ========================================== -->
+
+  <section class="filters-section">
+    <div class="filters-row">
+      <!-- Recherche -->
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Rechercher un exercice..."
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearchChange()"
+        />
+        <button
+          *ngIf="searchQuery"
+          class="clear-search"
+          (click)="searchQuery = ''; onSearchChange()">
+          ✕
+        </button>
+      </div>
+
+      <!-- Filtres dropdowns -->
+      <div class="filters-group">
+        <!-- Type -->
+        <select
+          class="filter-select"
+          [(ngModel)]="filterType"
+          (ngModelChange)="onTypeChange($event)">
+          <option *ngFor="let opt of typeOptions" [value]="opt.value">
+            {{ opt.label }} {{ opt.count !== undefined ? '(' + opt.count + ')' : '' }}
+          </option>
+        </select>
+
+        <!-- Difficulté -->
+        <select
+          class="filter-select"
+          [(ngModel)]="filterDifficulty"
+          (ngModelChange)="onDifficultyChange($event)">
+          <option *ngFor="let opt of difficultyOptions" [value]="opt.value">
+            {{ opt.label }} {{ opt.count !== undefined ? '(' + opt.count + ')' : '' }}
+          </option>
+        </select>
+
+        <!-- Statut -->
+        <select
+          class="filter-select"
+          [(ngModel)]="filterStatus"
+          (ngModelChange)="onStatusChange($event)">
+          <option *ngFor="let opt of statusOptions" [value]="opt.value">
+            {{ opt.label }} {{ opt.count !== undefined ? '(' + opt.count + ')' : '' }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Actions -->
+      <div class="filters-actions">
+        <!-- Reset -->
+        <button
+          *ngIf="hasActiveFilters()"
+          class="reset-btn"
+          (click)="resetFilters()">
+          Réinitialiser ({{ getActiveFiltersCount() }})
+        </button>
+
+        <!-- Toggle vue -->
+        <button class="view-toggle" (click)="toggleViewMode()">
+          {{ viewMode === 'grid' ? '📋' : '📊' }}
+          {{ viewMode === 'grid' ? 'Liste' : 'Grille' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Tri -->
+    <div class="sort-row">
+      <span class="sort-label">Trier par :</span>
+      <div class="sort-options">
+        <button
+          class="sort-btn"
+          [class.active]="sortBy === 'type'"
+          (click)="onSortChange('type')">
+          Type
+          <span *ngIf="sortBy === 'type'" class="sort-indicator">
+            {{ sortOrder === 'asc' ? '↑' : '↓' }}
+          </span>
+        </button>
+        <button
+          class="sort-btn"
+          [class.active]="sortBy === 'difficulty'"
+          (click)="onSortChange('difficulty')">
+          Difficulté
+          <span *ngIf="sortBy === 'difficulty'" class="sort-indicator">
+            {{ sortOrder === 'asc' ? '↑' : '↓' }}
+          </span>
+        </button>
+        <button
+          class="sort-btn"
+          [class.active]="sortBy === 'status'"
+          (click)="onSortChange('status')">
+          Statut
+          <span *ngIf="sortBy === 'status'" class="sort-indicator">
+            {{ sortOrder === 'asc' ? '↑' : '↓' }}
+          </span>
+        </button>
+        <button
+          class="sort-btn"
+          [class.active]="sortBy === 'title'"
+          (click)="onSortChange('title')">
+          Titre
+          <span *ngIf="sortBy === 'title'" class="sort-indicator">
+            {{ sortOrder === 'asc' ? '↑' : '↓' }}
+          </span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- RÉSULTATS -->
+  <!-- ========================================== -->
+
+  <div class="results-info">
+    <span class="results-count">
+      {{ filteredExercises.length }} exercice{{ filteredExercises.length > 1 ? 's' : '' }}
+      <span *ngIf="hasActiveFilters()"> (sur {{ allExercises.length }})</span>
+    </span>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- GRILLE D'EXERCICES -->
+  <!-- ========================================== -->
+
+  <section
+    class="exercises-grid"
+    [class.view-list]="viewMode === 'list'"
+    *ngIf="filteredExercises.length > 0">
+
+    <article
+      *ngFor="let exercise of filteredExercises"
+      class="exercise-card"
+      [class]="'type-' + exercise.type + ' status-' + exercise.status"
+      [class.due-for-review]="isExerciseDueForReview(exercise)"
+      (click)="navigateToExercise(exercise)">
+
+      <!-- Badge de révision -->
+      <div *ngIf="isExerciseDueForReview(exercise)" class="review-badge">
+        📚 À réviser
+      </div>
+
+      <!-- Header de la carte -->
+      <div class="card-header">
+        <span class="type-icon">{{ getTypeIcon(exercise.type) }}</span>
+        <div class="card-badges">
+          <span class="difficulty-badge" [class]="'diff-' + exercise.difficulty">
+            {{ getDifficultyLabel(exercise.difficulty).split(' ')[0] }}
+          </span>
+          <span class="status-badge" [class]="'status-' + exercise.status">
+            {{ getStatusLabel(exercise.status).split(' ')[0] }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Corps de la carte -->
+      <div class="card-body">
+        <h3 class="exercise-title">{{ exercise.title }}</h3>
+        <p class="exercise-description">{{ exercise.description | slice:0:100 }}{{ exercise.description.length > 100 ? '...' : '' }}</p>
+      </div>
+
+      <!-- Footer de la carte -->
+      <div class="card-footer">
+        <div class="exercise-meta">
+          <span *ngIf="exercise.attempts > 0" class="meta-item">
+            🔄 {{ exercise.attempts }} tentative{{ exercise.attempts > 1 ? 's' : '' }}
+          </span>
+          <span *ngIf="exercise.timeSpent > 0" class="meta-item">
+            ⏱️ {{ formatTime(exercise.timeSpent) }}
+          </span>
+          <span *ngIf="exercise.bestScore" class="meta-item">
+            ⭐ {{ exercise.bestScore }}%
+          </span>
+        </div>
+
+        <button class="card-action">
+          {{ exercise.status === 'todo' ? 'Commencer' : exercise.status === 'completed' ? 'Revoir' : 'Continuer' }}
+          <span class="action-arrow">→</span>
+        </button>
+      </div>
+    </article>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- ÉTAT VIDE -->
+  <!-- ========================================== -->
+
+  <div *ngIf="filteredExercises.length === 0" class="empty-state">
+    <div class="empty-icon">🔍</div>
+    <h3 class="empty-title">Aucun exercice trouvé</h3>
+    <p class="empty-text">
+      {{ hasActiveFilters()
+          ? 'Essaie de modifier tes filtres pour voir plus de résultats.'
+          : 'Il n\'y a pas encore d\'exercices disponibles.' }}
+    </p>
+    <button *ngIf="hasActiveFilters()" class="empty-action" (click)="resetFilters()">
+      Réinitialiser les filtres
+    </button>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- STATISTIQUES DÉTAILLÉES -->
+  <!-- ========================================== -->
+
+  <section *ngIf="stats && !hasActiveFilters()" class="stats-section">
+    <h2 class="section-title">
+      <span class="title-icon">📊</span>
+      Statistiques
+    </h2>
+
+    <div class="stats-grid">
+      <!-- Par type -->
+      <div class="stats-card">
+        <h3 class="stats-card-title">Par catégorie</h3>
+        <div class="stats-bars">
+          <div *ngFor="let type of ['boole', 'condition', 'boucle', 'tableau', 'java']"
+               class="stat-bar-item">
+            <div class="stat-bar-header">
+              <span class="stat-bar-label">{{ getTypeIcon($any(type)) }} {{ getTypeLabel($any(type)).split(' ')[1] || getTypeLabel($any(type)) }}</span>
+              <span class="stat-bar-value">
+                {{ $any(stats.byType)[type]?.completed || 0 }}/{{ $any(stats.byType)[type]?.total || 0 }}
+              </span>
+            </div>
+            <div class="stat-bar">
+              <div
+                class="stat-bar-fill"
+                [class]="'type-' + type"
+                [style.width.%]="$any(stats.byType)[type]?.total > 0
+                  ? ($any(stats.byType)[type].completed / $any(stats.byType)[type].total) * 100
+                  : 0">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Par difficulté -->
+      <div class="stats-card">
+        <h3 class="stats-card-title">Par difficulté</h3>
+        <div class="stats-bars">
+          <div *ngFor="let diff of ['facile', 'moyen', 'difficile', 'expert']"
+               class="stat-bar-item">
+            <div class="stat-bar-header">
+              <span class="stat-bar-label">{{ getDifficultyLabel($any(diff)) }}</span>
+              <span class="stat-bar-value">
+                {{ $any(stats.byDifficulty)[diff]?.completed || 0 }}/{{ $any(stats.byDifficulty)[diff]?.total || 0 }}
+              </span>
+            </div>
+            <div class="stat-bar">
+              <div
+                class="stat-bar-fill"
+                [class]="'diff-' + diff"
+                [style.width.%]="$any(stats.byDifficulty)[diff]?.total > 0
+                  ? ($any(stats.byDifficulty)[diff].completed / $any(stats.byDifficulty)[diff].total) * 100
+                  : 0">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>

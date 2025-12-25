@@ -481,9 +481,401 @@ export class ExerciseService {
     console.log(`📚 ${toReview.length} exercice(s) à réviser aujourd'hui`);
   }
 
-  // ... (Suite dans le prochain artifact : méthodes publiques)
+  // ============================================================
+  // MÉTHODES PUBLIQUES - LECTURE
+  // ============================================================
+
+  /**
+   * OBTENIR TOUS LES EXERCICES
+   */
+  getAllExercises(): Observable<Exercise[]> {
+    return this.exercises$;
+  }
+
+  /**
+   * OBTENIR UN EXERCICE PAR SON ID
+   */
+  getExerciseById(id: string): Observable<Exercise | undefined> {
+    return this.exercises$.pipe(
+      map(exercises => exercises.find(ex => ex.id === id))
+    );
+  }
+
+  /**
+   * OBTENIR LES EXERCICES PAR TYPE
+   */
+  getExercisesByType(type: ExerciseType): Observable<Exercise[]> {
+    return this.exercises$.pipe(
+      map(exercises => exercises.filter(ex => ex.type === type))
+    );
+  }
+
+  /**
+   * OBTENIR LES EXERCICES PAR DIFFICULTÉ
+   */
+  getExercisesByDifficulty(difficulty: ExerciseDifficulty): Observable<Exercise[]> {
+    return this.exercises$.pipe(
+      map(exercises => exercises.filter(ex => ex.difficulty === difficulty))
+    );
+  }
+
+  /**
+   * OBTENIR LES EXERCICES PAR STATUT
+   */
+  getExercisesByStatus(status: ExerciseStatus): Observable<Exercise[]> {
+    return this.exercises$.pipe(
+      map(exercises => exercises.filter(ex => ex.status === status))
+    );
+  }
+
+  // ============================================================
+  // MÉTHODES PUBLIQUES - MISE À JOUR
+  // ============================================================
+
+  /**
+   * METTRE À JOUR UN EXERCICE
+   * ------------------------
+   * Met à jour un exercice et sauvegarde le tout.
+   *
+   * @param exerciseId - ID de l'exercice à mettre à jour
+   * @param updates - Modifications partielles à appliquer
+   * @returns Observable de l'exercice mis à jour
+   */
+  updateExercise(exerciseId: string, updates: Partial<Exercise>): Observable<Exercise | undefined> {
+    const exercises = this.exercisesSubject.value;
+    const index = exercises.findIndex(ex => ex.id === exerciseId);
+
+    if (index === -1) {
+      console.warn(`❌ Exercice non trouvé: ${exerciseId}`);
+      return new BehaviorSubject<undefined>(undefined).asObservable();
+    }
+
+    // Met à jour l'exercice
+    const updatedExercise: Exercise = {
+      ...exercises[index],
+      ...updates,
+      updatedAt: new Date()
+    };
+
+    // Met à jour le tableau
+    const updatedExercises = [...exercises];
+    updatedExercises[index] = updatedExercise;
+
+    // Sauvegarde et met à jour les observables
+    this.exercisesSubject.next(updatedExercises);
+
+    return this.saveExercises(updatedExercises).pipe(
+      tap(() => {
+        console.log(`✅ Exercice mis à jour: ${updatedExercise.title}`);
+        this.updateReviewQueue();
+      }),
+      map(() => updatedExercise)
+    );
+  }
+
+  /**
+   * MARQUER UN EXERCICE COMME RÉVISÉ
+   * -------------------------------
+   * Met à jour les scores SM-2 et calcule la prochaine date de révision.
+   *
+   * @param exerciseId - ID de l'exercice
+   * @param quality - Note de qualité SM-2 (0-5)
+   *   - 0-2 : Échec, à réviser bientôt
+   *   - 3 : Correct avec difficulté
+   *   - 4 : Correct avec hésitation
+   *   - 5 : Parfait
+   * @returns Observable de l'exercice mis à jour
+   */
+  recordRevision(exerciseId: string, quality: number): Observable<Exercise | undefined> {
+    const exercises = this.exercisesSubject.value;
+    const exercise = exercises.find(ex => ex.id === exerciseId);
+
+    if (!exercise) {
+      console.warn(`❌ Exercice non trouvé: ${exerciseId}`);
+      return new BehaviorSubject<undefined>(undefined).asObservable();
+    }
+
+    // Récupère les valeurs actuelles ou initialise
+    const currentRepetitions = exercise.revisionCount || 0;
+    const currentEaseFactor = exercise.easeFactor || 2.5;
+    const currentInterval = exercise.interval || 1;
+
+    // Calcule les nouvelles valeurs SM-2
+    let newRepetitions: number;
+    let newEaseFactor: number;
+    let newInterval: number;
+
+    if (quality < 3) {
+      // Échec : recommence les répétitions
+      newRepetitions = 0;
+      newInterval = 1;
+      newEaseFactor = currentEaseFactor;
+    } else {
+      // Succès : augmente les répétitions
+      newRepetitions = currentRepetitions + 1;
+
+      // Calcule le nouvel ease factor
+      // EF' = EF + (0.1 - (5-q) * (0.08 + (5-q) * 0.02))
+      newEaseFactor = Math.max(
+        1.3,
+        currentEaseFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02))
+      );
+
+      // Calcule le nouvel intervalle
+      if (newRepetitions === 1) {
+        newInterval = 1;
+      } else if (newRepetitions === 2) {
+        newInterval = 3;
+      } else {
+        newInterval = Math.round(currentInterval * newEaseFactor);
+      }
+    }
+
+    // Calcule la prochaine date de révision
+    const nextReviewDate = new Date();
+    nextReviewDate.setDate(nextReviewDate.getDate() + newInterval);
+
+    // Prépare les mises à jour
+    const updates: Partial<Exercise> = {
+      status: 'reviewed',
+      revisionCount: newRepetitions,
+      easeFactor: newEaseFactor,
+      interval: newInterval,
+      lastReviewDate: new Date(),
+      nextReviewDate,
+      lastReviewQuality: quality
+    };
+
+    console.log(`📝 Révision enregistrée: ${exercise.title}`);
+    console.log(`   Qualité: ${quality}, Répétitions: ${newRepetitions}, Intervalle: ${newInterval}j`);
+
+    return this.updateExercise(exerciseId, updates);
+  }
+
+  /**
+   * MARQUER UN EXERCICE COMME COMPLÉTÉ
+   */
+  completeExercise(exerciseId: string, score?: number): Observable<Exercise | undefined> {
+    const updates: Partial<Exercise> = {
+      status: 'completed',
+      completedAt: new Date(),
+      attempts: 1
+    };
+
+    if (score !== undefined) {
+      updates.score = score;
+    }
+
+    return this.updateExercise(exerciseId, updates);
+  }
+
+  /**
+   * RÉINITIALISER UN EXERCICE
+   */
+  resetExercise(exerciseId: string): Observable<Exercise | undefined> {
+    return this.updateExercise(exerciseId, {
+      status: 'todo',
+      score: undefined,
+      attempts: 0,
+      timeSpent: 0,
+      completedAt: undefined,
+      revisionCount: 0,
+      easeFactor: 2.5,
+      interval: 1,
+      lastReviewDate: undefined,
+      nextReviewDate: undefined
+    });
+  }
+
+  // ============================================================
+  // MÉTHODES PUBLIQUES - STATISTIQUES
+  // ============================================================
+
+  /**
+   * OBTENIR LES STATISTIQUES DES EXERCICES
+   * -------------------------------------
+   * Calcule toutes les stats utiles.
+   */
+  getStats(): Observable<ExerciseStats> {
+    return this.exercises$.pipe(
+      map(exercises => {
+        const total = exercises.length;
+        const completed = exercises.filter(ex =>
+          ex.status === 'completed' || ex.status === 'reviewed'
+        ).length;
+        const inProgress = exercises.filter(ex => ex.status === 'in-progress').length;
+
+        // Calcule les stats par type
+        const byType: Record<ExerciseType, { total: number; completed: number }> = {
+          'condition': { total: 0, completed: 0 },
+          'boucle': { total: 0, completed: 0 },
+          'tableau': { total: 0, completed: 0 },
+          'fonction': { total: 0, completed: 0 },
+          'java': { total: 0, completed: 0 },
+          'boole': { total: 0, completed: 0 }
+        };
+
+        exercises.forEach(ex => {
+          if (byType[ex.type]) {
+            byType[ex.type].total++;
+            if (ex.status === 'completed' || ex.status === 'reviewed') {
+              byType[ex.type].completed++;
+            }
+          }
+        });
+
+        // Calcule les stats par difficulté
+        const byDifficulty: Record<ExerciseDifficulty, { total: number; completed: number }> = {
+          'facile': { total: 0, completed: 0 },
+          'moyen': { total: 0, completed: 0 },
+          'difficile': { total: 0, completed: 0 },
+          'expert': { total: 0, completed: 0 }
+        };
+
+        exercises.forEach(ex => {
+          byDifficulty[ex.difficulty].total++;
+          if (ex.status === 'completed' || ex.status === 'reviewed') {
+            byDifficulty[ex.difficulty].completed++;
+          }
+        });
+
+        // Calcule le score moyen
+        const scoredExercises = exercises.filter(ex => ex.score !== undefined);
+        const averageScore = scoredExercises.length > 0
+          ? scoredExercises.reduce((sum, ex) => sum + (ex.score || 0), 0) / scoredExercises.length
+          : 0;
+
+        // Compte les exercices révisés
+        const totalReviewed = exercises.filter(ex =>
+          (ex.revisionCount || 0) > 0
+        ).length;
+
+        // Calcule le taux de rétention (basé sur les dernières qualités de révision)
+        const reviewedExercises = exercises.filter(ex => ex.lastReviewQuality !== undefined);
+        const retentionRate = reviewedExercises.length > 0
+          ? (reviewedExercises.filter(ex => (ex.lastReviewQuality || 0) >= 3).length / reviewedExercises.length) * 100
+          : 0;
+
+        return {
+          total,
+          completed,
+          inProgress,
+          todo: total - completed - inProgress,
+          averageScore: Math.round(averageScore),
+          byType,
+          byDifficulty,
+          totalReviewed,
+          retentionRate: Math.round(retentionRate)
+        };
+      })
+    );
+  }
+
+  /**
+   * OBTENIR LES STATISTIQUES DE RÉVISION
+   * -----------------------------------
+   */
+  getRevisionStats(): Observable<{
+    totalReviewed: number;
+    retentionRate: number;
+    dueToday: number;
+    dueThisWeek: number;
+  }> {
+    return combineLatest([this.exercises$, this.reviewQueue$]).pipe(
+      map(([exercises, reviewQueue]) => {
+        // Compte les exercices révisés au moins une fois
+        const totalReviewed = exercises.filter(ex =>
+          (ex.revisionCount || 0) > 0
+        ).length;
+
+        // Calcule le taux de rétention
+        const reviewedExercises = exercises.filter(ex => ex.lastReviewQuality !== undefined);
+        const retentionRate = reviewedExercises.length > 0
+          ? (reviewedExercises.filter(ex => (ex.lastReviewQuality || 0) >= 3).length / reviewedExercises.length) * 100
+          : 0;
+
+        // Compte les exercices à réviser aujourd'hui
+        const dueToday = reviewQueue.length;
+
+        // Compte les exercices à réviser cette semaine
+        const today = new Date();
+        const weekEnd = new Date(today);
+        weekEnd.setDate(weekEnd.getDate() + 7);
+
+        const dueThisWeek = exercises.filter(ex => {
+          if (!ex.nextReviewDate) return false;
+          const reviewDate = new Date(ex.nextReviewDate);
+          return reviewDate > today && reviewDate <= weekEnd;
+        }).length;
+
+        return {
+          totalReviewed,
+          retentionRate: Math.round(retentionRate),
+          dueToday,
+          dueThisWeek
+        };
+      })
+    );
+  }
+
+  /**
+   * OBTENIR LES EXERCICES À RÉVISER
+   * ------------------------------
+   * Retourne les exercices dont la date de révision est passée.
+   *
+   * @returns Observable des exercices à réviser
+   */
+  getExercisesDueForReview(): Observable<Exercise[]> {
+    return this.reviewQueue$;
+  }
+
+  /**
+   * RÉINITIALISER TOUS LES EXERCICES
+   * ⚠️ ATTENTION : Supprime toute progression !
+   */
+  resetAllExercises(): Observable<void> {
+    console.warn('⚠️ RESET : Réinitialisation de tous les exercices !');
+
+    return this.storageService.remove(StorageKeys.EXERCISES).pipe(
+      tap(() => {
+        this.createDefaultExercises();
+        console.log('✅ Exercices réinitialisés !');
+      })
+    );
+  }
 }
 
 /**
- * Réflexions pédagogiques (À suivre...)
+ * Réflexions pédagogiques (style David J. Malan)
+ * ==============================================
+ *
+ * 1. POURQUOI l'algorithme SM-2 ?
+ *
+ *    SuperMemo 2 est l'algorithme de répétition espacée
+ *    le plus étudié et validé scientifiquement.
+ *
+ *    Il adapte les intervalles selon ta PERFORMANCE :
+ *    - Réponse facile → intervalle augmente
+ *    - Réponse difficile → intervalle diminue
+ *
+ * 2. POURQUOI un "ease factor" ?
+ *
+ *    C'est un multiplicateur de difficulté PERSONNALISÉ.
+ *    - Exercice facile pour toi → EF augmente
+ *    - Exercice difficile pour toi → EF diminue
+ *
+ *    Chaque exercice a SON propre facteur !
+ *
+ * 3. POURQUOI séparer les stats de révision ?
+ *
+ *    Le composant Revision a besoin de stats SPÉCIFIQUES :
+ *    - Combien à réviser aujourd'hui ?
+ *    - Quel est mon taux de rétention ?
+ *
+ *    Ces stats motivent et informent !
+ *
+ * Citation de Piotr Wozniak (créateur de SuperMemo) :
+ * "Spaced repetition is based on the observation that
+ *  our brain retains information better when we encounter
+ *  it at optimal intervals."
  */

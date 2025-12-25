@@ -1,0 +1,1149 @@
+/**
+ * planning.component.scss
+ *
+ * Styles du composant PLANNING - Vue d'ensemble des 12 jours.
+ *
+ * Architecture CSS : BEM + CSS Custom Properties
+ * ==============================================
+ *
+ * Ce fichier utilise une approche moderne :
+ * 1. Variables CSS pour la thématisation
+ * 2. BEM pour la structure des classes
+ * 3. CSS Grid pour les layouts complexes
+ * 4. Flexbox pour les alignements simples
+ *
+ * Philosophie David J. Malan :
+ * "Good code is like a well-organized library.
+ *  Everything has its place, and you can find it quickly."
+ *
+ * Auteur: H1m0t3p3
+ * Date: 24 décembre 2024
+ */
+
+// ============================================================
+// VARIABLES CSS CUSTOM PROPERTIES
+// ============================================================
+
+:host {
+  // Couleurs de base
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #334155;
+  --bg-hover: #475569;
+
+  // Couleurs de texte
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  // Couleurs d'accent
+  --accent-purple: #a855f7;
+  --accent-blue: #3b82f6;
+  --accent-orange: #f97316;
+  --accent-green: #22c55e;
+  --accent-red: #ef4444;
+
+  // Couleurs de statut
+  --status-completed: var(--accent-green);
+  --status-current: var(--accent-blue);
+  --status-available: #94a3b8;
+  --status-locked: #475569;
+
+  // Espacements
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+
+  // Bordures
+  --border-radius: 0.75rem;
+  --border-radius-lg: 1rem;
+  --border-radius-full: 9999px;
+
+  // Ombres
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.3);
+
+  // Transitions
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+}
+
+// ============================================================
+// LOADING STATE
+// ============================================================
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: var(--spacing-lg);
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--bg-card);
+  border-top-color: var(--accent-blue);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+// ============================================================
+// CONTENEUR PRINCIPAL
+// ============================================================
+
+.planning-container {
+  min-height: 100vh;
+  padding: var(--spacing-lg);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+// ============================================================
+// HEADER
+// ============================================================
+
+.planning-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.header-content {
+  flex: 1;
+}
+
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-sm) 0;
+
+  .title-icon {
+    font-size: 2rem;
+  }
+}
+
+.page-subtitle {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin: 0;
+}
+
+.continue-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: var(--accent-blue);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  box-shadow: var(--shadow-md);
+
+  &:hover {
+    background: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .btn-icon {
+    font-size: 1.25rem;
+  }
+}
+
+// ============================================================
+// STATISTIQUES GLOBALES
+// ============================================================
+
+.global-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-lg);
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--bg-card);
+  border-radius: var(--border-radius);
+  transition: all var(--transition-fast);
+
+  &:hover {
+    background: var(--bg-hover);
+    transform: translateY(-2px);
+  }
+
+  .stat-icon {
+    font-size: 1.5rem;
+  }
+
+  .stat-content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+}
+
+// ============================================================
+// BARRE DE PROGRESSION (TIMELINE)
+// ============================================================
+
+.progress-bar-section {
+  padding: var(--spacing-lg);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-lg);
+}
+
+.section-title-small {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 var(--spacing-lg) 0;
+}
+
+/**
+ * .progress-timeline
+ * -----------------
+ *
+ * Une ligne horizontale avec 12 points représentant les jours.
+ *
+ * Structure :
+ * - .timeline-track : La ligne de fond
+ * - .timeline-point : Chaque point (jour)
+ */
+.progress-timeline {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) 0;
+}
+
+.timeline-track {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  height: 4px;
+  background: var(--bg-card);
+  border-radius: var(--border-radius-full);
+  z-index: 0;
+}
+
+/**
+ * .timeline-point
+ * --------------
+ *
+ * Un point sur la timeline.
+ * Change de couleur selon le statut.
+ */
+.timeline-point {
+  position: relative;
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all var(--transition-normal);
+  border: 3px solid transparent;
+
+  .point-number {
+    position: relative;
+    z-index: 1;
+  }
+
+  .point-check,
+  .point-lock {
+    position: absolute;
+    font-size: 0.625rem;
+    bottom: -4px;
+    right: -4px;
+  }
+
+  // États
+  &.status-completed {
+    background: var(--status-completed);
+    color: white;
+    border-color: var(--status-completed);
+  }
+
+  &.status-current {
+    background: var(--status-current);
+    color: white;
+    border-color: var(--status-current);
+    animation: pulse-ring 2s ease-out infinite;
+  }
+
+  &.status-available {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border-color: var(--status-available);
+  }
+
+  &.status-locked {
+    background: var(--bg-card);
+    color: var(--text-muted);
+    border-color: var(--status-locked);
+    opacity: 0.6;
+  }
+
+  &.clickable {
+    cursor: pointer;
+
+    &:hover {
+      transform: scale(1.15);
+      box-shadow: var(--shadow-md);
+    }
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+// ============================================================
+// CARTE DU JOUR ACTUEL
+// ============================================================
+
+.current-day-section {
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 var(--spacing-lg) 0;
+  }
+}
+
+.current-day-card {
+  padding: var(--spacing-xl);
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+  border: 2px solid var(--accent-blue);
+  border-radius: var(--border-radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+  }
+}
+
+.current-day-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.day-badge {
+  padding: var(--spacing-xs) var(--spacing-md);
+  background: var(--accent-blue);
+  color: white;
+  border-radius: var(--border-radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.day-date {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.current-day-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-lg) 0;
+}
+
+.current-day-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+
+  .progress-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--bg-card);
+    border-radius: var(--border-radius-full);
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent-blue);
+    border-radius: var(--border-radius-full);
+    transition: width var(--transition-normal);
+  }
+
+  .progress-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--accent-blue);
+    white-space: nowrap;
+  }
+}
+
+.current-day-sessions {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.mini-session {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-card);
+  border-radius: var(--border-radius);
+  font-size: 0.875rem;
+
+  &.completed {
+    background: rgba(34, 197, 94, 0.2);
+    color: var(--accent-green);
+  }
+
+  .session-icon {
+    font-size: 1rem;
+  }
+
+  .session-status {
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+}
+
+.current-day-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-md);
+  background: var(--accent-blue);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+
+  &:hover {
+    background: #2563eb;
+  }
+
+  .action-arrow {
+    transition: transform var(--transition-fast);
+  }
+
+  &:hover .action-arrow {
+    transform: translateX(4px);
+  }
+}
+
+// ============================================================
+// SECTION DES PHASES
+// ============================================================
+
+.phases-section {
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 var(--spacing-lg) 0;
+  }
+}
+
+.phases-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+/**
+ * .phase-card
+ * ----------
+ *
+ * Carte représentant une phase (Algèbre, Algo, Java, Consolidation).
+ *
+ * Chaque phase a sa propre couleur d'accent définie par les classes :
+ * - .phase-purple : Algèbre de Boole
+ * - .phase-blue : Algorithmique
+ * - .phase-orange : Java
+ * - .phase-green : Consolidation
+ */
+.phase-card {
+  padding: var(--spacing-lg);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-lg);
+  border-left: 4px solid var(--phase-color, var(--accent-blue));
+
+  &.phase-purple {
+    --phase-color: var(--accent-purple);
+  }
+
+  &.phase-blue {
+    --phase-color: var(--accent-blue);
+  }
+
+  &.phase-orange {
+    --phase-color: var(--accent-orange);
+  }
+
+  &.phase-green {
+    --phase-color: var(--accent-green);
+  }
+}
+
+.phase-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+
+  .phase-icon {
+    font-size: 2rem;
+  }
+
+  .phase-info {
+    flex: 1;
+  }
+
+  .phase-name {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 var(--spacing-xs) 0;
+  }
+
+  .phase-description {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+}
+
+.phase-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+
+  .progress-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--bg-card);
+    border-radius: var(--border-radius-full);
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--phase-color);
+    border-radius: var(--border-radius-full);
+    transition: width var(--transition-normal);
+  }
+
+  .progress-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--phase-color);
+    min-width: 40px;
+    text-align: right;
+  }
+}
+
+.phase-days {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/**
+ * .day-item
+ * --------
+ *
+ * Un jour dans la liste d'une phase.
+ * Cliquable pour voir les détails.
+ */
+.day-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--bg-card);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:hover:not(.locked) {
+    background: var(--bg-hover);
+    transform: translateX(4px);
+  }
+
+  &.completed {
+    background: rgba(34, 197, 94, 0.1);
+    border-left: 3px solid var(--accent-green);
+  }
+
+  &.current {
+    background: rgba(59, 130, 246, 0.1);
+    border-left: 3px solid var(--accent-blue);
+  }
+
+  &.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .day-number {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-hover);
+    border-radius: var(--border-radius);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+  }
+
+  .day-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .day-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .day-duration {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .day-status-icon {
+    font-size: 1rem;
+  }
+}
+
+// ============================================================
+// PANNEAU DE PRÉVISUALISATION
+// ============================================================
+
+.preview-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  visibility: hidden;
+  opacity: 0;
+  transition: all var(--transition-normal);
+
+  &.open {
+    visibility: visible;
+    opacity: 1;
+
+    .preview-content {
+      transform: translateX(0);
+    }
+  }
+}
+
+.preview-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.preview-content {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  max-width: 480px;
+  height: 100%;
+  background: var(--bg-primary);
+  transform: translateX(100%);
+  transition: transform var(--transition-normal);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--bg-card);
+  background: var(--bg-secondary);
+}
+
+.preview-title-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.preview-badge {
+  display: inline-block;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--accent-blue);
+  color: white;
+  border-radius: var(--border-radius);
+  font-size: 0.75rem;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.preview-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.preview-date {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.close-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: var(--border-radius);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:hover {
+    background: var(--bg-hover);
+  }
+}
+
+.preview-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.preview-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+
+  .progress-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--bg-secondary);
+    border: 4px solid var(--accent-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .progress-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent-blue);
+  }
+
+  .progress-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+}
+
+.preview-section {
+  .preview-section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 var(--spacing-md) 0;
+  }
+}
+
+.objectives-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+
+  li {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    border-left: 3px solid var(--accent-blue);
+  }
+}
+
+.sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.session-card {
+  padding: var(--spacing-md);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  position: relative;
+
+  &.completed {
+    border-left: 3px solid var(--accent-green);
+  }
+
+  .session-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .session-period {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .session-duration {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+  }
+
+  .session-topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+  }
+
+  .topic-tag {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: var(--bg-card);
+    border-radius: var(--border-radius);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+  }
+
+  .session-docs,
+  .session-exercises {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .completed-badge {
+    position: absolute;
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
+    font-size: 0.75rem;
+    color: var(--accent-green);
+  }
+}
+
+.notes-content {
+  padding: var(--spacing-md);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin: 0;
+}
+
+.preview-footer {
+  padding: var(--spacing-lg);
+  border-top: 1px solid var(--bg-card);
+  background: var(--bg-secondary);
+}
+
+.preview-action-btn {
+  width: 100%;
+  padding: var(--spacing-md);
+  background: var(--accent-blue);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+
+  &:hover:not(:disabled) {
+    background: #2563eb;
+  }
+
+  &:disabled {
+    background: var(--bg-card);
+    color: var(--text-muted);
+    cursor: not-allowed;
+  }
+}
+
+// ============================================================
+// LÉGENDE
+// ============================================================
+
+.legend-section {
+  padding: var(--spacing-lg);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-lg);
+}
+
+.legend-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+.legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-lg);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.legend-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+
+  &.status-completed {
+    background: var(--status-completed);
+  }
+
+  &.status-current {
+    background: var(--status-current);
+  }
+
+  &.status-available {
+    background: var(--status-available);
+  }
+
+  &.status-locked {
+    background: var(--status-locked);
+    opacity: 0.5;
+  }
+}
+
+.legend-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+// ============================================================
+// RESPONSIVE
+// ============================================================
+
+@media (max-width: 768px) {
+  .planning-container {
+    padding: var(--spacing-md);
+  }
+
+  .planning-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .continue-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .global-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .progress-timeline {
+    overflow-x: auto;
+    padding: var(--spacing-md) 0;
+    margin: 0 calc(-1 * var(--spacing-md));
+    padding-left: var(--spacing-md);
+    padding-right: var(--spacing-md);
+  }
+
+  .timeline-point {
+    width: 36px;
+    height: 36px;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .phases-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-content {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .global-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .timeline-point {
+    width: 32px;
+    height: 32px;
+  }
+
+  .current-day-sessions {
+    flex-direction: column;
+  }
+
+  .mini-session {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+/**
+ * Réflexions sur le CSS (style David J. Malan)
+ * ===========================================
+ *
+ * 1. POURQUOI LES ANIMATIONS DE PULSE ?
+ *
+ *    L'animation pulse-ring sur le jour actuel attire l'attention.
+ *
+ *    C'est de l'affordance visuelle :
+ *    - "Hé, c'est ici que tu dois cliquer !"
+ *    - Sans être intrusif ou gênant
+ *
+ *    Règle d'or : Les animations doivent AIDER, pas DISTRAIRE.
+ *
+ * 2. POURQUOI DES COULEURS PAR PHASE ?
+ *
+ *    C'est du "color coding" (codage couleur).
+ *
+ *    Avantages :
+ *    - Reconnaissance rapide : "Violet = Algèbre"
+ *    - Cohérence visuelle : Tous les éléments liés ont la même couleur
+ *    - Réduction de la charge cognitive
+ *
+ *    C'est comme les dossiers de couleur dans un classeur.
+ *
+ * 3. POURQUOI LE PANNEAU GLISSANT ?
+ *
+ *    C'est le pattern "slide-over panel".
+ *
+ *    Avantages vs popup/modal :
+ *    - Plus d'espace pour le contenu
+ *    - Le contexte reste visible derrière
+ *    - Moins intrusif
+ *
+ *    Utilisé par : Gmail, Notion, Figma, etc.
+ *
+ * 4. POURQUOI TANT DE FEEDBACK VISUEL ?
+ *
+ *    Chaque action doit avoir une réponse visible :
+ *    - Hover → couleur change
+ *    - Click → élément se déplace
+ *    - Focus → bordure apparaît
+ *
+ *    Sans feedback, l'utilisateur se demande :
+ *    "Est-ce que ça a marché ?"
+ *
+ *    Citation de Don Norman (auteur de "The Design of Everyday Things") :
+ *    "Good design is obvious. Great design is transparent."
+ */

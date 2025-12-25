@@ -1,0 +1,395 @@
+<!--
+  planning.component.html
+
+  Template du composant PLANNING - Vue d'ensemble des 12 jours.
+
+  Structure de la page :
+  =====================
+  1. Header avec progression globale
+  2. Barre de progression (12 points cliquables)
+  3. Carte du jour actuel (mise en avant)
+  4. Grille des phases avec leurs jours
+  5. Panneau de prévisualisation (si un jour est sélectionné)
+
+  Design inspiré de :
+  - Duolingo (progression par niveaux)
+  - GitHub Contributions (grille de carrés)
+  - Notion (cartes de contenu)
+
+  Philosophie David J. Malan :
+  "The goal is to make the complex accessible."
+
+  Auteur: H1m0t3p3
+  Date: 24 décembre 2024
+-->
+
+<!-- ============================================================ -->
+<!-- LOADING STATE -->
+<!-- ============================================================ -->
+
+<div *ngIf="isLoading" class="loading-container">
+  <div class="loading-spinner"></div>
+  <p class="loading-text">Chargement du planning...</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- MAIN CONTENT -->
+<!-- ============================================================ -->
+
+<div *ngIf="!isLoading" class="planning-container">
+
+  <!-- ========================================== -->
+  <!-- HEADER -->
+  <!-- ========================================== -->
+
+  <header class="planning-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <span class="title-icon">📅</span>
+        Planning des 12 jours
+      </h1>
+
+      <p class="page-subtitle">
+        Ton parcours d'apprentissage : Algèbre de Boole → Algorithmique → Java
+      </p>
+    </div>
+
+    <!-- Bouton d'action principal -->
+    <button
+      *ngIf="currentDay"
+      class="continue-btn"
+      (click)="continueCurrentDay()">
+      <span class="btn-icon">▶️</span>
+      <span class="btn-text">Continuer Jour {{ currentDayIndex }}</span>
+    </button>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- PROGRESSION GLOBALE -->
+  <!-- ========================================== -->
+
+  <!--
+    Barre de statistiques rapides.
+    Affiche les métriques clés en un coup d'oeil.
+  -->
+  <section class="global-stats" *ngIf="stats">
+    <div class="stat-item">
+      <span class="stat-icon">📊</span>
+      <div class="stat-content">
+        <span class="stat-value">{{ stats.overallProgress }}%</span>
+        <span class="stat-label">Progression</span>
+      </div>
+    </div>
+
+    <div class="stat-item">
+      <span class="stat-icon">✅</span>
+      <div class="stat-content">
+        <span class="stat-value">{{ stats.completedDays }}/{{ stats.totalDays }}</span>
+        <span class="stat-label">Jours terminés</span>
+      </div>
+    </div>
+
+    <div class="stat-item">
+      <span class="stat-icon">⏱️</span>
+      <div class="stat-content">
+        <span class="stat-value">{{ formatMinutes(getRemainingTime()) }}</span>
+        <span class="stat-label">Temps restant</span>
+      </div>
+    </div>
+
+    <div class="stat-item">
+      <span class="stat-icon">⭐</span>
+      <div class="stat-content">
+        <span class="stat-value">{{ getTotalXpEarned() }} XP</span>
+        <span class="stat-label">Total gagné</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- BARRE DE PROGRESSION -->
+  <!-- ========================================== -->
+
+  <!--
+    12 points représentant chaque jour.
+    Cliquables pour naviguer directement vers un jour.
+
+    Couleurs :
+    - Vert : terminé
+    - Bleu avec pulse : jour actuel
+    - Gris : verrouillé
+    - Blanc : disponible
+  -->
+  <section class="progress-bar-section">
+    <h2 class="section-title-small">Progression jour par jour</h2>
+
+    <div class="progress-timeline">
+      <div class="timeline-track"></div>
+
+      <div
+        *ngFor="let indicator of getProgressIndicators()"
+        class="timeline-point"
+        [class]="'status-' + indicator.status"
+        [class.clickable]="indicator.status !== 'locked'"
+        (click)="indicator.status !== 'locked' && navigateToDay(days[indicator.dayNumber - 1])"
+        [attr.title]="'Jour ' + indicator.dayNumber">
+
+        <span class="point-number">{{ indicator.dayNumber }}</span>
+
+        <!--
+          Indicateur de complétion.
+          Checkmark pour les jours terminés.
+        -->
+        <span *ngIf="indicator.status === 'completed'" class="point-check">✓</span>
+
+        <!--
+          Indicateur de verrouillage.
+          Cadenas pour les jours non accessibles.
+        -->
+        <span *ngIf="indicator.status === 'locked'" class="point-lock">🔒</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- CARTE DU JOUR ACTUEL -->
+  <!-- ========================================== -->
+
+  <!--
+    Mise en avant du jour en cours.
+    C'est l'élément le plus important de la page.
+  -->
+  <section *ngIf="currentDay" class="current-day-section">
+    <h2 class="section-title">
+      <span class="title-icon">📍</span>
+      Jour actuel
+    </h2>
+
+    <div class="current-day-card" (click)="navigateToDay(currentDay)">
+      <div class="current-day-header">
+        <span class="day-badge">Jour {{ currentDayIndex }}</span>
+        <span class="day-date">{{ formatDate(currentDay.date) }}</span>
+      </div>
+
+      <h3 class="current-day-title">{{ currentDay.title }}</h3>
+
+      <div class="current-day-progress">
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="getDayProgress(currentDay)"></div>
+        </div>
+        <span class="progress-text">{{ getDayProgress(currentDay) }}% complété</span>
+      </div>
+
+      <!-- Sessions du jour -->
+      <div class="current-day-sessions">
+        <div
+          *ngFor="let session of currentDay.sessions"
+          class="mini-session"
+          [class.completed]="session.completed">
+          <span class="session-icon">{{ getPeriodIcon(session.period) }}</span>
+          <span class="session-label">{{ getPeriodLabel(session.period) }}</span>
+          <span class="session-status">
+            {{ session.completed ? '✓' : formatMinutes(session.duration) }}
+          </span>
+        </div>
+      </div>
+
+      <button class="current-day-action">
+        {{ getDayProgress(currentDay) > 0 ? 'Continuer' : 'Commencer' }}
+        <span class="action-arrow">→</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- GRILLE DES PHASES -->
+  <!-- ========================================== -->
+
+  <!--
+    Les 4 grandes phases du programme.
+    Chaque phase contient ses jours.
+  -->
+  <section class="phases-section">
+    <h2 class="section-title">
+      <span class="title-icon">🎯</span>
+      Phases du programme
+    </h2>
+
+    <div class="phases-grid">
+      <div
+        *ngFor="let phase of phaseCards"
+        class="phase-card"
+        [class]="'phase-' + phase.color">
+
+        <!-- En-tête de la phase -->
+        <div class="phase-header">
+          <span class="phase-icon">{{ phase.icon }}</span>
+          <div class="phase-info">
+            <h3 class="phase-name">{{ phase.name }}</h3>
+            <p class="phase-description">{{ phase.description }}</p>
+          </div>
+        </div>
+
+        <!-- Barre de progression de la phase -->
+        <div class="phase-progress">
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="phase.progress"></div>
+          </div>
+          <span class="progress-text">{{ phase.progress }}%</span>
+        </div>
+
+        <!-- Liste des jours de la phase -->
+        <div class="phase-days">
+          <div
+            *ngFor="let day of phase.days"
+            class="day-item"
+            [class.completed]="day.completed"
+            [class.current]="isCurrentDay(day)"
+            [class.locked]="!isDayAccessible(day)"
+            (click)="isDayAccessible(day) && selectDay(day)">
+
+            <span class="day-number">J{{ getDayNumber(day) }}</span>
+
+            <div class="day-info">
+              <span class="day-title">{{ day.title.split(' - ')[1] || day.title }}</span>
+              <span class="day-duration">{{ formatDayDuration(day) }}</span>
+            </div>
+
+            <span class="day-status-icon">
+              <span *ngIf="day.completed">✅</span>
+              <span *ngIf="isCurrentDay(day) && !day.completed">🔵</span>
+              <span *ngIf="!day.completed && !isCurrentDay(day) && !isDayAccessible(day)">🔒</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- PANNEAU DE PRÉVISUALISATION -->
+  <!-- ========================================== -->
+
+  <!--
+    Affiche les détails d'un jour sélectionné.
+    Slide-in depuis la droite.
+  -->
+  <div class="preview-panel" [class.open]="selectedDay">
+    <div class="preview-overlay" (click)="closePreview()"></div>
+
+    <div *ngIf="selectedDay" class="preview-content">
+      <header class="preview-header">
+        <div class="preview-title-section">
+          <span class="preview-badge">Jour {{ getDayNumber(selectedDay) }}</span>
+          <h2 class="preview-title">{{ selectedDay.title }}</h2>
+          <span class="preview-date">{{ formatDate(selectedDay.date) }}</span>
+        </div>
+        <button class="close-btn" (click)="closePreview()">✕</button>
+      </header>
+
+      <div class="preview-body">
+        <!-- Progression -->
+        <div class="preview-progress">
+          <div class="progress-circle">
+            <span class="progress-value">{{ getDayProgress(selectedDay) }}%</span>
+          </div>
+          <span class="progress-label">Progression</span>
+        </div>
+
+        <!-- Objectifs -->
+        <div class="preview-section">
+          <h3 class="preview-section-title">🎯 Objectifs</h3>
+          <ul class="objectives-list">
+            <li *ngFor="let objective of selectedDay.objectives">
+              {{ objective }}
+            </li>
+          </ul>
+        </div>
+
+        <!-- Sessions -->
+        <div class="preview-section">
+          <h3 class="preview-section-title">📅 Sessions</h3>
+          <div class="sessions-list">
+            <div
+              *ngFor="let session of selectedDay.sessions"
+              class="session-card"
+              [class.completed]="session.completed">
+
+              <div class="session-header">
+                <span class="session-period">
+                  {{ getPeriodIcon(session.period) }} {{ getPeriodLabel(session.period) }}
+                </span>
+                <span class="session-duration">{{ formatMinutes(session.duration) }}</span>
+              </div>
+
+              <div class="session-topics">
+                <span *ngFor="let topic of session.topics" class="topic-tag">
+                  {{ topic }}
+                </span>
+              </div>
+
+              <div *ngIf="session.documents.length > 0" class="session-docs">
+                <span class="docs-icon">📄</span>
+                <span class="docs-count">{{ session.documents.length }} document(s)</span>
+              </div>
+
+              <div *ngIf="session.exercises.length > 0" class="session-exercises">
+                <span class="exercises-icon">✏️</span>
+                <span class="exercises-count">{{ session.exercises.length }} exercice(s)</span>
+              </div>
+
+              <span *ngIf="session.completed" class="completed-badge">✓ Terminée</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes (si existantes) -->
+        <div *ngIf="selectedDay.notes" class="preview-section">
+          <h3 class="preview-section-title">📝 Notes</h3>
+          <p class="notes-content">{{ selectedDay.notes }}</p>
+        </div>
+      </div>
+
+      <!-- Action -->
+      <footer class="preview-footer">
+        <button
+          class="preview-action-btn"
+          [disabled]="!isDayAccessible(selectedDay)"
+          (click)="navigateToDay(selectedDay)">
+          <span *ngIf="selectedDay.completed">📖 Revoir ce jour</span>
+          <span *ngIf="!selectedDay.completed && isDayAccessible(selectedDay)">
+            {{ getDayProgress(selectedDay) > 0 ? '▶️ Continuer' : '🚀 Commencer' }}
+          </span>
+          <span *ngIf="!isDayAccessible(selectedDay)">🔒 Jour verrouillé</span>
+        </button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- LÉGENDE -->
+  <!-- ========================================== -->
+
+  <section class="legend-section">
+    <h3 class="legend-title">Légende</h3>
+    <div class="legend-items">
+      <div class="legend-item">
+        <span class="legend-dot status-completed"></span>
+        <span class="legend-label">Terminé</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot status-current"></span>
+        <span class="legend-label">En cours</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot status-available"></span>
+        <span class="legend-label">Disponible</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot status-locked"></span>
+        <span class="legend-label">Verrouillé</span>
+      </div>
+    </div>
+  </section>
+
+</div>

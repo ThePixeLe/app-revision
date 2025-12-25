@@ -1,0 +1,190 @@
+/**
+ * app.component.scss
+ *
+ * Styles du layout principal de l'application.
+ *
+ * Ce fichier définit la structure globale :
+ * - Layout en grille (navbar + sidebar + contenu)
+ * - Styles de base pour le thème sombre
+ * - Variables CSS globales
+ *
+ * Philosophie David J. Malan :
+ * "The foundation of any building is its most important part.
+ *  Get it right, and everything else follows."
+ *
+ * Auteur: H1m0t3p3
+ * Date: 24 décembre 2024
+ */
+
+// ============================================================
+// RESET ET VARIABLES GLOBALES
+// ============================================================
+
+/**
+ * :host
+ * ----
+ * :host cible l'élément hôte du composant (app-root).
+ * C'est ici qu'on définit les variables CSS globales.
+ */
+:host {
+  // Mode d'affichage
+  display: block;
+  min-height: 100vh;
+
+  // Couleurs de fond
+  --bg-body: #0f172a;        // Slate 900
+  --bg-sidebar: #1e293b;     // Slate 800
+  --bg-card: #334155;        // Slate 700
+
+  // Couleurs de texte
+  --text-primary: #f8fafc;   // Slate 50
+  --text-secondary: #94a3b8; // Slate 400
+
+  // Tailles du layout
+  --navbar-height: 57px;
+  --sidebar-width: 250px;
+
+  // Transitions
+  --transition-normal: 300ms ease;
+}
+
+// ============================================================
+// LAYOUT PRINCIPAL
+// ============================================================
+
+/**
+ * .app-layout
+ * ----------
+ *
+ * Conteneur racine du layout.
+ * Utilise Flexbox pour organiser navbar + body verticalement.
+ */
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg-body);
+  color: var(--text-primary);
+}
+
+/**
+ * .app-body
+ * --------
+ *
+ * Conteneur pour sidebar + contenu.
+ * Prend tout l'espace restant sous la navbar.
+ */
+.app-body {
+  display: flex;
+  flex: 1;
+  margin-top: var(--navbar-height);
+}
+
+/**
+ * .app-content
+ * -----------
+ *
+ * Zone de contenu principal.
+ * Contient le <router-outlet> et le contenu des pages.
+ *
+ * Sur desktop : À droite de la sidebar
+ * Sur mobile : Pleine largeur
+ */
+.app-content {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  min-height: calc(100vh - var(--navbar-height));
+  overflow-y: auto;
+  transition: margin-left var(--transition-normal);
+
+  // Sur mobile, pas de marge (sidebar cachée)
+  @media (max-width: 768px) {
+    margin-left: 0;
+  }
+}
+
+// ============================================================
+// STYLES GLOBAUX
+// ============================================================
+
+/**
+ * Box-sizing global
+ * ----------------
+ * border-box fait que padding et border sont inclus dans width/height.
+ * C'est plus intuitif pour le calcul des dimensions.
+ */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/**
+ * Reset des marges
+ * ---------------
+ */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/**
+ * Scrollbar personnalisée
+ * ----------------------
+ * Style moderne pour les navigateurs Webkit (Chrome, Safari, Edge).
+ */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-sidebar);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-card);
+  border-radius: 4px;
+
+  &:hover {
+    background: #475569; // Slate 600
+  }
+}
+
+/**
+ * Réflexions sur le layout (style David J. Malan)
+ * ===============================================
+ *
+ * 1. POURQUOI Flexbox pour le layout ?
+ *
+ *    Flexbox est parfait pour les layouts 1D :
+ *    - Navbar + Body = colonne
+ *    - Sidebar + Content = ligne
+ *
+ *    CSS Grid serait overkill ici.
+ *
+ * 2. POURQUOI des variables CSS ?
+ *
+ *    - Cohérence : mêmes couleurs partout
+ *    - Maintenabilité : changer une valeur = changer partout
+ *    - Thématisation : facile d'ajouter un mode clair
+ *
+ * 3. POURQUOI margin-left sur .app-content ?
+ *
+ *    La sidebar est en position: fixed.
+ *    Elle est "hors du flux" du document.
+ *    On doit donc "réserver" l'espace manuellement.
+ *
+ *    Alternative : CSS Grid avec grid-template-columns.
+ *
+ * 4. POURQUOI la transition sur margin-left ?
+ *
+ *    Sur mobile, quand on toggle la sidebar,
+ *    le contenu ne doit pas "sauter" brutalement.
+ *    La transition rend le changement fluide.
+ *
+ * Citation de David J. Malan :
+ * "A user interface is like a joke.
+ *  If you have to explain it, it's not that good."
+ */

@@ -512,6 +512,13 @@ export class PomodoroService {
   }
 
   /**
+   * METTRE À JOUR LES PARAMÈTRES (alias pour updateConfig)
+   */
+  updateSettings(settings: Partial<PomodoroConfig>): void {
+    this.updateConfig(settings);
+  }
+
+  /**
    * RÉINITIALISER LA CONFIGURATION
    */
   resetConfig(): void {

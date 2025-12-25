@@ -1,0 +1,368 @@
+<!--
+  pomodoro.component.html
+
+  Template du composant POMODORO - Timer de productivité.
+
+  Structure de la page :
+  =====================
+  1. Header avec titre et paramètres
+  2. Timer circulaire (élément principal)
+  3. Contrôles (play, pause, stop, skip)
+  4. Indicateurs de progression (4 cercles)
+  5. Statistiques du jour
+  6. Panneau de configuration (modal)
+
+  Design inspiré de :
+  - Forest App (le timer circulaire)
+  - Pomofocus.io (la simplicité)
+  - Apple Watch (les cercles d'activité)
+
+  Philosophie David J. Malan :
+  "Good design is invisible. You don't notice it until it's gone."
+
+  L'interface doit être tellement intuitive que l'utilisateur
+  n'a pas besoin de réfléchir pour l'utiliser.
+
+  Auteur: H1m0t3p3
+  Date: 24 décembre 2024
+-->
+
+<div class="pomodoro-container" [class]="'state-' + state">
+
+  <!-- ========================================== -->
+  <!-- HEADER -->
+  <!-- ========================================== -->
+
+  <header class="pomodoro-header">
+    <h1 class="page-title">
+      <span class="title-icon">🍅</span>
+      Pomodoro Timer
+    </h1>
+
+    <button
+      class="settings-btn"
+      (click)="toggleSettings()"
+      [class.active]="showSettings"
+      aria-label="Paramètres">
+      ⚙️
+    </button>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- MESSAGE MOTIVANT -->
+  <!-- ========================================== -->
+
+  <div class="motivational-message">
+    {{ getMotivationalMessage() }}
+  </div>
+
+  <!-- ========================================== -->
+  <!-- TIMER PRINCIPAL -->
+  <!-- ========================================== -->
+
+  <!--
+    Le timer est l'élément central de la page.
+    Un grand cercle avec le temps restant au centre.
+
+    Le cercle se "vide" progressivement grâce à un conic-gradient CSS.
+  -->
+  <div class="timer-section">
+    <div class="timer-circle" [class]="'timer-' + getStateColor()">
+      <!--
+        Cercle de progression.
+        Utilise conic-gradient pour créer l'effet de remplissage.
+      -->
+      <div
+        class="progress-ring"
+        [style.background]="getProgressStyle()">
+      </div>
+
+      <!-- Contenu intérieur du cercle -->
+      <div class="timer-content">
+        <!-- Label de l'état (Focus, Pause, etc.) -->
+        <span class="timer-state">{{ getStateLabel() }}</span>
+
+        <!-- Temps restant en grand -->
+        <span class="timer-display">{{ formatTime(timeRemaining) }}</span>
+
+        <!-- Sous-label -->
+        <span class="timer-sublabel" *ngIf="isActive()">
+          {{ state === 'working' ? 'Reste concentré !' : 'Détends-toi...' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- INDICATEURS DE POMODORO -->
+  <!-- ========================================== -->
+
+  <!--
+    4 petits cercles représentant le cycle de 4 Pomodoros.
+    Remplis = Pomodoros complétés dans ce cycle.
+    Après 4, pause longue puis reset.
+  -->
+  <div class="pomodoro-indicators">
+    <div
+      *ngFor="let completed of getPomodoroIndicators(); let i = index"
+      class="indicator"
+      [class.completed]="completed"
+      [attr.aria-label]="'Pomodoro ' + (i + 1) + (completed ? ' (complété)' : '')">
+      🍅
+    </div>
+    <span class="cycle-label">
+      Cycle : {{ completedPomodoros % 4 }}/4
+    </span>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- CONTRÔLES -->
+  <!-- ========================================== -->
+
+  <div class="controls-section">
+    <!--
+      État IDLE (pas de timer actif)
+      Affiche les 3 boutons de démarrage.
+    -->
+    <div *ngIf="state === 'idle'" class="controls-idle">
+      <button
+        class="control-btn btn-primary btn-large"
+        (click)="startPomodoro()">
+        <span class="btn-icon">▶️</span>
+        <span class="btn-text">Démarrer un Pomodoro</span>
+      </button>
+
+      <div class="secondary-controls">
+        <button
+          class="control-btn btn-secondary"
+          (click)="startShortBreak()">
+          <span class="btn-icon">☕</span>
+          <span class="btn-text">Pause courte</span>
+        </button>
+
+        <button
+          class="control-btn btn-secondary"
+          (click)="startLongBreak()">
+          <span class="btn-icon">🌴</span>
+          <span class="btn-text">Pause longue</span>
+        </button>
+      </div>
+    </div>
+
+    <!--
+      État ACTIF (timer en cours)
+      Affiche pause/stop/skip.
+    -->
+    <div *ngIf="isActive() || state === 'paused'" class="controls-active">
+      <button
+        class="control-btn btn-icon-only"
+        (click)="stop()"
+        aria-label="Arrêter">
+        ⏹️
+      </button>
+
+      <button
+        class="control-btn btn-primary btn-large"
+        (click)="togglePause()">
+        <span class="btn-icon">{{ state === 'paused' ? '▶️' : '⏸️' }}</span>
+        <span class="btn-text">{{ state === 'paused' ? 'Reprendre' : 'Pause' }}</span>
+      </button>
+
+      <button
+        class="control-btn btn-icon-only"
+        (click)="skip()"
+        aria-label="Passer">
+        ⏭️
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- STATISTIQUES DU JOUR -->
+  <!-- ========================================== -->
+
+  <section class="stats-section" *ngIf="stats">
+    <h2 class="section-title">Statistiques</h2>
+
+    <div class="stats-grid">
+      <!-- Aujourd'hui -->
+      <div class="stat-card">
+        <span class="stat-icon">📅</span>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats.today.completed }}</span>
+          <span class="stat-label">Pomodoros aujourd'hui</span>
+        </div>
+      </div>
+
+      <!-- Temps de travail -->
+      <div class="stat-card">
+        <span class="stat-icon">⏱️</span>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats.today.totalWorkTime }} min</span>
+          <span class="stat-label">Temps de focus</span>
+        </div>
+      </div>
+
+      <!-- Cette semaine -->
+      <div class="stat-card">
+        <span class="stat-icon">📆</span>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats.thisWeek.completed }}</span>
+          <span class="stat-label">Cette semaine</span>
+        </div>
+      </div>
+
+      <!-- Total -->
+      <div class="stat-card">
+        <span class="stat-icon">🏆</span>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats.allTime.completed }}</span>
+          <span class="stat-label">Total Pomodoros</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- PANNEAU DE CONFIGURATION -->
+  <!-- ========================================== -->
+
+  <!--
+    Panneau latéral pour configurer les durées.
+    S'affiche quand showSettings = true.
+  -->
+  <div class="settings-panel" [class.open]="showSettings">
+    <div class="settings-overlay" (click)="toggleSettings()"></div>
+
+    <div class="settings-content">
+      <header class="settings-header">
+        <h2>Paramètres</h2>
+        <button class="close-btn" (click)="toggleSettings()">✕</button>
+      </header>
+
+      <div class="settings-body">
+        <!-- Durée de travail -->
+        <div class="setting-item">
+          <label class="setting-label">
+            <span class="setting-icon">🍅</span>
+            Durée de travail
+          </label>
+          <div class="setting-control">
+            <button
+              class="adjust-btn"
+              (click)="updateWorkDuration(config.workDuration / 60 - 5)"
+              [disabled]="config.workDuration <= 15 * 60">
+              −
+            </button>
+            <span class="setting-value">{{ config.workDuration / 60 }} min</span>
+            <button
+              class="adjust-btn"
+              (click)="updateWorkDuration(config.workDuration / 60 + 5)"
+              [disabled]="config.workDuration >= 60 * 60">
+              +
+            </button>
+          </div>
+        </div>
+
+        <!-- Durée pause courte -->
+        <div class="setting-item">
+          <label class="setting-label">
+            <span class="setting-icon">☕</span>
+            Pause courte
+          </label>
+          <div class="setting-control">
+            <button
+              class="adjust-btn"
+              (click)="updateShortBreakDuration(config.shortBreakDuration / 60 - 1)"
+              [disabled]="config.shortBreakDuration <= 3 * 60">
+              −
+            </button>
+            <span class="setting-value">{{ config.shortBreakDuration / 60 }} min</span>
+            <button
+              class="adjust-btn"
+              (click)="updateShortBreakDuration(config.shortBreakDuration / 60 + 1)"
+              [disabled]="config.shortBreakDuration >= 15 * 60">
+              +
+            </button>
+          </div>
+        </div>
+
+        <!-- Durée pause longue -->
+        <div class="setting-item">
+          <label class="setting-label">
+            <span class="setting-icon">🌴</span>
+            Pause longue
+          </label>
+          <div class="setting-control">
+            <button
+              class="adjust-btn"
+              (click)="updateLongBreakDuration(config.longBreakDuration / 60 - 5)"
+              [disabled]="config.longBreakDuration <= 10 * 60">
+              −
+            </button>
+            <span class="setting-value">{{ config.longBreakDuration / 60 }} min</span>
+            <button
+              class="adjust-btn"
+              (click)="updateLongBreakDuration(config.longBreakDuration / 60 + 5)"
+              [disabled]="config.longBreakDuration >= 45 * 60">
+              +
+            </button>
+          </div>
+        </div>
+
+        <hr class="settings-divider">
+
+        <!-- Auto-start pauses -->
+        <div class="setting-item setting-toggle">
+          <label class="setting-label">
+            <span class="setting-icon">⏰</span>
+            Démarrer les pauses automatiquement
+          </label>
+          <button
+            class="toggle-btn"
+            [class.active]="config.autoStartBreaks"
+            (click)="toggleAutoStartBreaks()">
+            {{ config.autoStartBreaks ? 'ON' : 'OFF' }}
+          </button>
+        </div>
+
+        <!-- Auto-start Pomodoros -->
+        <div class="setting-item setting-toggle">
+          <label class="setting-label">
+            <span class="setting-icon">🔄</span>
+            Démarrer les Pomodoros automatiquement
+          </label>
+          <button
+            class="toggle-btn"
+            [class.active]="config.autoStartPomodoros"
+            (click)="toggleAutoStartPomodoros()">
+            {{ config.autoStartPomodoros ? 'ON' : 'OFF' }}
+          </button>
+        </div>
+
+        <hr class="settings-divider">
+
+        <!-- Bouton reset -->
+        <button class="reset-btn" (click)="resetConfig()">
+          🔄 Réinitialiser les paramètres
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- CONSEILS -->
+  <!-- ========================================== -->
+
+  <section class="tips-section">
+    <h3 class="tips-title">💡 Conseils pour un Pomodoro efficace</h3>
+    <ul class="tips-list">
+      <li>Élimine les distractions : téléphone en silencieux, notifications off</li>
+      <li>Prépare tout avant : eau, documents, outils nécessaires</li>
+      <li>Une tâche à la fois : pas de multitâche pendant le Pomodoro</li>
+      <li>Respecte les pauses : elles sont essentielles pour la récupération</li>
+      <li>Note tes interruptions : ça t'aidera à les réduire</li>
+    </ul>
+  </section>
+
+</div>

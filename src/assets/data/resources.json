@@ -1,0 +1,264 @@
+{
+  "_comment": "Ressources et liens utiles - App Revision",
+  "_author": "H1m0t3p3",
+  "_date": "24 décembre 2024",
+
+  "pdfs": [
+    {
+      "id": "pdf-algo-intro",
+      "title": "Introduction aux Algorithmes",
+      "filename": "Algo 03 - Algorithmes Introduction - 1.0.1 MD.pdf",
+      "category": "algo",
+      "description": "Cours complet sur les bases de l'algorithmique, les variables, les entrées/sorties.",
+      "pages": 25,
+      "tags": ["introduction", "bases", "variables"]
+    },
+    {
+      "id": "pdf-algo-simple",
+      "title": "Algorithmes Simples - AFPA",
+      "filename": "Algo A2 - Algorithmes simples - AFPA.pdf",
+      "category": "algo",
+      "description": "Exemples d'algorithmes simples avec explications détaillées.",
+      "pages": 15,
+      "tags": ["exemples", "pratique"]
+    },
+    {
+      "id": "pdf-conditions",
+      "title": "Exercices - Les Conditions",
+      "filename": "exercice_algo_lesConditions_Mad_V1.0.0 1.pdf",
+      "category": "algo",
+      "description": "9 exercices progressifs sur les structures conditionnelles.",
+      "pages": 5,
+      "tags": ["exercices", "conditions", "si-alors-sinon"]
+    },
+    {
+      "id": "pdf-boucles",
+      "title": "Exercices - Les Boucles",
+      "filename": "exercice_algo_les boucles_mad_v1.0.0 1.pdf",
+      "category": "algo",
+      "description": "9 exercices progressifs sur les boucles (pour, tant que).",
+      "pages": 6,
+      "tags": ["exercices", "boucles", "for", "while"]
+    },
+    {
+      "id": "pdf-tableaux",
+      "title": "Exercices - Les Tableaux",
+      "filename": "exercice_algorithme_les_tableaux_Mad_V1.0.0.pdf",
+      "category": "algo",
+      "description": "9 exercices sur la manipulation des tableaux.",
+      "pages": 5,
+      "tags": ["exercices", "tableaux", "arrays"]
+    },
+    {
+      "id": "pdf-java-bases",
+      "title": "Bases de Java",
+      "filename": "Java 01 - Bases Java - MD v1.0.0.pdf",
+      "category": "java",
+      "description": "Introduction à Java : JDK, JRE, JVM, premier programme.",
+      "pages": 20,
+      "tags": ["java", "introduction", "hello-world"]
+    },
+    {
+      "id": "pdf-java-syntaxe",
+      "title": "Syntaxe Java",
+      "filename": "Java 02 - Base Syntaxe - MD v1.0.0.pdf",
+      "category": "java",
+      "description": "Types, variables, opérateurs en Java.",
+      "pages": 25,
+      "tags": ["java", "syntaxe", "types", "variables"]
+    },
+    {
+      "id": "pdf-java-scanner",
+      "title": "Scanner Java",
+      "filename": "Java 03 - Scanner - MD v1.0.0.pdf",
+      "category": "java",
+      "description": "Utilisation de Scanner pour les entrées utilisateur.",
+      "pages": 10,
+      "tags": ["java", "scanner", "entrées"]
+    },
+    {
+      "id": "pdf-java-tableaux",
+      "title": "Tableaux en Java",
+      "filename": "Java 10 - Programmation_Java_Tableaux.pdf",
+      "category": "java",
+      "description": "Cours complet sur les tableaux en Java.",
+      "pages": 30,
+      "tags": ["java", "tableaux", "arrays"]
+    },
+    {
+      "id": "pdf-java-tableaux-ex",
+      "title": "Exercices Tableaux Java",
+      "filename": "Java 11 - Exercice Tableau en java MA.pdf",
+      "category": "java",
+      "description": "Exercices pratiques sur les tableaux Java.",
+      "pages": 8,
+      "tags": ["java", "exercices", "tableaux"]
+    }
+  ],
+
+  "links": [
+    {
+      "id": "link-1",
+      "title": "W3Schools - Java Tutorial",
+      "url": "https://www.w3schools.com/java/",
+      "category": "java",
+      "description": "Tutoriel interactif Java avec exemples exécutables.",
+      "icon": "🌐",
+      "recommended": true
+    },
+    {
+      "id": "link-2",
+      "title": "Visualgo - Visualisation d'algorithmes",
+      "url": "https://visualgo.net/",
+      "category": "algo",
+      "description": "Visualisation animée des algorithmes de tri, recherche, etc.",
+      "icon": "🎬",
+      "recommended": true
+    },
+    {
+      "id": "link-3",
+      "title": "France-IOI - Algorithmique",
+      "url": "https://www.france-ioi.org/",
+      "category": "algo",
+      "description": "Plateforme française d'entraînement à l'algorithmique.",
+      "icon": "🇫🇷",
+      "recommended": true
+    },
+    {
+      "id": "link-4",
+      "title": "CS50 - Harvard",
+      "url": "https://cs50.harvard.edu/",
+      "category": "algo",
+      "description": "Le célèbre cours d'introduction à l'informatique de Harvard.",
+      "icon": "🎓",
+      "recommended": true
+    },
+    {
+      "id": "link-5",
+      "title": "Boolean Logic Calculator",
+      "url": "https://www.dcode.fr/boolean-expressions-calculator",
+      "category": "algebre",
+      "description": "Calculatrice d'expressions booléennes en ligne.",
+      "icon": "🧮",
+      "recommended": false
+    },
+    {
+      "id": "link-6",
+      "title": "Karnaugh Map Solver",
+      "url": "https://www.charlie-coleman.com/experiments/kmap/",
+      "category": "algebre",
+      "description": "Solveur de tableaux de Karnaugh en ligne.",
+      "icon": "📊",
+      "recommended": false
+    },
+    {
+      "id": "link-7",
+      "title": "Java Documentation Oracle",
+      "url": "https://docs.oracle.com/en/java/",
+      "category": "java",
+      "description": "Documentation officielle Java par Oracle.",
+      "icon": "📚",
+      "recommended": false
+    },
+    {
+      "id": "link-8",
+      "title": "GeeksforGeeks - Algorithms",
+      "url": "https://www.geeksforgeeks.org/fundamentals-of-algorithms/",
+      "category": "algo",
+      "description": "Articles et exercices sur les algorithmes.",
+      "icon": "👨‍💻",
+      "recommended": false
+    },
+    {
+      "id": "link-9",
+      "title": "LeetCode",
+      "url": "https://leetcode.com/",
+      "category": "algo",
+      "description": "Plateforme de pratique d'algorithmes (niveau avancé).",
+      "icon": "💻",
+      "recommended": false
+    },
+    {
+      "id": "link-10",
+      "title": "Codecademy - Java",
+      "url": "https://www.codecademy.com/learn/learn-java",
+      "category": "java",
+      "description": "Cours interactif Java pour débutants.",
+      "icon": "🎮",
+      "recommended": false
+    }
+  ],
+
+  "videos": [
+    {
+      "id": "video-1",
+      "title": "CS50 2024 - Lecture 0 - Scratch",
+      "url": "https://www.youtube.com/watch?v=3LPJfIKxwWc",
+      "category": "algo",
+      "description": "Introduction à la pensée algorithmique par David Malan.",
+      "duration": "120 min",
+      "language": "en"
+    },
+    {
+      "id": "video-2",
+      "title": "Algèbre de Boole - Cours complet",
+      "url": "https://www.youtube.com/results?search_query=algebre+de+boole+cours",
+      "category": "algebre",
+      "description": "Recherche YouTube pour des cours en français.",
+      "duration": "Variable",
+      "language": "fr"
+    },
+    {
+      "id": "video-3",
+      "title": "Java pour les débutants",
+      "url": "https://www.youtube.com/results?search_query=java+debutant+francais",
+      "category": "java",
+      "description": "Recherche YouTube pour des tutoriels Java en français.",
+      "duration": "Variable",
+      "language": "fr"
+    }
+  ],
+
+  "tools": [
+    {
+      "id": "tool-1",
+      "name": "Visual Studio Code",
+      "url": "https://code.visualstudio.com/",
+      "description": "Éditeur de code léger et puissant.",
+      "category": "development",
+      "free": true
+    },
+    {
+      "id": "tool-2",
+      "name": "IntelliJ IDEA Community",
+      "url": "https://www.jetbrains.com/idea/download/",
+      "description": "IDE Java professionnel (version gratuite disponible).",
+      "category": "java",
+      "free": true
+    },
+    {
+      "id": "tool-3",
+      "name": "JDK 21",
+      "url": "https://www.oracle.com/java/technologies/downloads/",
+      "description": "Kit de développement Java (dernière version LTS).",
+      "category": "java",
+      "free": true
+    },
+    {
+      "id": "tool-4",
+      "name": "Replit",
+      "url": "https://replit.com/",
+      "description": "IDE en ligne pour coder directement dans le navigateur.",
+      "category": "development",
+      "free": true
+    },
+    {
+      "id": "tool-5",
+      "name": "Anki",
+      "url": "https://apps.ankiweb.net/",
+      "description": "Application de flashcards avec révision espacée.",
+      "category": "learning",
+      "free": true
+    }
+  ]
+}

@@ -1,0 +1,416 @@
+<!--
+  settings.component.html
+
+  Template de la page Paramètres.
+
+  Structure de la page :
+  =====================
+
+  ┌─────────────────────────────────────────────────────────────┐
+  │                       HEADER                                │
+  │   Paramètres                              [Sauvegarder]     │
+  ├─────────────────────────────────────────────────────────────┤
+  │                                                             │
+  │   ┌─────────────────────────────────────────────────────┐  │
+  │   │              SECTION POMODORO                       │  │
+  │   │   Durée travail:     [====|====] 25 min             │  │
+  │   │   Pause courte:      [====|====] 5 min              │  │
+  │   │   Pause longue:      [====|====] 15 min             │  │
+  │   └─────────────────────────────────────────────────────┘  │
+  │                                                             │
+  │   ┌─────────────────────────────────────────────────────┐  │
+  │   │            SECTION NOTIFICATIONS                    │  │
+  │   │   [✓] Activer les notifications                     │  │
+  │   │   [✓] Son                    Volume: [====] 80%     │  │
+  │   │   [ ] Rappel quotidien       Heure: [09:00]         │  │
+  │   └─────────────────────────────────────────────────────┘  │
+  │                                                             │
+  │   ┌─────────────────────────────────────────────────────┐  │
+  │   │              SECTION DONNÉES                        │  │
+  │   │   [Exporter]  [Importer]  [Réinitialiser]           │  │
+  │   └─────────────────────────────────────────────────────┘  │
+  │                                                             │
+  └─────────────────────────────────────────────────────────────┘
+
+  Organisation en sections :
+  - Chaque section = un groupe de paramètres liés
+  - Les sections sont visuellement séparées
+  - L'utilisateur trouve facilement ce qu'il cherche
+
+  Auteur: H1m0t3p3
+  Date: 24 décembre 2024
+-->
+
+<div class="settings-container">
+
+  <!-- ========================================== -->
+  <!-- HEADER -->
+  <!-- ========================================== -->
+  <header class="settings-header">
+    <div class="header-content">
+      <h1 class="page-title">⚙️ Paramètres</h1>
+      <p class="page-subtitle">Personnalise ton expérience d'apprentissage</p>
+    </div>
+
+    <!-- Indicateur de sauvegarde -->
+    <div class="save-indicator" *ngIf="lastSaved">
+      <span class="save-icon">✓</span>
+      <span class="save-text">Sauvegardé</span>
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- MESSAGE DE FEEDBACK -->
+  <!-- ========================================== -->
+  <div
+    class="feedback-toast"
+    *ngIf="feedbackMessage"
+    [class.success]="feedbackType === 'success'"
+    [class.error]="feedbackType === 'error'"
+    [class.info]="feedbackType === 'info'">
+    {{ feedbackMessage }}
+  </div>
+
+  <!-- ========================================== -->
+  <!-- SECTION POMODORO -->
+  <!-- ========================================== -->
+  <!--
+    Paramètres du timer Pomodoro.
+    Les sliders permettent un ajustement précis.
+  -->
+  <section class="settings-section">
+    <div class="section-header">
+      <span class="section-icon">🍅</span>
+      <div class="section-info">
+        <h2 class="section-title">Timer Pomodoro</h2>
+        <p class="section-description">
+          Ajuste les durées selon ta capacité de concentration
+        </p>
+      </div>
+    </div>
+
+    <div class="settings-group">
+
+      <!-- Durée de travail -->
+      <div class="setting-item">
+        <label class="setting-label">
+          <span class="label-text">Durée de travail</span>
+          <span class="label-value">{{ settings.pomodoro.workDuration }} min</span>
+        </label>
+        <input
+          type="range"
+          class="setting-slider"
+          min="15"
+          max="60"
+          step="5"
+          [(ngModel)]="settings.pomodoro.workDuration"
+          (change)="saveSettings()">
+        <div class="slider-labels">
+          <span>15 min</span>
+          <span>60 min</span>
+        </div>
+      </div>
+
+      <!-- Pause courte -->
+      <div class="setting-item">
+        <label class="setting-label">
+          <span class="label-text">Pause courte</span>
+          <span class="label-value">{{ settings.pomodoro.shortBreakDuration }} min</span>
+        </label>
+        <input
+          type="range"
+          class="setting-slider"
+          min="3"
+          max="15"
+          step="1"
+          [(ngModel)]="settings.pomodoro.shortBreakDuration"
+          (change)="saveSettings()">
+        <div class="slider-labels">
+          <span>3 min</span>
+          <span>15 min</span>
+        </div>
+      </div>
+
+      <!-- Pause longue -->
+      <div class="setting-item">
+        <label class="setting-label">
+          <span class="label-text">Pause longue</span>
+          <span class="label-value">{{ settings.pomodoro.longBreakDuration }} min</span>
+        </label>
+        <input
+          type="range"
+          class="setting-slider"
+          min="10"
+          max="30"
+          step="5"
+          [(ngModel)]="settings.pomodoro.longBreakDuration"
+          (change)="saveSettings()">
+        <div class="slider-labels">
+          <span>10 min</span>
+          <span>30 min</span>
+        </div>
+      </div>
+
+      <!-- Sessions avant pause longue -->
+      <div class="setting-item">
+        <label class="setting-label">
+          <span class="label-text">Sessions avant pause longue</span>
+          <span class="label-value">{{ settings.pomodoro.sessionsBeforeLongBreak }}</span>
+        </label>
+        <input
+          type="range"
+          class="setting-slider"
+          min="2"
+          max="6"
+          step="1"
+          [(ngModel)]="settings.pomodoro.sessionsBeforeLongBreak"
+          (change)="saveSettings()">
+        <div class="slider-labels">
+          <span>2</span>
+          <span>6</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- SECTION NOTIFICATIONS -->
+  <!-- ========================================== -->
+  <section class="settings-section">
+    <div class="section-header">
+      <span class="section-icon">🔔</span>
+      <div class="section-info">
+        <h2 class="section-title">Notifications</h2>
+        <p class="section-description">
+          Configure les alertes et rappels
+        </p>
+      </div>
+    </div>
+
+    <div class="settings-group">
+
+      <!-- Activer notifications -->
+      <div class="setting-item toggle-item">
+        <label class="setting-label">
+          <span class="label-text">Activer les notifications</span>
+          <span class="label-hint">Reçois des alertes à la fin des sessions</span>
+        </label>
+        <label class="toggle-switch">
+          <input
+            type="checkbox"
+            [(ngModel)]="settings.notifications.enabled"
+            (change)="saveSettings()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <!-- Son -->
+      <div class="setting-item toggle-item" *ngIf="settings.notifications.enabled">
+        <label class="setting-label">
+          <span class="label-text">Son de notification</span>
+          <span class="label-hint">Joue un son à la fin des sessions</span>
+        </label>
+        <label class="toggle-switch">
+          <input
+            type="checkbox"
+            [(ngModel)]="settings.notifications.sound"
+            (change)="saveSettings()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <!-- Volume -->
+      <div class="setting-item" *ngIf="settings.notifications.enabled && settings.notifications.sound">
+        <label class="setting-label">
+          <span class="label-text">Volume</span>
+          <span class="label-value">{{ settings.notifications.soundVolume }}%</span>
+        </label>
+        <input
+          type="range"
+          class="setting-slider"
+          min="0"
+          max="100"
+          step="10"
+          [(ngModel)]="settings.notifications.soundVolume"
+          (change)="saveSettings()">
+      </div>
+
+      <!-- Tester notification -->
+      <div class="setting-item" *ngIf="settings.notifications.enabled">
+        <button
+          class="btn-test"
+          (click)="testNotification()">
+          <span>🔔</span>
+          <span>Tester une notification</span>
+        </button>
+      </div>
+
+      <!-- Rappel quotidien -->
+      <div class="setting-item toggle-item">
+        <label class="setting-label">
+          <span class="label-text">Rappel quotidien</span>
+          <span class="label-hint">Rappel pour maintenir ton streak</span>
+        </label>
+        <label class="toggle-switch">
+          <input
+            type="checkbox"
+            [(ngModel)]="settings.notifications.reminderEnabled"
+            (change)="saveSettings()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <!-- Heure du rappel -->
+      <div class="setting-item" *ngIf="settings.notifications.reminderEnabled">
+        <label class="setting-label">
+          <span class="label-text">Heure du rappel</span>
+        </label>
+        <input
+          type="time"
+          class="setting-input"
+          [(ngModel)]="settings.notifications.reminderTime"
+          (change)="saveSettings()">
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- SECTION DONNÉES -->
+  <!-- ========================================== -->
+  <section class="settings-section">
+    <div class="section-header">
+      <span class="section-icon">💾</span>
+      <div class="section-info">
+        <h2 class="section-title">Données</h2>
+        <p class="section-description">
+          Exporte, importe ou réinitialise tes données
+        </p>
+      </div>
+    </div>
+
+    <div class="settings-group data-group">
+
+      <!-- Export -->
+      <div class="data-action">
+        <div class="action-info">
+          <h3>📤 Exporter</h3>
+          <p>Télécharge toutes tes données en JSON</p>
+        </div>
+        <button class="btn-action export" (click)="exportData()">
+          Exporter
+        </button>
+      </div>
+
+      <!-- Import -->
+      <div class="data-action">
+        <div class="action-info">
+          <h3>📥 Importer</h3>
+          <p>Restaure tes données depuis un fichier</p>
+        </div>
+        <label class="btn-action import">
+          <span>Importer</span>
+          <input
+            type="file"
+            accept=".json"
+            (change)="importData($event)"
+            hidden>
+        </label>
+      </div>
+
+      <!-- Reset paramètres -->
+      <div class="data-action">
+        <div class="action-info">
+          <h3>🔄 Réinitialiser les paramètres</h3>
+          <p>Remet les paramètres par défaut</p>
+        </div>
+        <button class="btn-action reset" (click)="resetToDefaults()">
+          Réinitialiser
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- ZONE DANGER -->
+  <!-- ========================================== -->
+  <section class="settings-section danger-zone">
+    <div class="section-header">
+      <span class="section-icon">⚠️</span>
+      <div class="section-info">
+        <h2 class="section-title">Zone de danger</h2>
+        <p class="section-description">
+          Actions irréversibles - À utiliser avec précaution
+        </p>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="danger-action">
+        <div class="action-info">
+          <h3>🗑️ Réinitialiser TOUTE la progression</h3>
+          <p>
+            Supprime XP, badges, exercices complétés, streak...
+            <strong>Cette action est IRRÉVERSIBLE !</strong>
+          </p>
+        </div>
+        <button
+          class="btn-danger"
+          (click)="resetAllProgress()">
+          Tout supprimer
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- FOOTER -->
+  <!-- ========================================== -->
+  <footer class="settings-footer">
+    <p class="version-info">
+      Study Tracker Pro v1.0.0
+    </p>
+    <p class="credits">
+      Fait avec ❤️ par H1m0t3p3
+    </p>
+  </footer>
+
+</div>
+
+<!--
+  Réflexions UX (style David J. Malan)
+  ====================================
+
+  1. POURQUOI des sliders plutôt que des inputs numériques ?
+
+     Les sliders sont plus INTUITIFS :
+     - On voit immédiatement la plage de valeurs
+     - Le changement est visuel et satisfaisant
+     - Moins d'erreurs (pas de "500 minutes" par accident)
+
+  2. POURQUOI afficher la valeur à côté du slider ?
+
+     Le slider montre la POSITION relative.
+     L'affichage montre la VALEUR exacte.
+
+     Les deux informations sont complémentaires.
+
+  3. POURQUOI la "Zone de danger" est-elle en bas ?
+
+     Hiérarchie de l'information :
+     - En haut : Ce qu'on utilise souvent (Pomodoro)
+     - Au milieu : Ce qu'on utilise parfois (Notifications)
+     - En bas : Ce qu'on utilise rarement (Reset)
+
+     C'est le pattern "Progressive disclosure".
+
+  4. POURQUOI le style différent pour la zone danger ?
+
+     SIGNAL VISUEL CLAIR :
+     - Couleur rouge/orange = Attention !
+     - Séparation visuelle = "Tu rentres dans une zone différente"
+
+     L'utilisateur comprend instinctivement que c'est sérieux.
+-->

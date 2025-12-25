@@ -1,0 +1,367 @@
+<!--
+  revision.component.html
+
+  Template de la page Révision.
+
+  Structure de la page :
+  =====================
+
+  MODE LISTE :
+  ┌─────────────────────────────────────────────────────────────┐
+  │                       HEADER                                │
+  │   📚 Révisions          [Stats] [Commencer la session]     │
+  ├─────────────────────────────────────────────────────────────┤
+  │   [Aujourd'hui (5)] [Cette semaine (12)] [Tout]            │
+  ├─────────────────────────────────────────────────────────────┤
+  │                                                             │
+  │   ┌─────────────────────────────────────────────────────┐  │
+  │   │  REVISION CARD                                      │  │
+  │   │  🔀 Exercice "Conditions multiples"                 │  │
+  │   │  Prochain : Aujourd'hui          Intervalle: 3j     │  │
+  │   └─────────────────────────────────────────────────────┘  │
+  │                                                             │
+  └─────────────────────────────────────────────────────────────┘
+
+  MODE RÉVISION :
+  ┌─────────────────────────────────────────────────────────────┐
+  │                   [1/5]  [Quitter]                          │
+  ├─────────────────────────────────────────────────────────────┤
+  │                                                             │
+  │              ÉNONCÉ DE L'EXERCICE                           │
+  │                                                             │
+  │    "Écris un algorithme qui vérifie si un nombre           │
+  │     est premier."                                           │
+  │                                                             │
+  ├─────────────────────────────────────────────────────────────┤
+  │                                                             │
+  │              [Révéler la solution]                          │
+  │                                                             │
+  │    --- ou après révélation ---                              │
+  │                                                             │
+  │              SOLUTION                                       │
+  │                                                             │
+  │    [😟 Difficile]  [😐 Correct]  [😊 Facile]               │
+  │                                                             │
+  └─────────────────────────────────────────────────────────────┘
+
+  Auteur: H1m0t3p3
+  Date: 24 décembre 2024
+-->
+
+<div class="revision-container">
+
+  <!-- ========================================== -->
+  <!-- MODE LISTE (par défaut) -->
+  <!-- ========================================== -->
+  <ng-container *ngIf="!isReviewMode">
+
+    <!-- Header -->
+    <header class="revision-header">
+      <div class="header-content">
+        <h1 class="page-title">📚 Révisions</h1>
+        <p class="page-subtitle">
+          Révise régulièrement pour ancrer les connaissances en mémoire
+        </p>
+      </div>
+
+      <!-- Stats rapides -->
+      <div class="header-stats">
+        <div class="stat-card urgent" *ngIf="stats.dueToday > 0">
+          <span class="stat-icon">🔥</span>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats.dueToday }}</span>
+            <span class="stat-label">à réviser</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-icon">📈</span>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats.retentionRate }}%</span>
+            <span class="stat-label">rétention</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Bouton démarrer session -->
+    <div class="start-session-bar" *ngIf="todayRevisions.length > 0">
+      <div class="session-info">
+        <span class="session-icon">🎯</span>
+        <div>
+          <strong>{{ todayRevisions.length }} exercices</strong> à réviser aujourd'hui
+        </div>
+      </div>
+      <button class="btn-start" (click)="startReviewSession()">
+        Commencer la session
+      </button>
+    </div>
+
+    <!-- Message si rien à réviser -->
+    <div class="empty-state success" *ngIf="todayRevisions.length === 0 && weekRevisions.length === 0">
+      <span class="empty-icon">🎉</span>
+      <h3>Tout est à jour !</h3>
+      <p>Tu n'as rien à réviser pour le moment. Reviens plus tard !</p>
+    </div>
+
+    <!-- Onglets -->
+    <nav class="revision-tabs" *ngIf="todayRevisions.length > 0 || weekRevisions.length > 0">
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'today'"
+        (click)="setActiveTab('today')">
+        Aujourd'hui
+        <span class="tab-badge urgent" *ngIf="todayRevisions.length > 0">
+          {{ todayRevisions.length }}
+        </span>
+      </button>
+
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'week'"
+        (click)="setActiveTab('week')">
+        Cette semaine
+        <span class="tab-badge" *ngIf="weekRevisions.length > 0">
+          {{ weekRevisions.length }}
+        </span>
+      </button>
+    </nav>
+
+    <!-- Liste des révisions -->
+    <div class="revision-list">
+
+      <!-- Aujourd'hui -->
+      <ng-container *ngIf="activeTab === 'today'">
+        <div
+          *ngFor="let item of todayRevisions"
+          class="revision-card"
+          [class.overdue]="item.isOverdue">
+
+          <div class="revision-card-header">
+            <span class="type-icon">{{ getTypeIcon(item.exercise.type) }}</span>
+            <div class="exercise-info">
+              <h3 class="exercise-title">{{ item.exercise.title }}</h3>
+              <span class="exercise-category">{{ item.exercise.category }}</span>
+            </div>
+            <span
+              class="urgency-indicator"
+              [style.background]="getUrgencyColor(item)">
+            </span>
+          </div>
+
+          <div class="revision-card-body">
+            <div class="revision-meta">
+              <div class="meta-item">
+                <span class="meta-icon">📅</span>
+                <span>{{ formatDueDate(item.dueDate) }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-icon">🔄</span>
+                <span>Intervalle : {{ item.interval }}j</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-icon">📊</span>
+                <span>{{ item.repetitions }} révisions</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </ng-container>
+
+      <!-- Cette semaine -->
+      <ng-container *ngIf="activeTab === 'week'">
+        <div
+          *ngFor="let item of weekRevisions"
+          class="revision-card">
+
+          <div class="revision-card-header">
+            <span class="type-icon">{{ getTypeIcon(item.exercise.type) }}</span>
+            <div class="exercise-info">
+              <h3 class="exercise-title">{{ item.exercise.title }}</h3>
+              <span class="exercise-category">{{ item.exercise.category }}</span>
+            </div>
+          </div>
+
+          <div class="revision-card-body">
+            <div class="revision-meta">
+              <div class="meta-item">
+                <span class="meta-icon">📅</span>
+                <span>{{ formatDueDate(item.dueDate) }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-icon">🔄</span>
+                <span>Intervalle : {{ item.interval }}j</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div *ngIf="weekRevisions.length === 0" class="empty-state small">
+          <p>Aucune révision prévue cette semaine</p>
+        </div>
+      </ng-container>
+
+    </div>
+
+    <!-- Section explicative -->
+    <section class="info-section">
+      <h2>💡 Comment fonctionne la révision espacée ?</h2>
+      <div class="info-cards">
+        <div class="info-card">
+          <span class="info-icon">🧠</span>
+          <h3>La science</h3>
+          <p>
+            Chaque révision au bon moment renforce les connexions neuronales.
+            Tu retiens mieux et plus longtemps !
+          </p>
+        </div>
+        <div class="info-card">
+          <span class="info-icon">📈</span>
+          <h3>Les intervalles</h3>
+          <p>
+            J+1 → J+3 → J+7 → J+14 → J+30<br>
+            L'intervalle augmente à chaque succès.
+          </p>
+        </div>
+        <div class="info-card">
+          <span class="info-icon">⭐</span>
+          <h3>L'auto-évaluation</h3>
+          <p>
+            Note ta facilité après chaque révision.
+            L'algorithme s'adapte à ton niveau !
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </ng-container>
+
+  <!-- ========================================== -->
+  <!-- MODE RÉVISION (session active) -->
+  <!-- ========================================== -->
+  <ng-container *ngIf="isReviewMode && currentRevision">
+
+    <!-- Barre de progression -->
+    <div class="review-progress-bar">
+      <div class="progress-info">
+        <span class="progress-count">{{ currentIndex + 1 }} / {{ todayRevisions.length }}</span>
+        <span class="progress-title">Session de révision</span>
+      </div>
+      <button class="btn-exit" (click)="exitReviewMode()">
+        ✕ Quitter
+      </button>
+    </div>
+
+    <!-- Carte de révision -->
+    <div class="review-card">
+
+      <!-- Question / Énoncé -->
+      <div class="review-question">
+        <div class="question-header">
+          <span class="question-type">
+            {{ getTypeIcon(currentRevision.exercise.type) }}
+            {{ currentRevision.exercise.category }}
+          </span>
+          <span class="question-difficulty">
+            {{ '⭐'.repeat(getDifficultyStars(currentRevision.exercise.difficulty)) }}
+          </span>
+        </div>
+
+        <h2 class="question-title">{{ currentRevision.exercise.title }}</h2>
+
+        <div class="question-content">
+          <p>{{ currentRevision.exercise.description }}</p>
+        </div>
+
+        <!-- Instructions -->
+        <div class="question-instructions" *ngIf="!showAnswer">
+          <p>
+            <strong>Essaie de résoudre cet exercice mentalement</strong>,
+            puis clique sur "Révéler la solution" pour vérifier.
+          </p>
+        </div>
+      </div>
+
+      <!-- Bouton révéler -->
+      <div class="reveal-section" *ngIf="!showAnswer">
+        <button class="btn-reveal" (click)="revealAnswer()">
+          👁️ Révéler la solution
+        </button>
+      </div>
+
+      <!-- Solution (après révélation) -->
+      <div class="review-answer" *ngIf="showAnswer">
+        <h3>Solution</h3>
+        <div class="answer-content">
+          <p>{{ currentRevision.exercise.solution?.pseudoCode || currentRevision.exercise.notes || 'Solution non disponible' }}</p>
+          <!-- TODO: Afficher la vraie solution de l'exercice -->
+        </div>
+
+        <!-- Auto-évaluation -->
+        <div class="self-evaluation">
+          <p class="eval-prompt">Comment as-tu trouvé ?</p>
+          <div class="eval-buttons">
+            <button class="eval-btn hard" (click)="rateRevision(1)">
+              <span class="eval-icon">😟</span>
+              <span class="eval-label">Difficile</span>
+              <span class="eval-hint">Je dois revoir</span>
+            </button>
+
+            <button class="eval-btn medium" (click)="rateRevision(3)">
+              <span class="eval-icon">😐</span>
+              <span class="eval-label">Correct</span>
+              <span class="eval-hint">Quelques hésitations</span>
+            </button>
+
+            <button class="eval-btn easy" (click)="rateRevision(5)">
+              <span class="eval-icon">😊</span>
+              <span class="eval-label">Facile</span>
+              <span class="eval-hint">Aucun problème !</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </ng-container>
+
+</div>
+
+<!--
+  Réflexions UX (style David J. Malan)
+  ====================================
+
+  1. POURQUOI deux modes distincts (liste vs révision) ?
+
+     SÉPARATION DES PRÉOCCUPATIONS :
+     - Mode liste : Vue d'ensemble, planification
+     - Mode révision : Concentration totale
+
+     En mode révision, tu ne vois QUE l'exercice.
+     Pas de distractions, pas de navigation.
+
+  2. POURQUOI l'auto-évaluation avec émojis ?
+
+     ACCESSIBILITÉ et RAPIDITÉ :
+     - 😟 😐 😊 sont compris instantanément
+     - Pas besoin de réfléchir à une note numérique
+     - L'évaluation devient un réflexe
+
+  3. POURQUOI montrer les "en retard" en rouge ?
+
+     URGENCE VISUELLE :
+     La couleur rouge dit "Priorité !".
+     Ça aide à prioriser sans avoir à réfléchir.
+
+  4. POURQUOI la section explicative ?
+
+     ÉDUCATION de l'utilisateur :
+     Si tu comprends POURQUOI tu révises ainsi,
+     tu es plus motivé à le faire.
+
+     C'est le principe de David J. Malan :
+     "Explain the why, not just the how."
+-->

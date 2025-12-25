@@ -1,0 +1,353 @@
+{
+  "_comment": "Quêtes et défis de gamification - App Revision",
+  "_author": "H1m0t3p3",
+  "_date": "24 décembre 2024",
+
+  "quests": [
+    {
+      "id": "quest-daily-1",
+      "title": "Premier pas du jour",
+      "description": "Complète au moins 1 exercice aujourd'hui",
+      "type": "daily",
+      "category": null,
+      "icon": "🎯",
+      "requirements": {
+        "type": "exercises_completed",
+        "count": 1,
+        "timeframe": "daily"
+      },
+      "rewards": {
+        "xp": 20,
+        "badge": null
+      },
+      "repeatable": true
+    },
+    {
+      "id": "quest-daily-2",
+      "title": "Étudiant assidu",
+      "description": "Passe au moins 30 minutes en session Pomodoro",
+      "type": "daily",
+      "category": null,
+      "icon": "🍅",
+      "requirements": {
+        "type": "pomodoro_time",
+        "minutes": 30,
+        "timeframe": "daily"
+      },
+      "rewards": {
+        "xp": 30,
+        "badge": null
+      },
+      "repeatable": true
+    },
+    {
+      "id": "quest-daily-3",
+      "title": "Révision quotidienne",
+      "description": "Révise au moins 1 exercice déjà terminé",
+      "type": "daily",
+      "category": null,
+      "icon": "🔄",
+      "requirements": {
+        "type": "reviews_completed",
+        "count": 1,
+        "timeframe": "daily"
+      },
+      "rewards": {
+        "xp": 25,
+        "badge": null
+      },
+      "repeatable": true
+    },
+    {
+      "id": "quest-weekly-1",
+      "title": "Marathonien",
+      "description": "Complète 20 exercices cette semaine",
+      "type": "weekly",
+      "category": null,
+      "icon": "🏃",
+      "requirements": {
+        "type": "exercises_completed",
+        "count": 20,
+        "timeframe": "weekly"
+      },
+      "rewards": {
+        "xp": 150,
+        "badge": "marathoner"
+      },
+      "repeatable": true
+    },
+    {
+      "id": "quest-weekly-2",
+      "title": "Régularité",
+      "description": "Connecte-toi 5 jours cette semaine",
+      "type": "weekly",
+      "category": null,
+      "icon": "📅",
+      "requirements": {
+        "type": "login_days",
+        "count": 5,
+        "timeframe": "weekly"
+      },
+      "rewards": {
+        "xp": 100,
+        "badge": null
+      },
+      "repeatable": true
+    },
+    {
+      "id": "quest-weekly-3",
+      "title": "Focus total",
+      "description": "Complète 10 sessions Pomodoro cette semaine",
+      "type": "weekly",
+      "category": null,
+      "icon": "🎯",
+      "requirements": {
+        "type": "pomodoro_sessions",
+        "count": 10,
+        "timeframe": "weekly"
+      },
+      "rewards": {
+        "xp": 120,
+        "badge": "focused"
+      },
+      "repeatable": true
+    },
+    {
+      "id": "quest-main-algebre",
+      "title": "Maître de Boole",
+      "description": "Termine tous les exercices d'algèbre de Boole",
+      "type": "main",
+      "category": "algebre",
+      "icon": "🔵",
+      "requirements": {
+        "type": "category_completed",
+        "category": "algebre"
+      },
+      "rewards": {
+        "xp": 300,
+        "badge": "boole_master"
+      },
+      "repeatable": false
+    },
+    {
+      "id": "quest-main-conditions",
+      "title": "Décideur",
+      "description": "Termine tous les exercices sur les conditions",
+      "type": "main",
+      "category": "algo",
+      "icon": "🔀",
+      "requirements": {
+        "type": "type_completed",
+        "exerciseType": "condition"
+      },
+      "rewards": {
+        "xp": 200,
+        "badge": "decision_maker"
+      },
+      "repeatable": false
+    },
+    {
+      "id": "quest-main-loops",
+      "title": "Boucle infinie... maîtrisée !",
+      "description": "Termine tous les exercices sur les boucles",
+      "type": "main",
+      "category": "algo",
+      "icon": "🔄",
+      "requirements": {
+        "type": "type_completed",
+        "exerciseType": "boucle"
+      },
+      "rewards": {
+        "xp": 200,
+        "badge": "loop_master"
+      },
+      "repeatable": false
+    },
+    {
+      "id": "quest-main-arrays",
+      "title": "Collectionneur",
+      "description": "Termine tous les exercices sur les tableaux",
+      "type": "main",
+      "category": "algo",
+      "icon": "📊",
+      "requirements": {
+        "type": "type_completed",
+        "exerciseType": "tableau"
+      },
+      "rewards": {
+        "xp": 200,
+        "badge": "array_master"
+      },
+      "repeatable": false
+    },
+    {
+      "id": "quest-main-java",
+      "title": "Développeur Java",
+      "description": "Termine tous les exercices Java",
+      "type": "main",
+      "category": "java",
+      "icon": "☕",
+      "requirements": {
+        "type": "category_completed",
+        "category": "java"
+      },
+      "rewards": {
+        "xp": 400,
+        "badge": "java_developer"
+      },
+      "repeatable": false
+    },
+    {
+      "id": "quest-main-all",
+      "title": "Diplômé",
+      "description": "Termine TOUS les exercices du programme",
+      "type": "main",
+      "category": null,
+      "icon": "🎓",
+      "requirements": {
+        "type": "all_completed"
+      },
+      "rewards": {
+        "xp": 1000,
+        "badge": "graduate"
+      },
+      "repeatable": false
+    },
+    {
+      "id": "quest-side-speed",
+      "title": "Speed Runner",
+      "description": "Complète un exercice en moins de 5 minutes",
+      "type": "side",
+      "category": null,
+      "icon": "⚡",
+      "requirements": {
+        "type": "exercise_time",
+        "maxMinutes": 5
+      },
+      "rewards": {
+        "xp": 50,
+        "badge": null
+      },
+      "repeatable": false
+    },
+    {
+      "id": "quest-side-streak-3",
+      "title": "Début de série",
+      "description": "Maintiens un streak de 3 jours",
+      "type": "side",
+      "category": null,
+      "icon": "🔥",
+      "requirements": {
+        "type": "streak",
+        "days": 3
+      },
+      "rewards": {
+        "xp": 50,
+        "badge": null
+      },
+      "repeatable": false
+    },
+    {
+      "id": "quest-side-streak-7",
+      "title": "Semaine parfaite",
+      "description": "Maintiens un streak de 7 jours",
+      "type": "side",
+      "category": null,
+      "icon": "🔥🔥",
+      "requirements": {
+        "type": "streak",
+        "days": 7
+      },
+      "rewards": {
+        "xp": 150,
+        "badge": "week_warrior"
+      },
+      "repeatable": false
+    },
+    {
+      "id": "quest-side-streak-12",
+      "title": "12 jours de gloire",
+      "description": "Maintiens un streak de 12 jours (tout le programme !)",
+      "type": "side",
+      "category": null,
+      "icon": "🔥🔥🔥",
+      "requirements": {
+        "type": "streak",
+        "days": 12
+      },
+      "rewards": {
+        "xp": 500,
+        "badge": "ultimate_streak"
+      },
+      "repeatable": false
+    },
+    {
+      "id": "quest-side-night",
+      "title": "Oiseau de nuit",
+      "description": "Complète un exercice après 22h",
+      "type": "side",
+      "category": null,
+      "icon": "🦉",
+      "requirements": {
+        "type": "time_of_day",
+        "afterHour": 22
+      },
+      "rewards": {
+        "xp": 30,
+        "badge": "night_owl"
+      },
+      "repeatable": false
+    },
+    {
+      "id": "quest-side-early",
+      "title": "Lève-tôt",
+      "description": "Complète un exercice avant 7h",
+      "type": "side",
+      "category": null,
+      "icon": "🌅",
+      "requirements": {
+        "type": "time_of_day",
+        "beforeHour": 7
+      },
+      "rewards": {
+        "xp": 30,
+        "badge": "early_bird"
+      },
+      "repeatable": false
+    },
+    {
+      "id": "quest-side-perfect",
+      "title": "Perfectionniste",
+      "description": "Obtiens 100% sur une auto-évaluation",
+      "type": "side",
+      "category": null,
+      "icon": "💯",
+      "requirements": {
+        "type": "evaluation_score",
+        "score": 10
+      },
+      "rewards": {
+        "xp": 100,
+        "badge": "perfectionist"
+      },
+      "repeatable": false
+    },
+    {
+      "id": "quest-side-helper",
+      "title": "Pas besoin d'aide",
+      "description": "Complète 5 exercices sans regarder les indices",
+      "type": "side",
+      "category": null,
+      "icon": "💪",
+      "requirements": {
+        "type": "no_hints",
+        "count": 5
+      },
+      "rewards": {
+        "xp": 75,
+        "badge": "independent"
+      },
+      "repeatable": false
+    }
+  ]
+}

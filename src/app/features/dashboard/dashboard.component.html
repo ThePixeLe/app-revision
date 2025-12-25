@@ -1,0 +1,437 @@
+<!--
+  dashboard.component.html
+
+  Template du DASHBOARD - Vue d'ensemble de la progression.
+
+  Structure de la page :
+  =====================
+  1. Header avec message de bienvenue
+  2. Stats principales (niveau, XP, streak)
+  3. Progression par sujet (5 cartes)
+  4. Quêtes actives
+  5. Planning du jour
+  6. Actions rapides
+
+  Philosophie David J. Malan :
+  "A well-designed interface is self-documenting."
+
+  L'utilisateur doit comprendre l'interface SANS lire de manuel.
+  Chaque élément doit être évident.
+
+  Auteur: H1m0t3p3
+  Date: 24 décembre 2024
+-->
+
+<!-- ============================================================ -->
+<!-- LOADING STATE -->
+<!-- ============================================================ -->
+
+<!--
+  Pourquoi un état de chargement ?
+  --------------------------------
+  Pendant que les données se chargent, l'utilisateur voit
+  un spinner au lieu d'une page vide ou cassée.
+
+  C'est une question de UX (User Experience).
+-->
+<div *ngIf="isLoading" class="loading-container">
+  <div class="loading-spinner"></div>
+  <p class="loading-text">Chargement de ton tableau de bord...</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- MAIN DASHBOARD CONTENT -->
+<!-- ============================================================ -->
+
+<div *ngIf="!isLoading" class="dashboard">
+
+  <!-- ========================================== -->
+  <!-- HEADER - MESSAGE DE BIENVENUE -->
+  <!-- ========================================== -->
+
+  <header class="dashboard-header">
+    <div class="welcome-section">
+      <h1 class="welcome-title">{{ welcomeMessage }}</h1>
+      <p class="welcome-subtitle">
+        <!--
+          Affiche l'heure actuelle formatée.
+          Le pipe 'date' d'Angular formate automatiquement les dates.
+          'HH:mm' = heure:minutes en format 24h
+        -->
+        {{ currentTime | date:'EEEE d MMMM yyyy, HH:mm' }}
+      </p>
+    </div>
+
+    <!-- Bouton Pomodoro rapide -->
+    <a routerLink="/pomodoro" class="quick-pomodoro-btn">
+      <span class="pomodoro-icon">🍅</span>
+      <span class="pomodoro-text">Démarrer un Pomodoro</span>
+    </a>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- STATS PRINCIPALES -->
+  <!-- ========================================== -->
+
+  <!--
+    Disposition en grille des statistiques principales.
+    4 cartes : Niveau, Streak, Exercices, Temps d'étude
+  -->
+  <section class="main-stats">
+
+    <!-- CARTE NIVEAU & XP -->
+    <div class="stat-card level-card">
+      <div class="stat-header">
+        <span class="stat-icon">⭐</span>
+        <span class="stat-label">Niveau</span>
+      </div>
+
+      <div class="level-display">
+        <span class="level-number">{{ stats.level }}</span>
+        <span class="level-title">{{ getLevelTitle() }}</span>
+      </div>
+
+      <!--
+        Barre de progression vers le niveau suivant.
+        La largeur est calculée dynamiquement avec [style.width].
+      -->
+      <div class="xp-progress">
+        <div class="xp-bar">
+          <div
+            class="xp-fill"
+            [style.width.%]="stats.levelProgress">
+          </div>
+        </div>
+        <div class="xp-text">
+          <span>{{ stats.xp }} XP</span>
+          <span>{{ stats.xpToNextLevel }} XP pour niveau {{ getNextLevel() }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARTE STREAK -->
+    <div class="stat-card streak-card" [class]="'streak-' + getStreakColor()">
+      <div class="stat-header">
+        <span class="stat-icon">🔥</span>
+        <span class="stat-label">Streak</span>
+      </div>
+
+      <div class="streak-display">
+        <span class="streak-number">{{ stats.streak }}</span>
+        <span class="streak-unit">jour{{ stats.streak > 1 ? 's' : '' }}</span>
+      </div>
+
+      <div class="streak-info">
+        <!--
+          Affiche un message différent selon le streak.
+          Gamification : encourage à maintenir le streak !
+        -->
+        <span *ngIf="stats.streak === 0" class="streak-message">
+          Commence aujourd'hui !
+        </span>
+        <span *ngIf="stats.streak > 0 && stats.streak < 7" class="streak-message">
+          Continue comme ça !
+        </span>
+        <span *ngIf="stats.streak >= 7 && stats.streak < 30" class="streak-message">
+          Incroyable ! 🎉
+        </span>
+        <span *ngIf="stats.streak >= 30" class="streak-message">
+          Tu es une légende ! 🏆
+        </span>
+
+        <span class="streak-record">
+          Record : {{ stats.longestStreak }} jour{{ stats.longestStreak > 1 ? 's' : '' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- CARTE EXERCICES -->
+    <div class="stat-card exercises-card">
+      <div class="stat-header">
+        <span class="stat-icon">✏️</span>
+        <span class="stat-label">Exercices</span>
+      </div>
+
+      <div class="exercises-display">
+        <span class="exercises-completed">{{ stats.completedExercises }}</span>
+        <span class="exercises-separator">/</span>
+        <span class="exercises-total">{{ stats.totalExercises }}</span>
+      </div>
+
+      <div class="exercises-progress">
+        <div class="progress-bar">
+          <div
+            class="progress-fill"
+            [style.width.%]="stats.exerciseProgress">
+          </div>
+        </div>
+        <span class="progress-text">{{ stats.exerciseProgress }}% complété</span>
+      </div>
+
+      <!--
+        Alerte si des exercices sont à réviser.
+        Révision espacée = clé de la mémorisation !
+      -->
+      <div *ngIf="exercisesToReview > 0" class="review-alert">
+        <a routerLink="/revision" class="review-link">
+          📚 {{ exercisesToReview }} exercice{{ exercisesToReview > 1 ? 's' : '' }} à réviser
+        </a>
+      </div>
+    </div>
+
+    <!-- CARTE TEMPS D'ÉTUDE -->
+    <div class="stat-card time-card">
+      <div class="stat-header">
+        <span class="stat-icon">⏱️</span>
+        <span class="stat-label">Temps d'étude</span>
+      </div>
+
+      <div class="time-display">
+        <span class="time-value">{{ formatDuration(stats.totalHours) }}</span>
+      </div>
+
+      <div class="pomodoro-today">
+        <span class="pomodoro-icon">🍅</span>
+        <span class="pomodoro-count">
+          {{ stats.pomodorosToday }} Pomodoro{{ stats.pomodorosToday > 1 ? 's' : '' }} aujourd'hui
+        </span>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ========================================== -->
+  <!-- PROGRESSION PAR SUJET -->
+  <!-- ========================================== -->
+
+  <section class="subjects-section">
+    <h2 class="section-title">
+      <span class="title-icon">📚</span>
+      Progression par sujet
+    </h2>
+
+    <!--
+      Grille de cartes pour chaque sujet.
+      *ngFor itère sur subjectCards et crée une carte pour chaque sujet.
+    -->
+    <div class="subjects-grid">
+      <div
+        *ngFor="let subject of subjectCards"
+        class="subject-card"
+        [class]="'subject-' + subject.color">
+
+        <div class="subject-header">
+          <span class="subject-icon">{{ subject.icon }}</span>
+          <span class="subject-name">{{ subject.name }}</span>
+        </div>
+
+        <!--
+          Cercle de progression.
+          La bordure circulaire se remplit selon le pourcentage.
+          Utilise conic-gradient pour l'effet visuel.
+        -->
+        <div class="subject-progress-circle">
+          <div
+            class="progress-ring"
+            [style.background]="'conic-gradient(var(--subject-color) ' + subject.percentage + '%, transparent ' + subject.percentage + '%)'">
+            <div class="progress-inner">
+              <span class="progress-percentage">{{ subject.percentage }}%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="subject-stats">
+          <span class="subject-exercises">
+            {{ subject.exercisesCompleted }}/{{ subject.exercisesTotal }} exercices
+          </span>
+        </div>
+
+        <!-- Lien vers les exercices filtrés par sujet -->
+        <a
+          [routerLink]="['/exercises']"
+          [queryParams]="{ type: subject.id }"
+          class="subject-link">
+          Voir les exercices →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- DOUBLE COLONNE : QUÊTES + PLANNING -->
+  <!-- ========================================== -->
+
+  <div class="two-columns">
+
+    <!-- COLONNE QUÊTES -->
+    <section class="quests-section">
+      <h2 class="section-title">
+        <span class="title-icon">🎯</span>
+        Quêtes du jour
+      </h2>
+
+      <div class="quests-list">
+        <!--
+          Liste des quêtes actives.
+          Chaque quête affiche son titre, sa progression et sa récompense.
+        -->
+        <div
+          *ngFor="let quest of activeQuests"
+          class="quest-item"
+          [class.quest-completed]="quest.status === 'completed'">
+
+          <div class="quest-info">
+            <span class="quest-type-badge" [class]="'badge-' + quest.type">
+              {{ quest.type === 'daily' ? '📅 Daily' : quest.type === 'weekly' ? '📆 Weekly' : '⭐ Main' }}
+            </span>
+            <h3 class="quest-title">{{ quest.title }}</h3>
+            <p class="quest-description">{{ quest.description }}</p>
+          </div>
+
+          <div class="quest-progress">
+            <div class="quest-bar">
+              <div
+                class="quest-fill"
+                [style.width.%]="getQuestProgress(quest)">
+              </div>
+            </div>
+            <span class="quest-numbers">
+              {{ quest.objective.current || 0 }}/{{ quest.objective.target || 1 }}
+            </span>
+          </div>
+
+          <div class="quest-reward">
+            <span class="reward-xp">+{{ quest.rewards.xp }} XP</span>
+          </div>
+        </div>
+
+        <!-- Message si aucune quête -->
+        <div *ngIf="activeQuests.length === 0" class="no-quests">
+          <p>Toutes les quêtes du jour sont terminées ! 🎉</p>
+          <a routerLink="/quests" class="view-all-link">
+            Voir toutes les quêtes →
+          </a>
+        </div>
+      </div>
+
+      <a routerLink="/quests" class="section-link">
+        Voir toutes les quêtes →
+      </a>
+    </section>
+
+    <!-- COLONNE PLANNING -->
+    <section class="planning-section">
+      <h2 class="section-title">
+        <span class="title-icon">📅</span>
+        Planning
+      </h2>
+
+      <!-- Journée en cours -->
+      <div *ngIf="currentDay" class="current-day">
+        <div class="day-badge current">En cours</div>
+        <h3 class="day-title">{{ currentDay.title }}</h3>
+        <p class="day-description">{{ currentDay.objectives && currentDay.objectives.length > 0 ? currentDay.objectives[0] : currentDay.notes }}</p>
+
+        <div class="day-sessions">
+          <div *ngFor="let session of currentDay.sessions" class="session-item">
+            <span class="session-period">
+              {{ session.period === 'matin' ? '🌅 Matin' :
+                 session.period === 'apres-midi' ? '☀️ Après-midi' : '🌙 Soir' }}
+            </span>
+            <span class="session-topics">
+              {{ session.topics.join(', ') }}
+            </span>
+          </div>
+        </div>
+
+        <a [routerLink]="['/planning', currentDay.id]" class="day-link">
+          Continuer cette journée →
+        </a>
+      </div>
+
+      <!-- Prochaine journée si pas de journée en cours -->
+      <div *ngIf="!currentDay && nextDay" class="next-day">
+        <div class="day-badge next">À venir</div>
+        <h3 class="day-title">{{ nextDay.title }}</h3>
+        <p class="day-description">{{ nextDay.objectives && nextDay.objectives.length > 0 ? nextDay.objectives[0] : nextDay.notes }}</p>
+
+        <a [routerLink]="['/planning', nextDay.id]" class="day-link">
+          Commencer cette journée →
+        </a>
+      </div>
+
+      <!-- Message si planning terminé -->
+      <div *ngIf="!currentDay && !nextDay" class="planning-complete">
+        <p class="complete-message">🎉 Planning terminé !</p>
+        <p class="complete-submessage">Tu as terminé les 12 jours de formation.</p>
+      </div>
+
+      <a routerLink="/planning" class="section-link">
+        Voir le planning complet →
+      </a>
+    </section>
+
+  </div>
+
+  <!-- ========================================== -->
+  <!-- BADGES RÉCENTS -->
+  <!-- ========================================== -->
+
+  <section *ngIf="recentBadges.length > 0" class="badges-section">
+    <h2 class="section-title">
+      <span class="title-icon">🏆</span>
+      Derniers badges débloqués
+    </h2>
+
+    <div class="badges-grid">
+      <div *ngFor="let badge of recentBadges" class="badge-card">
+        <span class="badge-icon">{{ badge.icon }}</span>
+        <div class="badge-info">
+          <h3 class="badge-name">{{ badge.name }}</h3>
+          <p class="badge-description">{{ badge.description }}</p>
+          <span class="badge-date">
+            Débloqué le {{ badge.unlockedAt | date:'d MMM yyyy' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <a routerLink="/profile" class="section-link">
+      Voir tous les badges →
+    </a>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- ACTIONS RAPIDES -->
+  <!-- ========================================== -->
+
+  <section class="quick-actions">
+    <h2 class="section-title">
+      <span class="title-icon">⚡</span>
+      Actions rapides
+    </h2>
+
+    <div class="actions-grid">
+      <a routerLink="/pomodoro" class="action-card action-pomodoro">
+        <span class="action-icon">🍅</span>
+        <span class="action-label">Démarrer un Pomodoro</span>
+      </a>
+
+      <a routerLink="/exercises" class="action-card action-exercise">
+        <span class="action-icon">✏️</span>
+        <span class="action-label">Faire un exercice</span>
+      </a>
+
+      <a routerLink="/revision" class="action-card action-revision">
+        <span class="action-icon">📚</span>
+        <span class="action-label">Réviser</span>
+      </a>
+
+      <a routerLink="/resources" class="action-card action-resources">
+        <span class="action-icon">📄</span>
+        <span class="action-label">Consulter les PDFs</span>
+      </a>
+    </div>
+  </section>
+
+</div>

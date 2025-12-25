@@ -424,26 +424,26 @@ export function canUnlockBadge(badge: Badge, userStats: any): boolean {
 
   switch (condition.type) {
     case 'exercises':
-      return userStats.exercisesCompleted >= condition.count;
+      return userStats.exercisesCompleted >= condition['count'];
 
     case 'streak':
-      return userStats.currentStreak >= condition.days;
+      return userStats.currentStreak >= condition['days'];
 
     case 'level':
-      return userStats.level >= condition.level;
+      return userStats.level >= condition['level'];
 
     case 'score':
-      return userStats.averageScore >= condition.average;
+      return userStats.averageScore >= condition['average'];
 
     case 'subject':
-      const subjectProgress = userStats.bySubject[condition.subject];
-      return subjectProgress && subjectProgress.percentage >= condition.completion;
+      const subjectProgress = userStats.bySubject[condition['subject']];
+      return subjectProgress && subjectProgress.percentage >= condition['completion'];
 
     case 'time':
-      return userStats.totalHours >= condition.hours;
+      return userStats.totalHours >= condition['hours'];
 
     case 'pomodoro':
-      return userStats.pomodoroSessions >= condition.count;
+      return userStats.pomodoroSessions >= condition['count'];
 
     case 'custom':
       // Pour les badges spéciaux, logique personnalisée

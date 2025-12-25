@@ -141,8 +141,14 @@ export interface SubjectProgress {
   // Nombre d'exercices terminés
   completed: number;
 
+  // Alias pour completed (compatibilité)
+  exercisesCompleted?: number;
+
   // Nombre total d'exercices
   total: number;
+
+  // Alias pour total (compatibilité)
+  exercisesTotal?: number;
 
   // Pourcentage de complétion (0-100)
   // Calculé automatiquement : (completed / total) * 100
@@ -194,7 +200,7 @@ export interface Progress {
   // ===== SYSTÈME XP ET NIVEAUX =====
 
   /**
-   * Points d'expérience totaux
+   * Points d'expérience totaux (alias: xp)
    *
    * Comment gagner de l'XP ?
    * - Terminer un exercice : 10-50 XP (selon difficulté)
@@ -247,6 +253,21 @@ export interface Progress {
    */
   xpToNextLevel: number;
 
+  /**
+   * Alias pour totalXP (compatibilité)
+   */
+  xp: number;
+
+  /**
+   * Historique des gains d'XP
+   */
+  xpHistory: XPTransaction[];
+
+  /**
+   * Historique des level ups
+   */
+  levelUpHistory: LevelUpEvent[];
+
   // ===== STREAK (SÉRIE) =====
 
   /**
@@ -274,6 +295,16 @@ export interface Progress {
    * - Objectif : "Je veux battre mon record !"
    */
   bestStreak: number;
+
+  /**
+   * Alias pour bestStreak (compatibilité)
+   */
+  longestStreak: number;
+
+  /**
+   * Date de début du streak actuel
+   */
+  streakStartDate: Date;
 
   /**
    * Date de la dernière activité
@@ -346,6 +377,11 @@ export interface Progress {
       algo: SubjectProgress;
       java: SubjectProgress;
       consolidation: SubjectProgress;
+      // Alias pour compatibilité avec les composants
+      boole?: SubjectProgress;
+      conditions?: SubjectProgress;
+      boucles?: SubjectProgress;
+      tableaux?: SubjectProgress;
     };
 
     // Meilleur jour (date où tu as gagné le plus d'XP)
@@ -436,6 +472,59 @@ export interface Progress {
   updatedAt: Date;
 }
 
+// ============================================================
+// TYPES ET INTERFACES SUPPLÉMENTAIRES
+// ============================================================
+
+/**
+ * Source d'XP
+ * ----------
+ * D'où vient l'XP gagné ?
+ */
+export type XPSource =
+  | 'exercise'      // Exercice complété
+  | 'revision'      // Révision effectuée
+  | 'review'        // Alias pour révision
+  | 'pomodoro'      // Session Pomodoro
+  | 'quest'         // Quête complétée
+  | 'badge'         // Badge débloqué
+  | 'streak'        // Bonus de streak
+  | 'evaluation'    // Auto-évaluation
+  | 'level-up'      // Bonus level up
+  | 'bonus';        // Bonus divers
+
+/**
+ * Transaction XP
+ * -------------
+ * Historique d'un gain d'XP.
+ */
+export interface XPTransaction {
+  id: string;
+  amount: number;
+  source: XPSource;
+  description: string;
+  timestamp?: Date;
+  earnedAt?: Date;
+  levelBefore?: number;
+  levelAfter?: number;
+}
+
+/**
+ * Historique de level up
+ */
+export interface LevelUpEvent {
+  level: number;
+  achievedAt: Date;
+  totalXP: number;
+  fromLevel?: number;
+  toLevel?: number;
+  timestamp?: Date;
+}
+
+// ============================================================
+// FONCTIONS UTILITAIRES
+// ============================================================
+
 /**
  * Fonction utilitaire : calculer le niveau depuis l'XP
  * ---------------------------------------------------
@@ -452,6 +541,11 @@ export function calculateLevel(xp: number): number {
 }
 
 /**
+ * Alias pour compatibilité
+ */
+export const calculateXPForLevel = calculateLevel;
+
+/**
  * Fonction utilitaire : calculer l'XP requis pour un niveau
  * --------------------------------------------------------
  * Calcule combien d'XP il faut pour atteindre un niveau donné.
@@ -463,6 +557,11 @@ export function xpRequiredForLevel(level: number): number {
   // Formule inverse : XP = ((Level - 1)^2) * 100
   return Math.pow(level - 1, 2) * 100;
 }
+
+/**
+ * Alias pour compatibilité
+ */
+export const calculateTotalXPForLevel = xpRequiredForLevel;
 
 /**
  * Fonction utilitaire : calculer la progression dans le niveau actuel
@@ -551,6 +650,80 @@ export function calculateExerciseXP(
 
   // Arrondit à l'entier
   return Math.round(totalXP);
+}
+
+/**
+ * Créer une progression par défaut
+ * -------------------------------
+ * Initialise un objet Progress avec des valeurs par défaut.
+ *
+ * @returns Objet Progress initialisé
+ */
+export function createDefaultProgress(): Progress {
+  const now = new Date();
+  const endDate = new Date(now);
+  endDate.setDate(endDate.getDate() + 12); // Programme de 12 jours
+
+  const defaultSubject: SubjectProgress = {
+    subject: 'algebre',
+    completed: 0,
+    total: 0,
+    percentage: 0,
+    averageScore: 0,
+    timeSpent: 0,
+    pomodoroSessions: 0,
+    masteryLevel: 'beginner',
+    progressHistory: []
+  };
+
+  return {
+    userId: 'user-1',
+    totalXP: 0,
+    xp: 0,
+    level: 1,
+    currentLevelXP: 0,
+    xpToNextLevel: 100,
+    xpHistory: [],
+    levelUpHistory: [],
+    streak: 0,
+    bestStreak: 0,
+    longestStreak: 0,
+    streakStartDate: now,
+    lastActivityDate: now,
+    badges: [],
+    recentBadges: [],
+    quests: [],
+    currentMainQuest: undefined,
+    stats: {
+      totalHours: 0,
+      exercisesCompleted: 0,
+      totalExercises: 100,
+      globalCompletion: 0,
+      averageScore: 0,
+      pomodoroSessions: 0,
+      evaluationsCompleted: 0,
+      revisionsCompleted: 0,
+      bySubject: {
+        algebre: { ...defaultSubject, subject: 'algebre' },
+        algo: { ...defaultSubject, subject: 'algo' },
+        java: { ...defaultSubject, subject: 'java' },
+        consolidation: { ...defaultSubject, subject: 'consolidation' }
+      },
+      progressChart: []
+    },
+    dailyGoal: {
+      exercises: 3,
+      pomodoros: 4,
+      time: 120
+    },
+    dailyGoalAchieved: false,
+    goalsAchievedCount: 0,
+    startDate: now,
+    endDate: endDate,
+    currentDay: 1,
+    createdAt: now,
+    updatedAt: now
+  };
 }
 
 /**

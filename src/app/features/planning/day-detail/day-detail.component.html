@@ -1,0 +1,199 @@
+<!--
+  day-detail.component.html
+
+  Template du détail d'une journée.
+
+  Structure :
+  ==========
+  - Header avec navigation (précédent/suivant)
+  - Informations du jour (titre, catégorie, progression)
+  - Sessions d'étude (liste avec checkboxes)
+  - Exercices du jour
+  - Actions (Pomodoro, évaluation)
+
+  Auteur: H1m0t3p3
+  Date: 24 décembre 2024
+-->
+
+<div class="day-detail-container">
+
+  <!-- État de chargement -->
+  <div *ngIf="isLoading" class="loading-state">
+    <span class="loading-spinner">⏳</span>
+    <p>Chargement...</p>
+  </div>
+
+  <!-- Erreur -->
+  <div *ngIf="error" class="error-state">
+    <span class="error-icon">❌</span>
+    <h2>{{ error }}</h2>
+    <button class="btn-back" (click)="backToPlanning()">
+      ← Retour au planning
+    </button>
+  </div>
+
+  <!-- Contenu principal -->
+  <ng-container *ngIf="!isLoading && !error && day">
+
+    <!-- ========================================== -->
+    <!-- HEADER -->
+    <!-- ========================================== -->
+    <header class="day-header">
+
+      <!-- Navigation -->
+      <div class="nav-controls">
+        <button
+          class="nav-btn"
+          [disabled]="dayNumber <= 1"
+          (click)="previousDay()">
+          ← Jour {{ dayNumber - 1 }}
+        </button>
+
+        <button class="back-btn" (click)="backToPlanning()">
+          📅 Planning
+        </button>
+
+        <button
+          class="nav-btn"
+          [disabled]="dayNumber >= 12"
+          (click)="nextDay()">
+          Jour {{ dayNumber + 1 }} →
+        </button>
+      </div>
+
+      <!-- Titre du jour -->
+      <div class="day-title-section">
+        <span
+          class="day-badge"
+          [style.background]="getCategoryColor()">
+          Jour {{ dayNumber }}
+        </span>
+        <h1 class="day-title">{{ day.title }}</h1>
+        <p class="day-subject">{{ day.subject | titlecase }}</p>
+      </div>
+
+      <!-- Progression -->
+      <div class="progress-section">
+        <div class="progress-circle" [style.--progress]="dayProgress + '%'">
+          <span class="progress-value">{{ dayProgress }}%</span>
+        </div>
+        <div class="progress-info">
+          <span class="progress-label">Progression</span>
+          <span class="progress-detail">{{ getTotalDuration() }} min de travail</span>
+        </div>
+      </div>
+
+    </header>
+
+    <!-- ========================================== -->
+    <!-- OBJECTIFS DU JOUR -->
+    <!-- ========================================== -->
+    <section class="objectives-section">
+      <h2>🎯 Objectifs du jour</h2>
+      <ul class="objectives-list">
+        <li *ngFor="let obj of day.objectives">
+          {{ obj }}
+        </li>
+      </ul>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SESSIONS D'ÉTUDE -->
+    <!-- ========================================== -->
+    <section class="sessions-section">
+      <h2>📚 Sessions d'étude</h2>
+
+      <div class="sessions-list">
+        <article
+          *ngFor="let session of sessions"
+          class="session-card"
+          [class.completed]="session.completed"
+          (click)="toggleSession(session)">
+
+          <!-- Checkbox -->
+          <div class="session-checkbox">
+            <span *ngIf="session.completed" class="check-icon">✅</span>
+            <span *ngIf="!session.completed" class="check-icon empty">⬜</span>
+          </div>
+
+          <!-- Contenu -->
+          <div class="session-content">
+            <div class="session-header">
+              <span class="session-icon">{{ getSessionIcon(session.type) }}</span>
+              <h3 class="session-title">{{ session.title }}</h3>
+            </div>
+            <p class="session-description">{{ session.description }}</p>
+          </div>
+
+          <!-- Durée -->
+          <div class="session-duration">
+            <span class="duration-value">{{ session.duration }}</span>
+            <span class="duration-unit">min</span>
+          </div>
+
+        </article>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- EXERCICES DU JOUR -->
+    <!-- ========================================== -->
+    <section class="exercises-section">
+      <div class="section-header">
+        <h2>✏️ Exercices</h2>
+        <a routerLink="/exercises" class="view-all-link">
+          Voir tous →
+        </a>
+      </div>
+
+      <div class="exercises-list">
+        <article
+          *ngFor="let exercise of exercises"
+          class="exercise-card"
+          [class.completed]="exercise.status === 'completed'"
+          (click)="goToExercise(exercise)">
+
+          <!-- Statut -->
+          <span class="exercise-status">
+            <span *ngIf="exercise.status === 'completed'">✅</span>
+            <span *ngIf="exercise.status === 'in-progress'">⏳</span>
+            <span *ngIf="exercise.status === 'todo'">📝</span>
+          </span>
+
+          <!-- Contenu -->
+          <div class="exercise-content">
+            <h3 class="exercise-title">{{ exercise.title }}</h3>
+            <div class="exercise-meta">
+              <span class="meta-item">{{ exercise.type }}</span>
+              <span class="meta-item">{{ '⭐'.repeat(getDifficultyStars(exercise.difficulty)) }}</span>
+            </div>
+          </div>
+
+          <!-- Flèche -->
+          <span class="exercise-arrow">→</span>
+
+        </article>
+
+        <!-- Message si pas d'exercices -->
+        <div *ngIf="exercises.length === 0" class="no-exercises">
+          <p>Pas d'exercices spécifiques pour ce jour.</p>
+          <a routerLink="/exercises">Parcourir tous les exercices</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ACTIONS -->
+    <!-- ========================================== -->
+    <footer class="day-actions">
+      <button class="action-btn secondary" routerLink="/evaluation">
+        📝 Auto-évaluation
+      </button>
+      <button class="action-btn primary" (click)="startPomodoro()">
+        🍅 Lancer une session Pomodoro
+      </button>
+    </footer>
+
+  </ng-container>
+
+</div>

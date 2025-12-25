@@ -1,0 +1,1324 @@
+/**
+ * pomodoro.component.scss
+ *
+ * Styles du composant POMODORO - Timer de productivité.
+ *
+ * Architecture CSS utilisée : BEM (Block Element Modifier)
+ * =========================================================
+ *
+ * BEM est une méthodologie de nommage CSS qui rend le code :
+ * - Plus lisible : On comprend la structure en lisant les classes
+ * - Plus maintenable : Chaque bloc est indépendant
+ * - Plus prévisible : Pas de conflits de styles
+ *
+ * Structure BEM :
+ * - Block : Le conteneur principal (ex: .timer)
+ * - Element : Une partie du block (ex: .timer__display)
+ * - Modifier : Une variation (ex: .timer--paused)
+ *
+ * Analogie du monde réel :
+ * ------------------------
+ * Imagine une voiture (Block).
+ * - Les roues sont des éléments (.voiture__roue)
+ * - Une voiture rouge est un modifier (.voiture--rouge)
+ *
+ * Philosophie David J. Malan :
+ * "CSS can be messy. BEM brings order to chaos."
+ *
+ * Auteur: H1m0t3p3
+ * Date: 24 décembre 2024
+ */
+
+// ============================================================
+// VARIABLES CSS CUSTOM PROPERTIES
+// ============================================================
+
+/**
+ * Pourquoi des Custom Properties (variables CSS) ?
+ * -----------------------------------------------
+ *
+ * 1. THÉMATISATION : Facile de changer les couleurs globalement
+ * 2. RÉUTILISABILITÉ : Une valeur, plusieurs utilisations
+ * 3. DYNAMISME : Modifiables en JavaScript (contrairement à SCSS)
+ *
+ * Convention de nommage :
+ * - --pomodoro-* : Variables spécifiques à ce composant
+ * - --color-* : Couleurs
+ * - --spacing-* : Espacements
+ *
+ * Analogie :
+ * ----------
+ * Les variables sont comme les ingrédients d'une recette.
+ * Tu les définis une fois, puis tu les utilises partout.
+ * Si tu veux changer le sel pour du poivre, tu modifies
+ * un seul endroit, pas toute la recette.
+ */
+:host {
+  // Couleurs de base du Pomodoro
+  --pomodoro-red: #ef4444;      // Rouge tomate (travail)
+  --pomodoro-green: #22c55e;    // Vert détente (pause courte)
+  --pomodoro-blue: #3b82f6;     // Bleu calme (pause longue)
+  --pomodoro-yellow: #eab308;   // Jaune alerte (en pause)
+  --pomodoro-gray: #6b7280;     // Gris neutre (idle)
+  --pomodoro-indigo: #6366f1;   // Indigo accent
+
+  // Couleurs de fond
+  --bg-primary: #0f172a;        // Fond principal (slate-900)
+  --bg-secondary: #1e293b;      // Fond secondaire (slate-800)
+  --bg-card: #334155;           // Fond des cartes (slate-700)
+  --bg-hover: #475569;          // Fond au survol (slate-600)
+
+  // Couleurs de texte
+  --text-primary: #f8fafc;      // Texte principal (slate-50)
+  --text-secondary: #94a3b8;    // Texte secondaire (slate-400)
+  --text-muted: #64748b;        // Texte discret (slate-500)
+
+  // Espacements (basés sur 4px)
+  --spacing-xs: 0.25rem;        // 4px
+  --spacing-sm: 0.5rem;         // 8px
+  --spacing-md: 1rem;           // 16px
+  --spacing-lg: 1.5rem;         // 24px
+  --spacing-xl: 2rem;           // 32px
+  --spacing-2xl: 3rem;          // 48px
+
+  // Tailles du timer
+  --timer-size: 280px;          // Taille du cercle timer
+  --timer-size-mobile: 220px;   // Taille mobile
+
+  // Bordures et ombres
+  --border-radius: 1rem;
+  --border-radius-lg: 1.5rem;
+  --border-radius-full: 9999px;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.3);
+
+  // Transitions
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+  --transition-slow: 500ms ease;
+
+  // Typographie
+  --font-display: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+// ============================================================
+// CONTENEUR PRINCIPAL
+// ============================================================
+
+/**
+ * .pomodoro-container
+ * ------------------
+ *
+ * Le conteneur racine de tout le composant.
+ * Utilise Flexbox pour organiser les sections verticalement.
+ *
+ * La classe dynamique [class]="'state-' + state" permet
+ * d'appliquer des styles différents selon l'état du timer.
+ */
+.pomodoro-container {
+  min-height: 100vh;
+  padding: var(--spacing-lg);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-display);
+
+  // Flexbox pour centrer et organiser le contenu
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+
+  // Largeur maximale pour la lisibilité
+  max-width: 800px;
+  margin: 0 auto;
+
+  /**
+   * ÉTATS DU TIMER
+   * --------------
+   * Chaque état a une couleur d'accent différente.
+   * Ces modifiers changent subtilement l'apparence globale.
+   *
+   * C'est comme les feux de signalisation :
+   * - Rouge = Stop (ou dans notre cas, travaille !)
+   * - Vert = Tu peux te détendre
+   * - Jaune = Attention, en pause
+   */
+  &.state-working {
+    --accent-color: var(--pomodoro-red);
+  }
+
+  &.state-short-break {
+    --accent-color: var(--pomodoro-green);
+  }
+
+  &.state-long-break {
+    --accent-color: var(--pomodoro-blue);
+  }
+
+  &.state-paused {
+    --accent-color: var(--pomodoro-yellow);
+  }
+
+  &.state-idle {
+    --accent-color: var(--pomodoro-indigo);
+  }
+}
+
+// ============================================================
+// HEADER
+// ============================================================
+
+/**
+ * .pomodoro-header
+ * ----------------
+ *
+ * En-tête avec le titre et le bouton de paramètres.
+ * Disposition horizontale avec Flexbox, espace entre les éléments.
+ */
+.pomodoro-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/**
+ * .page-title
+ * ----------
+ *
+ * Titre principal de la page.
+ * L'icône tomate ajoute une touche ludique.
+ */
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+
+  .title-icon {
+    font-size: 2rem;
+  }
+}
+
+/**
+ * .settings-btn
+ * ------------
+ *
+ * Bouton pour ouvrir le panneau de paramètres.
+ * Effet de rotation au survol pour l'interactivité.
+ *
+ * Pourquoi l'animation de rotation ?
+ * ----------------------------------
+ * L'engrenage qui tourne = feedback visuel immédiat.
+ * L'utilisateur sait que le bouton est interactif.
+ */
+.settings-btn {
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: var(--border-radius);
+  background: var(--bg-secondary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+
+  &:hover {
+    background: var(--bg-hover);
+    transform: rotate(45deg);
+  }
+
+  &:focus {
+    outline: 2px solid var(--accent-color, var(--pomodoro-indigo));
+    outline-offset: 2px;
+  }
+
+  &.active {
+    background: var(--pomodoro-indigo);
+    transform: rotate(90deg);
+  }
+}
+
+// ============================================================
+// MESSAGE MOTIVANT
+// ============================================================
+
+/**
+ * .motivational-message
+ * --------------------
+ *
+ * Message contextuel qui change selon l'état du timer.
+ * Centré et avec une couleur légèrement atténuée.
+ *
+ * Pourquoi des messages motivants ?
+ * ---------------------------------
+ * La gamification passe aussi par les mots !
+ * Un simple "Tu y es presque !" peut faire la différence
+ * entre abandonner et terminer son Pomodoro.
+ */
+.motivational-message {
+  text-align: center;
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  border-left: 3px solid var(--accent-color, var(--pomodoro-indigo));
+}
+
+// ============================================================
+// TIMER PRINCIPAL
+// ============================================================
+
+/**
+ * .timer-section
+ * -------------
+ *
+ * Section contenant le cercle de timer.
+ * Centrage absolu avec Flexbox.
+ */
+.timer-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-xl) 0;
+}
+
+/**
+ * .timer-circle
+ * ------------
+ *
+ * Le cercle principal du timer.
+ *
+ * Structure en couches (de l'extérieur vers l'intérieur) :
+ * 1. .timer-circle - Conteneur avec ombre
+ * 2. .progress-ring - Anneau de progression (conic-gradient)
+ * 3. .timer-content - Contenu textuel au centre
+ *
+ * Analogie :
+ * ---------
+ * C'est comme un donut :
+ * - L'extérieur = le glaçage (la bordure colorée)
+ * - Le trou = l'espace pour le texte
+ *
+ * L'effet visuel est créé avec position: relative/absolute
+ * pour superposer les couches.
+ */
+.timer-circle {
+  position: relative;
+  width: var(--timer-size);
+  height: var(--timer-size);
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-lg),
+              inset 0 2px 4px rgba(0, 0, 0, 0.2);
+
+  // Classes de couleur selon l'état
+  &.timer-red {
+    --ring-color: var(--pomodoro-red);
+  }
+
+  &.timer-green {
+    --ring-color: var(--pomodoro-green);
+  }
+
+  &.timer-blue {
+    --ring-color: var(--pomodoro-blue);
+  }
+
+  &.timer-yellow {
+    --ring-color: var(--pomodoro-yellow);
+  }
+
+  &.timer-gray {
+    --ring-color: var(--pomodoro-gray);
+  }
+
+  @media (max-width: 480px) {
+    width: var(--timer-size-mobile);
+    height: var(--timer-size-mobile);
+  }
+}
+
+/**
+ * .progress-ring
+ * -------------
+ *
+ * L'anneau de progression utilisant conic-gradient.
+ *
+ * Comment ça marche ?
+ * ------------------
+ * conic-gradient crée un dégradé circulaire comme une tarte.
+ *
+ * Exemple : conic-gradient(red 270deg, transparent 270deg)
+ * - De 0 à 270° : rouge (75% du cercle)
+ * - De 270° à 360° : transparent (25% restant)
+ *
+ * En changeant l'angle dynamiquement, on crée l'animation
+ * de "vidage" du timer.
+ *
+ * Le pseudo-élément ::after crée le "trou" central
+ * qui masque le centre du gradient.
+ */
+.progress-ring {
+  position: absolute;
+  inset: 8px; // Raccourci pour top/right/bottom/left: 8px
+  border-radius: 50%;
+  transition: background var(--transition-fast);
+
+  // Crée le trou central
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 12px;
+    border-radius: 50%;
+    background: var(--bg-secondary);
+  }
+}
+
+/**
+ * .timer-content
+ * -------------
+ *
+ * Contenu textuel au centre du timer.
+ * Positionné absolument pour être parfaitement centré.
+ *
+ * z-index: 10 pour être AU-DESSUS du progress-ring::after.
+ */
+.timer-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  padding: var(--spacing-lg);
+}
+
+/**
+ * .timer-state
+ * -----------
+ *
+ * Label de l'état actuel (Focus, Pause, etc.)
+ * En petites majuscules pour un look professionnel.
+ */
+.timer-state {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-xs);
+}
+
+/**
+ * .timer-display
+ * -------------
+ *
+ * L'affichage du temps restant (25:00, 04:32, etc.)
+ *
+ * Pourquoi une police monospace ?
+ * ------------------------------
+ * Les chiffres ont TOUS la même largeur.
+ * Sans ça, "11:11" et "00:00" auraient des largeurs différentes
+ * et le texte "sauterait" à chaque seconde.
+ *
+ * C'est un détail subtil mais important pour l'UX.
+ */
+.timer-display {
+  font-family: var(--font-mono);
+  font-size: 4rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+
+  @media (max-width: 480px) {
+    font-size: 3rem;
+  }
+}
+
+/**
+ * .timer-sublabel
+ * --------------
+ *
+ * Message sous le temps ("Reste concentré !", "Détends-toi...")
+ */
+.timer-sublabel {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-top: var(--spacing-sm);
+  text-align: center;
+}
+
+// ============================================================
+// INDICATEURS DE POMODORO
+// ============================================================
+
+/**
+ * .pomodoro-indicators
+ * -------------------
+ *
+ * Les 4 petites tomates indiquant la progression dans le cycle.
+ *
+ * Technique Pomodoro classique :
+ * - 4 Pomodoros = 1 cycle
+ * - Après 4, pause longue
+ * - Puis on recommence
+ *
+ * Visuellement, c'est comme remplir une jauge.
+ */
+.pomodoro-indicators {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+}
+
+/**
+ * .indicator
+ * ---------
+ *
+ * Un seul indicateur de Pomodoro (tomate).
+ *
+ * États :
+ * - Normal : Grisé, désaturé (Pomodoro à faire)
+ * - .completed : Coloré, légèrement agrandi (Pomodoro fait)
+ *
+ * L'animation de "pulse" sur .completed attire l'attention
+ * quand un Pomodoro est complété.
+ */
+.indicator {
+  font-size: 1.5rem;
+  filter: grayscale(100%) opacity(0.4);
+  transition: all var(--transition-normal);
+
+  &.completed {
+    filter: none;
+    transform: scale(1.1);
+    animation: pulse 0.5s ease-out;
+  }
+}
+
+/**
+ * Animation de pulse
+ * -----------------
+ *
+ * Un léger agrandissement puis retour à la normale.
+ * Crée un effet de "pop" satisfaisant.
+ */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1.1);
+  }
+}
+
+/**
+ * .cycle-label
+ * -----------
+ *
+ * Texte indiquant la position dans le cycle (ex: "Cycle : 2/4")
+ */
+.cycle-label {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-left: var(--spacing-md);
+  padding-left: var(--spacing-md);
+  border-left: 1px solid var(--bg-hover);
+}
+
+// ============================================================
+// CONTRÔLES
+// ============================================================
+
+/**
+ * .controls-section
+ * ----------------
+ *
+ * Section contenant les boutons de contrôle.
+ * Affiche différents boutons selon l'état du timer.
+ */
+.controls-section {
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-md) 0;
+}
+
+/**
+ * .controls-idle
+ * -------------
+ *
+ * Contrôles affichés quand le timer est arrêté.
+ * - Un gros bouton "Démarrer un Pomodoro"
+ * - Deux boutons secondaires pour les pauses manuelles
+ */
+.controls-idle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-lg);
+  width: 100%;
+  max-width: 400px;
+}
+
+/**
+ * .secondary-controls
+ * ------------------
+ *
+ * Conteneur pour les boutons de pause manuelle.
+ * Disposition en ligne sur desktop, colonne sur mobile.
+ */
+.secondary-controls {
+  display: flex;
+  gap: var(--spacing-md);
+  width: 100%;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+  }
+}
+
+/**
+ * .controls-active
+ * ---------------
+ *
+ * Contrôles affichés quand le timer est actif.
+ * Trois boutons en ligne : Stop | Pause/Reprendre | Skip
+ */
+.controls-active {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+/**
+ * .control-btn
+ * -----------
+ *
+ * Style de base pour tous les boutons de contrôle.
+ *
+ * Design inspiré de iOS/macOS :
+ * - Coins arrondis
+ * - Ombres subtiles
+ * - Feedback au survol et au clic
+ */
+.control-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+
+  &:hover {
+    background: var(--bg-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+  }
+
+  &:focus {
+    outline: 2px solid var(--pomodoro-indigo);
+    outline-offset: 2px;
+  }
+
+  .btn-icon {
+    font-size: 1.25rem;
+  }
+}
+
+/**
+ * .btn-primary
+ * -----------
+ *
+ * Bouton principal avec couleur d'accent.
+ * Utilisé pour l'action principale (Démarrer, Reprendre).
+ */
+.btn-primary {
+  background: var(--pomodoro-indigo);
+  color: white;
+
+  &:hover {
+    background: #4f46e5; // Indigo plus foncé
+  }
+}
+
+/**
+ * .btn-secondary
+ * -------------
+ *
+ * Bouton secondaire moins visible.
+ * Utilisé pour les actions secondaires.
+ */
+.btn-secondary {
+  flex: 1;
+  background: var(--bg-card);
+
+  &:hover {
+    background: var(--bg-hover);
+  }
+}
+
+/**
+ * .btn-large
+ * ---------
+ *
+ * Bouton plus grand pour les actions importantes.
+ */
+.btn-large {
+  padding: var(--spacing-lg) var(--spacing-2xl);
+  font-size: 1.125rem;
+  width: 100%;
+}
+
+/**
+ * .btn-icon-only
+ * -------------
+ *
+ * Bouton carré ne contenant qu'une icône.
+ * Utilisé pour Stop et Skip.
+ */
+.btn-icon-only {
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  font-size: 1.5rem;
+
+  &:hover {
+    background: var(--bg-hover);
+  }
+}
+
+// ============================================================
+// STATISTIQUES
+// ============================================================
+
+/**
+ * .stats-section
+ * -------------
+ *
+ * Section affichant les statistiques du jour.
+ * Grille de cartes avec les métriques importantes.
+ */
+.stats-section {
+  padding: var(--spacing-lg);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-lg);
+}
+
+/**
+ * .section-title
+ * -------------
+ *
+ * Titre de section standard.
+ * Utilisé pour "Statistiques" et "Conseils".
+ */
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-lg) 0;
+}
+
+/**
+ * .stats-grid
+ * ----------
+ *
+ * Grille responsive pour les cartes de statistiques.
+ *
+ * CSS Grid avec auto-fit et minmax :
+ * - auto-fit : Crée autant de colonnes que possible
+ * - minmax(150px, 1fr) : Chaque colonne fait au moins 150px
+ *
+ * Résultat : Les cartes s'adaptent automatiquement
+ * à la largeur de l'écran sans media queries !
+ */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--spacing-md);
+}
+
+/**
+ * .stat-card
+ * ---------
+ *
+ * Carte individuelle de statistique.
+ * Structure : Icône | Valeur | Label
+ */
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--bg-card);
+  border-radius: var(--border-radius);
+  transition: all var(--transition-normal);
+
+  &:hover {
+    background: var(--bg-hover);
+    transform: translateY(-2px);
+  }
+
+  .stat-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .stat-content {
+    display: flex;
+    flex-direction: column;
+    min-width: 0; // Permet le text-overflow
+  }
+
+  .stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+// ============================================================
+// PANNEAU DE CONFIGURATION
+// ============================================================
+
+/**
+ * .settings-panel
+ * ---------------
+ *
+ * Panneau latéral (slide-in panel) pour les paramètres.
+ *
+ * Composé de deux parties :
+ * 1. .settings-overlay : Fond semi-transparent cliquable
+ * 2. .settings-content : Le panneau lui-même
+ *
+ * Technique de visibilité :
+ * - Par défaut : visibility: hidden + opacity: 0
+ * - Ouvert : visibility: visible + opacity: 1
+ *
+ * Pourquoi visibility ET opacity ?
+ * --------------------------------
+ * - opacity: 0 seul → L'élément reste cliquable (mauvais)
+ * - visibility: hidden seul → Pas d'animation possible
+ * - Les deux ensemble → Animation fluide ET non-cliquable quand fermé
+ */
+.settings-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  visibility: hidden;
+  opacity: 0;
+  transition: all var(--transition-normal);
+
+  &.open {
+    visibility: visible;
+    opacity: 1;
+
+    .settings-content {
+      transform: translateX(0);
+    }
+  }
+}
+
+/**
+ * .settings-overlay
+ * ----------------
+ *
+ * Fond semi-transparent derrière le panneau.
+ * Cliquer dessus ferme le panneau.
+ */
+.settings-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+/**
+ * .settings-content
+ * ----------------
+ *
+ * Le panneau de configuration lui-même.
+ * Glisse depuis la droite avec transform: translateX.
+ */
+.settings-content {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  max-width: 400px;
+  height: 100%;
+  background: var(--bg-primary);
+  transform: translateX(100%);
+  transition: transform var(--transition-normal);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/**
+ * .settings-header
+ * ---------------
+ *
+ * En-tête du panneau avec titre et bouton de fermeture.
+ */
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--bg-card);
+
+  h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+}
+
+/**
+ * .close-btn
+ * ---------
+ *
+ * Bouton X pour fermer le panneau.
+ */
+.close-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: var(--border-radius);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:hover {
+    background: var(--bg-hover);
+  }
+}
+
+/**
+ * .settings-body
+ * -------------
+ *
+ * Corps du panneau contenant les options.
+ */
+.settings-body {
+  flex: 1;
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/**
+ * .setting-item
+ * ------------
+ *
+ * Un élément de configuration individuel.
+ * Structure : Label | Contrôle (boutons +/-)
+ */
+.setting-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/**
+ * .setting-label
+ * -------------
+ *
+ * Label descriptif de l'option.
+ */
+.setting-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+
+  .setting-icon {
+    font-size: 1.125rem;
+  }
+}
+
+/**
+ * .setting-control
+ * ---------------
+ *
+ * Zone de contrôle avec boutons +/- et valeur centrale.
+ */
+.setting-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+}
+
+/**
+ * .adjust-btn
+ * ----------
+ *
+ * Boutons + et - pour ajuster les valeurs.
+ */
+.adjust-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: var(--border-radius);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:hover:not(:disabled) {
+    background: var(--pomodoro-indigo);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
+
+/**
+ * .setting-value
+ * -------------
+ *
+ * Affichage de la valeur actuelle (ex: "25 min").
+ */
+.setting-value {
+  min-width: 80px;
+  text-align: center;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/**
+ * .settings-divider
+ * ----------------
+ *
+ * Ligne de séparation entre les groupes d'options.
+ */
+.settings-divider {
+  border: none;
+  border-top: 1px solid var(--bg-card);
+  margin: var(--spacing-sm) 0;
+}
+
+/**
+ * .setting-toggle
+ * --------------
+ *
+ * Option de type toggle (ON/OFF).
+ * Disposition horizontale avec bouton à droite.
+ */
+.setting-toggle {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/**
+ * .toggle-btn
+ * ----------
+ *
+ * Bouton toggle ON/OFF.
+ *
+ * Pourquoi pas un vrai <input type="checkbox"> ?
+ * ---------------------------------------------
+ * Les checkboxes natives sont difficiles à styliser.
+ * Un bouton personnalisé offre plus de contrôle visuel.
+ *
+ * Attention à l'accessibilité :
+ * - Ajouter role="switch" et aria-checked
+ * - Gérer le focus clavier
+ */
+.toggle-btn {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  border-radius: var(--border-radius);
+  background: var(--bg-card);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  min-width: 60px;
+
+  &:hover {
+    background: var(--bg-hover);
+  }
+
+  &.active {
+    background: var(--pomodoro-green);
+    color: white;
+  }
+}
+
+/**
+ * .reset-btn
+ * ---------
+ *
+ * Bouton pour réinitialiser les paramètres par défaut.
+ * Style discret car action potentiellement destructive.
+ */
+.reset-btn {
+  margin-top: auto;
+  padding: var(--spacing-md);
+  border: 1px solid var(--bg-card);
+  border-radius: var(--border-radius);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:hover {
+    border-color: var(--pomodoro-red);
+    color: var(--pomodoro-red);
+    background: rgba(239, 68, 68, 0.1);
+  }
+}
+
+// ============================================================
+// SECTION CONSEILS
+// ============================================================
+
+/**
+ * .tips-section
+ * ------------
+ *
+ * Section avec les conseils pour un Pomodoro efficace.
+ * Design discret pour ne pas distraire du timer.
+ */
+.tips-section {
+  padding: var(--spacing-lg);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-lg);
+}
+
+/**
+ * .tips-title
+ * ----------
+ *
+ * Titre de la section conseils.
+ */
+.tips-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+/**
+ * .tips-list
+ * ---------
+ *
+ * Liste des conseils.
+ * Style épuré sans puces traditionnelles.
+ */
+.tips-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+
+  li {
+    padding-left: var(--spacing-lg);
+    position: relative;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+
+    // Puce personnalisée (cercle)
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.5em;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--pomodoro-indigo);
+    }
+  }
+}
+
+// ============================================================
+// ANIMATIONS GLOBALES
+// ============================================================
+
+/**
+ * Animation de respiration
+ * -----------------------
+ *
+ * Utilisée pour les éléments qui doivent attirer l'attention
+ * subtilement, comme le timer en pause.
+ */
+@keyframes breathe {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/**
+ * Application de l'animation breathing au timer en pause
+ */
+.state-paused .timer-display {
+  animation: breathe 2s ease-in-out infinite;
+}
+
+// ============================================================
+// RESPONSIVE DESIGN
+// ============================================================
+
+/**
+ * Adaptations pour tablettes
+ */
+@media (max-width: 768px) {
+  .pomodoro-container {
+    padding: var(--spacing-md);
+    gap: var(--spacing-lg);
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/**
+ * Adaptations pour mobiles
+ */
+@media (max-width: 480px) {
+  .pomodoro-container {
+    padding: var(--spacing-sm);
+  }
+
+  .page-title {
+    font-size: 1.25rem;
+
+    .title-icon {
+      font-size: 1.5rem;
+    }
+  }
+
+  .motivational-message {
+    font-size: 1rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pomodoro-indicators {
+    flex-wrap: wrap;
+  }
+
+  .cycle-label {
+    width: 100%;
+    text-align: center;
+    border-left: none;
+    padding-left: 0;
+    margin-left: 0;
+    margin-top: var(--spacing-sm);
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid var(--bg-hover);
+  }
+}
+
+/**
+ * Réflexions sur le CSS (style David J. Malan)
+ * ===========================================
+ *
+ * 1. POURQUOI LES CUSTOM PROPERTIES ?
+ *
+ *    Les variables SCSS ($var) sont compilées et disparaissent.
+ *    Les Custom Properties (--var) existent au runtime.
+ *
+ *    Avantage : On peut les modifier en JavaScript !
+ *    Exemple : Thème clair/sombre sans recompiler le CSS.
+ *
+ * 2. POURQUOI FLEXBOX ET GRID ENSEMBLE ?
+ *
+ *    Flexbox = Disposition 1D (ligne ou colonne)
+ *    Grid = Disposition 2D (lignes ET colonnes)
+ *
+ *    Analogie :
+ *    - Flexbox = Ranger des livres sur une étagère
+ *    - Grid = Organiser des cases sur un échiquier
+ *
+ *    On utilise l'un ou l'autre selon le besoin.
+ *
+ * 3. POURQUOI ÉVITER LES VALEURS MAGIQUES ?
+ *
+ *    Mauvais : padding: 17px 23px;
+ *    Bon : padding: var(--spacing-md) var(--spacing-lg);
+ *
+ *    Les valeurs nommées sont :
+ *    - Plus lisibles
+ *    - Plus cohérentes
+ *    - Plus faciles à modifier
+ *
+ * 4. L'ACCESSIBILITÉ N'EST PAS OPTIONNELLE
+ *
+ *    - :focus visible pour la navigation clavier
+ *    - Contraste suffisant pour les couleurs
+ *    - Tailles de touch target (min 44x44px sur mobile)
+ *
+ *    "Accessibility is not a feature, it's a requirement."
+ *
+ * Citation de David J. Malan :
+ * "Good code is like a good joke. It doesn't need to be explained."
+ *
+ * Un bon CSS raconte une histoire visuelle
+ * que l'utilisateur comprend intuitivement.
+ */

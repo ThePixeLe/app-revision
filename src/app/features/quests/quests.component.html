@@ -1,0 +1,365 @@
+<!--
+  quests.component.html
+
+  Template de la page Quêtes.
+
+  Structure de la page :
+  =====================
+
+  ┌─────────────────────────────────────────────────────────────┐
+  │                       HEADER                                │
+  │   🎯 Quêtes                      [Stats: X/Y complétées]   │
+  ├─────────────────────────────────────────────────────────────┤
+  │   [Toutes] [📅 Daily] [📆 Weekly] [⭐ Main] [🎁 Bonus]     │
+  ├─────────────────────────────────────────────────────────────┤
+  │                                                             │
+  │   ┌─────────────────────────────────────────────────────┐  │
+  │   │  QUEST CARD                                         │  │
+  │   │  📅 Quête Quotidienne       [En cours]             │  │
+  │   │  "Fais 3 exercices"                                 │  │
+  │   │  [████████░░░░░░░░] 2/3                             │  │
+  │   │  🏆 50 XP                   ⏰ 8h restantes         │  │
+  │   └─────────────────────────────────────────────────────┘  │
+  │                                                             │
+  │   ┌─────────────────────────────────────────────────────┐  │
+  │   │  QUEST CARD (completed)                             │  │
+  │   │  ✅ Quête Principale                                │  │
+  │   │  "Maîtrise les conditions"                          │  │
+  │   │  [████████████████] 100%                            │  │
+  │   │  🏆 200 XP réclamés                                 │  │
+  │   └─────────────────────────────────────────────────────┘  │
+  │                                                             │
+  └─────────────────────────────────────────────────────────────┘
+
+  Auteur: H1m0t3p3
+  Date: 24 décembre 2024
+-->
+
+<div class="quests-container">
+
+  <!-- ========================================== -->
+  <!-- HEADER -->
+  <!-- ========================================== -->
+  <header class="quests-header">
+    <div class="header-content">
+      <h1 class="page-title">🎯 Quêtes</h1>
+      <p class="page-subtitle">Accomplis des missions pour gagner des récompenses</p>
+    </div>
+
+    <!-- Statistiques rapides -->
+    <div class="header-stats">
+      <div class="stat-item">
+        <span class="stat-value">{{ stats.completedQuests }}/{{ stats.totalQuests }}</span>
+        <span class="stat-label">Complétées</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">{{ stats.totalXPEarned }}</span>
+        <span class="stat-label">XP gagnés</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- ONGLETS DE NAVIGATION -->
+  <!-- ========================================== -->
+  <nav class="quests-tabs">
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'all'"
+      (click)="setActiveTab('all')">
+      <span class="tab-icon">📋</span>
+      <span class="tab-label">Toutes</span>
+      <span class="tab-count">{{ allQuests.length }}</span>
+    </button>
+
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'daily'"
+      (click)="setActiveTab('daily')">
+      <span class="tab-icon">📅</span>
+      <span class="tab-label">Quotidiennes</span>
+      <span class="tab-count">{{ countByType('daily') }}</span>
+    </button>
+
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'weekly'"
+      (click)="setActiveTab('weekly')">
+      <span class="tab-icon">📆</span>
+      <span class="tab-label">Hebdos</span>
+      <span class="tab-count">{{ countByType('weekly') }}</span>
+    </button>
+
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'main'"
+      (click)="setActiveTab('main')">
+      <span class="tab-icon">⭐</span>
+      <span class="tab-label">Principales</span>
+      <span class="tab-count">{{ countByType('main') }}</span>
+    </button>
+
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'side'"
+      (click)="setActiveTab('side')">
+      <span class="tab-icon">🎁</span>
+      <span class="tab-label">Bonus</span>
+      <span class="tab-count">{{ countByType('side') }}</span>
+    </button>
+  </nav>
+
+  <!-- ========================================== -->
+  <!-- LISTE DES QUÊTES -->
+  <!-- ========================================== -->
+  <div class="quests-content">
+
+    <!-- Liste principale -->
+    <div class="quests-list">
+
+      <!-- Message si aucune quête -->
+      <div *ngIf="filteredQuests.length === 0" class="empty-state">
+        <span class="empty-icon">🔍</span>
+        <h3>Aucune quête trouvée</h3>
+        <p>Essaie de changer les filtres ou reviens plus tard !</p>
+      </div>
+
+      <!-- Carte de quête -->
+      <article
+        *ngFor="let quest of filteredQuests"
+        class="quest-card"
+        [class.locked]="quest.status === 'locked'"
+        [class.completed]="quest.status === 'completed'"
+        [class.in-progress]="quest.status === 'in-progress'"
+        (click)="selectQuest(quest)">
+
+        <!-- En-tête de la carte -->
+        <div class="quest-card-header">
+          <!-- Badge de type -->
+          <span
+            class="quest-type-badge"
+            [style.background]="getTypeColor(quest.type)">
+            {{ getTypeIcon(quest.type) }} {{ getTypeLabel(quest.type) }}
+          </span>
+
+          <!-- Statut -->
+          <span class="quest-status">
+            {{ getStatusIcon(quest.status) }}
+          </span>
+        </div>
+
+        <!-- Titre et description -->
+        <div class="quest-card-body">
+          <h3 class="quest-title">{{ quest.title }}</h3>
+          <p class="quest-description">{{ quest.description }}</p>
+
+          <!-- Barre de progression -->
+          <div class="quest-progress" *ngIf="quest.status !== 'locked'">
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                [style.width.%]="getProgress(quest)"
+                [style.background]="getTypeColor(quest.type)">
+              </div>
+            </div>
+            <span class="progress-text">{{ getProgressText(quest) }}</span>
+          </div>
+        </div>
+
+        <!-- Footer avec récompenses et deadline -->
+        <div class="quest-card-footer">
+          <!-- Récompense XP -->
+          <div class="quest-reward">
+            <span class="reward-icon">🏆</span>
+            <span class="reward-value">{{ quest.rewards.xp }} XP</span>
+            <span *ngIf="quest.rewards.badge" class="reward-badge">
+              + Badge
+            </span>
+          </div>
+
+          <!-- Deadline -->
+          <div class="quest-deadline" *ngIf="quest.deadline">
+            <span class="deadline-icon">⏰</span>
+            <span class="deadline-text">{{ formatDeadline(quest.deadline) }}</span>
+          </div>
+
+          <!-- Difficulté -->
+          <div class="quest-difficulty">
+            <span class="difficulty-stars">{{ getDifficultyStars(quest.difficulty) }}</span>
+          </div>
+        </div>
+
+        <!-- Overlay pour les quêtes verrouillées -->
+        <div *ngIf="quest.status === 'locked'" class="locked-overlay">
+          <span class="locked-icon">🔒</span>
+          <span class="locked-text">Prérequis non remplis</span>
+        </div>
+
+      </article>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- PANNEAU DE DÉTAILS -->
+    <!-- ========================================== -->
+    <aside
+      class="quest-details-panel"
+      [class.open]="selectedQuest !== null">
+
+      <div *ngIf="selectedQuest" class="details-content">
+
+        <!-- Bouton fermer -->
+        <button class="close-btn" (click)="closeDetails()">
+          ✕
+        </button>
+
+        <!-- Header -->
+        <div class="details-header">
+          <span
+            class="details-type"
+            [style.color]="getTypeColor(selectedQuest.type)">
+            {{ getTypeIcon(selectedQuest.type) }} {{ getTypeLabel(selectedQuest.type) }}
+          </span>
+          <h2 class="details-title">{{ selectedQuest.title }}</h2>
+        </div>
+
+        <!-- Description complète -->
+        <div class="details-section">
+          <h4>Description</h4>
+          <p>{{ selectedQuest.description }}</p>
+          <p *ngIf="selectedQuest.flavor" class="flavor-text">
+            "{{ selectedQuest.flavor }}"
+          </p>
+        </div>
+
+        <!-- Objectif -->
+        <div class="details-section">
+          <h4>Objectif</h4>
+          <div class="objective-display">
+            <div class="objective-progress">
+              <div
+                class="objective-bar"
+                [style.width.%]="getProgress(selectedQuest)"
+                [style.background]="getTypeColor(selectedQuest.type)">
+              </div>
+            </div>
+            <span class="objective-text">
+              {{ selectedQuest.objective.current }} / {{ selectedQuest.objective.target }}
+              {{ selectedQuest.objective.unit }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Récompenses -->
+        <div class="details-section">
+          <h4>Récompenses</h4>
+          <ul class="rewards-list">
+            <li>
+              <span class="reward-icon">✨</span>
+              {{ selectedQuest.rewards.xp }} XP
+            </li>
+            <li *ngIf="selectedQuest.rewards.badge">
+              <span class="reward-icon">🏆</span>
+              Badge spécial
+            </li>
+            <li *ngIf="selectedQuest.rewards.special">
+              <span class="reward-icon">🎁</span>
+              {{ selectedQuest.rewards.special }}
+            </li>
+          </ul>
+        </div>
+
+        <!-- Informations -->
+        <div class="details-section">
+          <h4>Informations</h4>
+          <ul class="info-list">
+            <li>
+              <span class="info-label">Difficulté :</span>
+              <span>{{ getDifficultyStars(selectedQuest.difficulty) }}</span>
+            </li>
+            <li *ngIf="selectedQuest.deadline">
+              <span class="info-label">Limite :</span>
+              <span>{{ formatDeadline(selectedQuest.deadline) }}</span>
+            </li>
+            <li *ngIf="selectedQuest.estimatedDuration">
+              <span class="info-label">Durée estimée :</span>
+              <span>{{ selectedQuest.estimatedDuration }} min</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Actions -->
+        <div class="details-actions">
+          <button
+            *ngIf="canStart(selectedQuest)"
+            class="btn-action start"
+            (click)="startQuest(selectedQuest)">
+            ▶️ Commencer cette quête
+          </button>
+
+          <button
+            *ngIf="canClaim(selectedQuest)"
+            class="btn-action claim"
+            (click)="claimReward(selectedQuest)">
+            🏆 Réclamer la récompense
+          </button>
+
+          <div
+            *ngIf="selectedQuest.status === 'in-progress'"
+            class="in-progress-hint">
+            <span>⏳</span>
+            <span>Cette quête est en cours. Continue !</span>
+          </div>
+
+          <div
+            *ngIf="selectedQuest.status === 'locked'"
+            class="locked-hint">
+            <span>🔒</span>
+            <span>Complète d'abord les quêtes prérequises.</span>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+  </div>
+
+</div>
+
+<!--
+  Réflexions UX (style David J. Malan)
+  ====================================
+
+  1. POURQUOI les onglets par type de quête ?
+
+     Organisation mentale :
+     - "Qu'est-ce que je peux faire AUJOURD'HUI ?" → Daily
+     - "Qu'est-ce que je dois faire CETTE SEMAINE ?" → Weekly
+     - "Où j'en suis dans le PROGRAMME ?" → Main
+
+     Les onglets répondent à ces questions instantanément.
+
+  2. POURQUOI la barre de progression sur chaque carte ?
+
+     Feedback visuel immédiat :
+     - On voit sa progression sans cliquer
+     - La barre colorée attire l'œil
+     - "Je suis à 80% !" → Motivation pour finir
+
+  3. POURQUOI le panneau de détails ?
+
+     Hiérarchie de l'information :
+     - La carte = Vue d'ensemble (titre, progression, récompense)
+     - Le panneau = Détails complets (description, prérequis, etc.)
+
+     On ne surcharge pas les cartes avec trop d'infos.
+
+  4. POURQUOI l'overlay sur les quêtes verrouillées ?
+
+     Signal visuel clair :
+     - La quête est visible (tu sais qu'elle existe)
+     - Mais grisée (tu sais que tu ne peux pas la faire)
+     - Le cadenas explique pourquoi
+
+     C'est le pattern "Teasing" : montrer ce qui viendra.
+-->

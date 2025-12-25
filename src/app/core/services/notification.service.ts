@@ -266,6 +266,7 @@ export class NotificationService {
     try {
       // Prépare les options de la notification
       const notificationOptions: NotificationOptions = {
+        title: options.title,
         body: options.body,
         icon: options.icon || this.getIconForType(options.type),
         badge: options.badge,
@@ -555,6 +556,22 @@ export class NotificationService {
       title: '🧪 Notification de test',
       body: 'Si tu vois ce message, les notifications fonctionnent ! ✅',
       type: 'info'
+    });
+  }
+
+  /**
+   * AFFICHER UNE NOTIFICATION (méthode simplifiée)
+   * ---------------------------------------------
+   * @param title - Titre de la notification
+   * @param body - Corps du message
+   * @param playSound - Jouer un son (optionnel)
+   */
+  showNotification(title: string, body: string, playSound: boolean = true): void {
+    this.notify({
+      title,
+      body,
+      type: 'info',
+      silent: !playSound
     });
   }
 }

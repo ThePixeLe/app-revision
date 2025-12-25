@@ -1,0 +1,207 @@
+{
+  "_comment": "Chapitres pour l'auto-évaluation - App Revision",
+  "_author": "H1m0t3p3",
+  "_date": "24 décembre 2024",
+
+  "chapters": [
+    {
+      "id": "alg-01",
+      "name": "Tables de vérité",
+      "category": "algebre",
+      "topics": [
+        "Opérateur ET (AND)",
+        "Opérateur OU (OR)",
+        "Opérateur NON (NOT)",
+        "Opérateur OU EXCLUSIF (XOR)",
+        "Construction de tables de vérité",
+        "Évaluation d'expressions booléennes"
+      ],
+      "keyPoints": [
+        "AND retourne VRAI seulement si les deux opérandes sont VRAI",
+        "OR retourne VRAI si au moins un opérande est VRAI",
+        "NOT inverse la valeur de l'opérande",
+        "Une table de vérité liste toutes les combinaisons possibles"
+      ]
+    },
+    {
+      "id": "alg-02",
+      "name": "Simplification & Karnaugh",
+      "category": "algebre",
+      "topics": [
+        "Théorème de De Morgan (1)",
+        "Théorème de De Morgan (2)",
+        "Propriétés de l'algèbre de Boole",
+        "Tableaux de Karnaugh 2 variables",
+        "Tableaux de Karnaugh 3 variables",
+        "Tableaux de Karnaugh 4 variables",
+        "Simplification d'expressions"
+      ],
+      "keyPoints": [
+        "NOT(A AND B) = NOT(A) OR NOT(B)",
+        "NOT(A OR B) = NOT(A) AND NOT(B)",
+        "Regrouper les 1 adjacents dans Karnaugh",
+        "Les groupes doivent être des puissances de 2"
+      ]
+    },
+    {
+      "id": "algo-01",
+      "name": "Introduction aux algorithmes",
+      "category": "algo",
+      "topics": [
+        "Définition d'un algorithme",
+        "Propriétés d'un algorithme",
+        "Pseudo-code vs Code",
+        "Variables et types de données",
+        "Entrées et sorties",
+        "Affectation de valeurs"
+      ],
+      "keyPoints": [
+        "Un algorithme est une suite finie d'instructions",
+        "Il doit être précis, non ambigu et terminé",
+        "Le pseudo-code est indépendant du langage",
+        "Une variable est une boîte qui contient une valeur"
+      ]
+    },
+    {
+      "id": "algo-02",
+      "name": "Structures conditionnelles",
+      "category": "algo",
+      "topics": [
+        "SI...ALORS",
+        "SI...ALORS...SINON",
+        "Conditions imbriquées",
+        "SI...SINON SI...SINON",
+        "SELON...CAS (switch)",
+        "Opérateurs de comparaison",
+        "Opérateurs logiques dans les conditions"
+      ],
+      "keyPoints": [
+        "La condition doit être une expression booléenne",
+        "Éviter les conditions imbriquées trop profondes",
+        "SELON est utile pour tester plusieurs valeurs d'une variable",
+        "Toujours prévoir le cas par défaut (SINON)"
+      ]
+    },
+    {
+      "id": "algo-03",
+      "name": "Boucles",
+      "category": "algo",
+      "topics": [
+        "Boucle POUR (for)",
+        "Boucle TANT QUE (while)",
+        "Boucle RÉPÉTER...JUSQU'À (do-while)",
+        "Compteur et incrémentation",
+        "Condition d'arrêt",
+        "Boucles imbriquées",
+        "Éviter les boucles infinies"
+      ],
+      "keyPoints": [
+        "POUR : quand on connaît le nombre d'itérations",
+        "TANT QUE : quand on ne connaît pas le nombre d'itérations",
+        "RÉPÉTER : exécute au moins une fois avant de tester",
+        "Toujours s'assurer que la condition d'arrêt sera atteinte"
+      ]
+    },
+    {
+      "id": "algo-04",
+      "name": "Tableaux",
+      "category": "algo",
+      "topics": [
+        "Déclaration d'un tableau",
+        "Accès par index",
+        "Parcours d'un tableau",
+        "Recherche dans un tableau",
+        "Calcul sur un tableau (somme, moyenne)",
+        "Tri simple (tri à bulles)",
+        "Tableaux à deux dimensions"
+      ],
+      "keyPoints": [
+        "L'index commence à 0 (ou 1 selon les conventions)",
+        "La taille d'un tableau est fixe à la création",
+        "Utiliser une boucle POUR pour parcourir",
+        "Attention au dépassement d'index"
+      ]
+    },
+    {
+      "id": "java-01",
+      "name": "Bases de Java",
+      "category": "java",
+      "topics": [
+        "JDK, JRE, JVM",
+        "Compilation vs Interprétation",
+        "Structure d'un programme Java",
+        "La méthode main()",
+        "System.out.println()",
+        "Commentaires en Java"
+      ],
+      "keyPoints": [
+        "Java est compilé en bytecode puis interprété par la JVM",
+        "Chaque fichier .java doit avoir une classe du même nom",
+        "main() est le point d'entrée du programme",
+        "Chaque instruction se termine par un point-virgule"
+      ]
+    },
+    {
+      "id": "java-02",
+      "name": "Syntaxe Java",
+      "category": "java",
+      "topics": [
+        "Types primitifs (int, double, boolean, char)",
+        "Type String",
+        "Déclaration de variables",
+        "Opérateurs arithmétiques",
+        "Opérateurs de comparaison",
+        "Opérateurs logiques",
+        "Conversion de types (casting)"
+      ],
+      "keyPoints": [
+        "int pour les entiers, double pour les décimaux",
+        "String n'est pas un type primitif mais une classe",
+        "== compare les valeurs (primitifs) ou les références (objets)",
+        ".equals() pour comparer le contenu des Strings"
+      ]
+    },
+    {
+      "id": "java-03",
+      "name": "Structures de contrôle Java",
+      "category": "java",
+      "topics": [
+        "if / else",
+        "else if",
+        "switch / case",
+        "Boucle for",
+        "Boucle while",
+        "Boucle do-while",
+        "break et continue",
+        "Scanner pour les entrées"
+      ],
+      "keyPoints": [
+        "Les accolades {} délimitent les blocs",
+        "switch supporte int, char, String, enum",
+        "Ne pas oublier break dans chaque case",
+        "Scanner.nextLine() pour lire une ligne complète"
+      ]
+    },
+    {
+      "id": "java-04",
+      "name": "Tableaux Java",
+      "category": "java",
+      "topics": [
+        "Déclaration de tableaux",
+        "Initialisation avec new",
+        "Initialisation avec des valeurs",
+        "Propriété length",
+        "Parcours avec for classique",
+        "Parcours avec for-each",
+        "Classe Arrays (sort, toString, etc.)",
+        "Tableaux multidimensionnels"
+      ],
+      "keyPoints": [
+        "int[] tab = new int[10]; crée un tableau de 10 entiers",
+        "tab.length donne la taille (sans parenthèses)",
+        "for(int x : tab) parcourt tous les éléments",
+        "Arrays.sort(tab) trie le tableau sur place"
+      ]
+    }
+  ]
+}

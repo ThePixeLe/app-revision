@@ -80,6 +80,13 @@ export class GamificationService {
   public completedQuests$: Observable<Quest[]> = this.completedQuestsSubject.asObservable();
 
   /**
+   * Observable public des badges (passthrough depuis ProgressService)
+   * -----------------------------------------------------------------
+   * Permet aux composants d'accéder aux badges via GamificationService.
+   */
+  public badges$!: Observable<any[]>;
+
+  /**
    * Constructeur
    */
   constructor(
@@ -87,6 +94,9 @@ export class GamificationService {
     private progressService: ProgressService,
     private exerciseService: ExerciseService
   ) {
+    // Initialise l'observable des badges depuis ProgressService
+    this.badges$ = this.progressService.badges$;
+
     // Chargement automatique des quêtes
     this.loadQuests();
 
@@ -337,7 +347,8 @@ export class GamificationService {
           };
 
           // Si la quête vient d'être complétée
-          if (isQuestCompleted(updatedQuest) && quest.status !== 'completed') {
+          // (on sait que quest.status est 'available' ou 'in-progress' grâce au filtre précédent)
+          if (isQuestCompleted(updatedQuest)) {
             return this.completeQuestInternal(updatedQuest);
           }
 
@@ -450,6 +461,168 @@ export class GamificationService {
 
     this.questsSubject.next(updatedQuests);
     this.saveQuests(updatedQuests).subscribe();
+  }
+
+  // ============================================================
+  // MÉTHODES PUBLIQUES - ACTIONS SUR LES QUÊTES
+  // ============================================================
+
+  /**
+   * DÉMARRER UNE QUÊTE
+   * -----------------
+   * Change le statut d'une quête de 'available' à 'in-progress'.
+   *
+   * Pourquoi cette méthode ?
+   * -----------------------
+   * Permet à l'utilisateur de "s'engager" sur une quête,
+   * ce qui la rend visible dans la section "En cours".
+   *
+   * @param questId - ID de la quête à démarrer
+   * @returns Observable de la quête mise à jour
+   */
+  startQuest(questId: string): Observable<Quest | undefined> {
+    const quests = this.questsSubject.value;
+    const quest = quests.find(q => q.id === questId);
+
+    if (!quest) {
+      console.warn(`❌ Quête non trouvée: ${questId}`);
+      return new BehaviorSubject<undefined>(undefined).asObservable();
+    }
+
+    // Vérifie que la quête est disponible
+    if (quest.status !== 'available') {
+      console.warn(`⚠️ La quête "${quest.title}" n'est pas disponible (statut: ${quest.status})`);
+      return new BehaviorSubject<undefined>(undefined).asObservable();
+    }
+
+    // Met à jour le statut
+    const updatedQuest: Quest = {
+      ...quest,
+      status: 'in-progress',
+      startedAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    // Met à jour la liste
+    const updatedQuests = quests.map(q =>
+      q.id === questId ? updatedQuest : q
+    );
+
+    this.questsSubject.next(updatedQuests);
+
+    return this.saveQuests(updatedQuests).pipe(
+      tap(() => console.log(`🎯 Quête démarrée: ${updatedQuest.title}`)),
+      map(() => updatedQuest)
+    );
+  }
+
+  /**
+   * RÉCLAMER LA RÉCOMPENSE D'UNE QUÊTE
+   * ---------------------------------
+   * Attribue les récompenses d'une quête complétée.
+   *
+   * Pourquoi séparer de completeQuestInternal ?
+   * ------------------------------------------
+   * completeQuestInternal est appelé AUTOMATIQUEMENT
+   * quand l'objectif est atteint.
+   *
+   * claimQuestReward est appelé MANUELLEMENT par l'utilisateur
+   * pour les quêtes qui nécessitent une action de "réclamation".
+   *
+   * @param questId - ID de la quête
+   * @returns Observable avec les récompenses obtenues
+   */
+  claimQuestReward(questId: string): Observable<{
+    xp: number;
+    badge?: string;
+    unlocked?: string;
+  } | undefined> {
+    const quests = this.questsSubject.value;
+    const quest = quests.find(q => q.id === questId);
+
+    if (!quest) {
+      console.warn(`❌ Quête non trouvée: ${questId}`);
+      return new BehaviorSubject<undefined>(undefined).asObservable();
+    }
+
+    // Vérifie que la quête est complétée et pas déjà réclamée
+    if (quest.status !== 'completed') {
+      // Si la quête est en cours et que l'objectif est atteint, la compléter
+      if (quest.status === 'in-progress' && isQuestCompleted(quest)) {
+        const completedQuest = this.completeQuestInternal(quest);
+
+        // Met à jour la liste
+        const updatedQuests = quests.map(q =>
+          q.id === questId ? completedQuest : q
+        );
+        this.questsSubject.next(updatedQuests);
+        this.saveQuests(updatedQuests).subscribe();
+
+        return new BehaviorSubject({
+          xp: quest.rewards.xp,
+          badge: quest.rewards.badge,
+          unlocked: quest.nextQuest
+        }).asObservable();
+      }
+
+      console.warn(`⚠️ La quête "${quest.title}" n'est pas complétée`);
+      return new BehaviorSubject<undefined>(undefined).asObservable();
+    }
+
+    // La quête est déjà complétée, on retourne juste les récompenses
+    console.log(`🎁 Récompenses réclamées pour: ${quest.title}`);
+    console.log(`   XP: +${quest.rewards.xp}`);
+    if (quest.rewards.badge) {
+      console.log(`   Badge: ${quest.rewards.badge}`);
+    }
+
+    return new BehaviorSubject({
+      xp: quest.rewards.xp,
+      badge: quest.rewards.badge,
+      unlocked: quest.nextQuest
+    }).asObservable();
+  }
+
+  /**
+   * ABANDONNER UNE QUÊTE
+   * -------------------
+   * Remet une quête en statut 'available'.
+   *
+   * @param questId - ID de la quête à abandonner
+   */
+  abandonQuest(questId: string): Observable<Quest | undefined> {
+    const quests = this.questsSubject.value;
+    const quest = quests.find(q => q.id === questId);
+
+    if (!quest) {
+      console.warn(`❌ Quête non trouvée: ${questId}`);
+      return new BehaviorSubject<undefined>(undefined).asObservable();
+    }
+
+    // Seulement les quêtes en cours peuvent être abandonnées
+    if (quest.status !== 'in-progress') {
+      console.warn(`⚠️ La quête "${quest.title}" n'est pas en cours`);
+      return new BehaviorSubject<undefined>(undefined).asObservable();
+    }
+
+    // Remet en disponible (on garde la progression)
+    const updatedQuest: Quest = {
+      ...quest,
+      status: 'available',
+      startedAt: undefined,
+      updatedAt: new Date()
+    };
+
+    const updatedQuests = quests.map(q =>
+      q.id === questId ? updatedQuest : q
+    );
+
+    this.questsSubject.next(updatedQuests);
+
+    return this.saveQuests(updatedQuests).pipe(
+      tap(() => console.log(`🚫 Quête abandonnée: ${updatedQuest.title}`)),
+      map(() => updatedQuest)
+    );
   }
 
   // ============================================================

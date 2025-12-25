@@ -1,0 +1,252 @@
+<!--
+  exercise-detail.component.html
+
+  Template du détail d'un exercice.
+
+  Structure :
+  ==========
+  - Header (titre, catégorie, difficulté, timer)
+  - Énoncé de l'exercice
+  - Zone de travail (onglets pseudo-code / Java)
+  - Aides (indice, solution de référence)
+  - Actions (terminer, réviser)
+
+  Auteur: H1m0t3p3
+  Date: 24 décembre 2024
+-->
+
+<div class="exercise-detail-container">
+
+  <!-- État de chargement -->
+  <div *ngIf="isLoading" class="loading-state">
+    <span class="loading-spinner">⏳</span>
+    <p>Chargement de l'exercice...</p>
+  </div>
+
+  <!-- Erreur -->
+  <div *ngIf="error" class="error-state">
+    <span class="error-icon">❌</span>
+    <h2>{{ error }}</h2>
+    <button class="btn-back" (click)="backToExercises()">
+      ← Retour aux exercices
+    </button>
+  </div>
+
+  <!-- Contenu principal -->
+  <ng-container *ngIf="!isLoading && !error && exercise">
+
+    <!-- ========================================== -->
+    <!-- HEADER -->
+    <!-- ========================================== -->
+    <header class="exercise-header">
+
+      <!-- Navigation -->
+      <button class="back-btn" (click)="backToExercises()">
+        ← Retour
+      </button>
+
+      <!-- Infos -->
+      <div class="exercise-info">
+        <div class="exercise-badges">
+          <span
+            class="category-badge"
+            [style.background]="getCategoryColor()">
+            {{ exercise.category | titlecase }}
+          </span>
+          <span class="type-badge">
+            {{ getTypeIcon() }} {{ exercise.type }}
+          </span>
+          <span class="difficulty-badge">
+            {{ '⭐'.repeat(getDifficultyStars(exercise.difficulty)) }}
+          </span>
+        </div>
+        <h1 class="exercise-title">{{ exercise.title }}</h1>
+        <span class="exercise-status" [class]="exercise.status">
+          {{ getStatusLabel() }}
+        </span>
+      </div>
+
+      <!-- Timer -->
+      <div class="timer-section">
+        <div class="timer-display">
+          <span class="timer-value">{{ formatTime(elapsedTime) }}</span>
+        </div>
+        <div class="timer-controls">
+          <button
+            *ngIf="!timerRunning"
+            class="timer-btn start"
+            (click)="startTimer()">
+            ▶️
+          </button>
+          <button
+            *ngIf="timerRunning"
+            class="timer-btn pause"
+            (click)="pauseTimer()">
+            ⏸️
+          </button>
+          <button
+            class="timer-btn reset"
+            (click)="resetTimer()">
+            🔄
+          </button>
+        </div>
+      </div>
+
+    </header>
+
+    <!-- ========================================== -->
+    <!-- ÉNONCÉ -->
+    <!-- ========================================== -->
+    <section class="statement-section">
+      <h2>📋 Énoncé</h2>
+      <div class="statement-content">
+        <p>{{ exercise.description }}</p>
+      </div>
+
+      <!-- Tags si disponibles -->
+      <div *ngIf="exercise.tags && exercise.tags.length > 0" class="instructions">
+        <h3>Tags</h3>
+        <div class="tags-list">
+          <span *ngFor="let tag of exercise.tags" class="tag">{{ tag }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ZONE DE TRAVAIL -->
+    <!-- ========================================== -->
+    <section class="workspace-section">
+
+      <!-- Onglets -->
+      <div class="workspace-tabs">
+        <button
+          class="tab-btn"
+          [class.active]="activeTab === 'pseudo'"
+          (click)="setActiveTab('pseudo')">
+          📝 Pseudo-code
+        </button>
+        <button
+          class="tab-btn"
+          [class.active]="activeTab === 'java'"
+          (click)="setActiveTab('java')">
+          ☕ Code Java
+        </button>
+      </div>
+
+      <!-- Zone d'édition -->
+      <div class="editor-container">
+        <textarea
+          class="code-editor"
+          [placeholder]="getEditorPlaceholder()"
+          [(ngModel)]="currentSolution"
+          rows="15">
+        </textarea>
+      </div>
+
+      <!-- Notes personnelles -->
+      <div class="notes-section">
+        <h3>📝 Mes notes</h3>
+        <textarea
+          class="notes-input"
+          placeholder="Notes personnelles, réflexions, questions..."
+          [(ngModel)]="personalNotes"
+          rows="3">
+        </textarea>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- AIDES -->
+    <!-- ========================================== -->
+    <section class="help-section">
+      <h2>💡 Besoin d'aide ?</h2>
+
+      <div class="help-buttons">
+        <!-- Indice -->
+        <button
+          class="help-btn hint"
+          (click)="toggleHint()"
+          *ngIf="hasHint()">
+          {{ showHint ? 'Masquer indice' : 'Voir indice' }}
+        </button>
+
+        <!-- Solution -->
+        <button
+          class="help-btn solution"
+          (click)="toggleReferenceSolution()">
+          {{ showReferenceSolution ? 'Masquer solution' : 'Voir solution' }}
+        </button>
+      </div>
+
+      <!-- Affichage de l'indice -->
+      <div *ngIf="showHint && hasHint()" class="hint-box">
+        <h4>Indice</h4>
+        <p>{{ getHint() }}</p>
+      </div>
+
+      <!-- Affichage de la solution -->
+      <div *ngIf="showReferenceSolution" class="solution-box">
+        <h4>Solution de reference</h4>
+        <pre>{{ getReferenceSolution() }}</pre>
+        <p class="solution-warning">
+          Compare ta solution avec celle-ci. L'important est de comprendre la logique !
+        </p>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ACTIONS -->
+    <!-- ========================================== -->
+    <footer class="exercise-actions">
+
+      <div class="left-actions">
+        <button
+          class="action-btn secondary"
+          (click)="markForReview()">
+          🔄 Marquer pour révision
+        </button>
+      </div>
+
+      <div class="right-actions">
+        <button
+          class="action-btn primary"
+          (click)="markAsCompleted()"
+          [disabled]="!currentSolution.trim()">
+          ✅ Marquer comme terminé
+        </button>
+      </div>
+
+    </footer>
+
+    <!-- ========================================== -->
+    <!-- HISTORIQUE -->
+    <!-- ========================================== -->
+    <section class="history-section" *ngIf="attempts.length > 0">
+      <h2>📜 Historique des tentatives</h2>
+      <div class="attempts-list">
+        <div
+          *ngFor="let attempt of attempts"
+          class="attempt-card"
+          [class]="attempt.status">
+          <div class="attempt-info">
+            <span class="attempt-date">
+              {{ attempt.date | date:'dd/MM/yyyy HH:mm' }}
+            </span>
+            <span class="attempt-time">
+              ⏱️ {{ formatTime(attempt.timeSpent) }}
+            </span>
+          </div>
+          <span class="attempt-status">
+            <span *ngIf="attempt.status === 'success'">✅</span>
+            <span *ngIf="attempt.status === 'partial'">⚠️</span>
+            <span *ngIf="attempt.status === 'failed'">❌</span>
+          </span>
+        </div>
+      </div>
+    </section>
+
+  </ng-container>
+
+</div>
