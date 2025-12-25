@@ -153,6 +153,7 @@ npm install
 1. **Téléchargez Ollama** : [ollama.com/download](https://ollama.com/download)
 
 2. **Installez un modèle** :
+
    ```bash
    ollama pull llama3.2        # Recommandé (3.8 GB)
    # ou
@@ -162,6 +163,7 @@ npm install
    ```
 
 3. **Lancez Ollama** (dans un terminal séparé) :
+
    ```bash
    ollama serve
    ```
@@ -309,6 +311,7 @@ L'application utilise un code couleur cohérent :
 L'application propose **5 templates prédéfinis** que vous pouvez personnaliser :
 
 ### 1. Algo + Java (12 jours) - *Template par défaut*
+
 | Phase | Durée | Contenu |
 |-------|-------|---------|
 | 🔵 Algèbre de Boole | 2 jours | Tables de vérité, De Morgan, Karnaugh |
@@ -317,6 +320,7 @@ L'application propose **5 templates prédéfinis** que vous pouvez personnaliser
 | 📚 Consolidation | 2 jours | Révisions, projet final |
 
 ### 2. POO + BDD (10 jours)
+
 | Phase | Durée | Contenu |
 |-------|-------|---------|
 | 🧩 POO Bases | 3 jours | Classes, objets, encapsulation |
@@ -325,6 +329,7 @@ L'application propose **5 templates prédéfinis** que vous pouvez personnaliser
 | 🚀 Projet Final | 1 jour | Application complète |
 
 ### 3. Web Development (14 jours)
+
 | Phase | Durée | Contenu |
 |-------|-------|---------|
 | 🌐 HTML/CSS | 3 jours | Structure, styles, responsive |
@@ -334,6 +339,7 @@ L'application propose **5 templates prédéfinis** que vous pouvez personnaliser
 | 🚀 Projet Web | 1 jour | Application complète |
 
 ### 4. Python Data Science (7 jours)
+
 | Phase | Durée | Contenu |
 |-------|-------|---------|
 | 🐍 Python Bases | 2 jours | Syntaxe, fonctions, OOP |
@@ -342,6 +348,7 @@ L'application propose **5 templates prédéfinis** que vous pouvez personnaliser
 | 🚀 Projet Data | 1 jour | Analyse complète |
 
 ### 5. Planning Vide (Personnalisé)
+
 Créez votre propre planning de zéro avec vos propres phases et durées.
 
 ---
@@ -377,7 +384,8 @@ Toutes les dates du planning seront automatiquement recalculées !
 ### L'application ne démarre pas
 
 1. Vérifiez que Node.js >= 18 est installé : `node --version`
-2. Supprimez `node_modules` et réinstallez : 
+2. Supprimez `node_modules` et réinstallez :
+
    ```bash
    rm -rf node_modules package-lock.json
    npm install
@@ -477,10 +485,6 @@ Besoin d'aide ? Plusieurs options :
 
 ---
 
-<div align="center">
-
 **⭐ Si ce projet vous aide, n'hésitez pas à lui donner une étoile sur GitHub ! ⭐**
 
-Made with ❤️ and ☕ by H1m0t3p3
-
-</div>
+*Made with ❤️ and ☕ by H1m0t3p3*
