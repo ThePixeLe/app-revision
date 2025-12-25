@@ -109,6 +109,7 @@ interface NavItem {
   styles: [`
     /**
      * Styles de la sidebar
+     * Utilise les variables CSS globales pour le thème
      */
 
     /* Overlay mobile */
@@ -116,7 +117,7 @@ interface NavItem {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.6);
+      background: var(--overlay-bg);
       z-index: 199;
       opacity: 0;
       transition: opacity 0.3s;
@@ -142,13 +143,13 @@ interface NavItem {
       left: 0;
       bottom: 0;
       width: 250px;
-      background: #1e293b;
-      border-right: 1px solid #334155;
+      background: var(--bg-card);
+      border-right: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
       z-index: 200;
       overflow-y: auto;
-      transition: transform 0.3s ease;
+      transition: transform 0.3s ease, background-color 0.3s, border-color 0.3s;
 
       @media (max-width: 768px) {
         transform: translateX(-100%);
@@ -186,16 +187,16 @@ interface NavItem {
         padding: 0.75rem 1rem;
         border-radius: 0.5rem;
         text-decoration: none;
-        color: #94a3b8;
+        color: var(--text-secondary);
         transition: all 0.2s;
 
         &:hover {
-          background: #334155;
-          color: #f8fafc;
+          background: var(--bg-card-hover);
+          color: var(--text-primary);
         }
 
         &.active {
-          background: #3b82f6;
+          background: var(--color-primary);
           color: white;
 
           .nav-icon {
@@ -217,7 +218,7 @@ interface NavItem {
       .nav-badge {
         margin-left: auto;
         padding: 0.125rem 0.5rem;
-        background: #ef4444;
+        background: var(--color-danger);
         color: white;
         border-radius: 9999px;
         font-size: 0.75rem;
@@ -228,7 +229,7 @@ interface NavItem {
     /* Séparateur */
     .nav-separator {
       height: 1px;
-      background: #334155;
+      background: var(--border-color);
       margin: 0.5rem 1rem;
     }
 
@@ -236,19 +237,19 @@ interface NavItem {
     .sidebar-footer {
       margin-top: auto;
       padding: 1rem;
-      border-top: 1px solid #334155;
+      border-top: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
       gap: 0.25rem;
 
       .version {
         font-size: 0.75rem;
-        color: #64748b;
+        color: var(--text-muted);
       }
 
       .author {
         font-size: 0.75rem;
-        color: #475569;
+        color: var(--text-secondary);
       }
     }
   `]

@@ -40,30 +40,31 @@
  * 3. Thèmes : Facile de créer un mode sombre
  */
 :host {
-  // Couleurs principales
-  --primary-color: #6366f1;        // Indigo (couleur principale)
-  --primary-light: #818cf8;        // Indigo clair
-  --primary-dark: #4f46e5;         // Indigo foncé
+  // Utilise les variables CSS globales de styles.scss
+  // Elles changent automatiquement selon le thème (theme-dark / theme-light)
 
-  --secondary-color: #10b981;      // Émeraude (succès)
-  --accent-color: #f59e0b;         // Ambre (attention)
-  --danger-color: #ef4444;         // Rouge (erreur)
+  // Couleurs principales (accents - identiques pour les deux thèmes)
+  --primary-color: var(--color-primary);
+  --primary-light: #818cf8;
+  --primary-dark: #4f46e5;
 
-  // Couleurs de fond
-  --bg-primary: #ffffff;           // Fond principal
-  --bg-secondary: #f8fafc;         // Fond secondaire
-  --bg-card: #ffffff;              // Fond des cartes
+  --secondary-color: var(--color-success);
+  --accent-color: var(--color-warning);
+  --danger-color: var(--color-danger);
 
-  // Couleurs de texte
-  --text-primary: #1e293b;         // Texte principal
-  --text-secondary: #64748b;       // Texte secondaire
-  --text-muted: #94a3b8;           // Texte discret
+  // Couleurs de fond - héritent du thème global
+  --bg-primary: var(--bg-page);
+  --bg-secondary: var(--bg-page);
+  --bg-card-local: var(--bg-card);
 
-  // Bordures et ombres
-  --border-color: #e2e8f0;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  // Couleurs de texte - héritent du thème global
+  // Note: on ne redéfinit pas --text-primary etc car ils viennent du global
+
+  // Bordures et ombres - héritent du thème global
+  --border-color-local: var(--border-color);
+  --shadow-sm-local: var(--shadow-sm);
+  --shadow-md-local: var(--shadow-md);
+  --shadow-lg-local: var(--shadow-lg);
 
   // Espacements
   --spacing-xs: 0.25rem;
@@ -96,7 +97,8 @@
   display: block;
   width: 100%;
   min-height: 100vh;
-  background: var(--bg-secondary);
+  background: var(--bg-page);
+  transition: background-color var(--transition-normal);
 }
 
 // ============================================================

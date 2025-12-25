@@ -24,20 +24,19 @@
 :host {
   display: block;
 
-  // Couleurs
-  --bg-page: #0f172a;
-  --bg-section: #1e293b;
-  --bg-input: #334155;
-  --bg-hover: #475569;
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  // Utilise les variables CSS globales définies dans styles.scss
+  // Elles changent automatiquement selon le thème (theme-dark / theme-light)
 
-  // Accents
-  --accent-primary: #3b82f6;
-  --accent-success: #10b981;
-  --accent-warning: #f59e0b;
-  --accent-danger: #ef4444;
+  // Variables locales qui héritent des globales
+  --bg-section: var(--bg-card);
+  --bg-input-local: var(--bg-input);
+  --bg-hover: var(--bg-card-hover);
+
+  // Accents (identiques pour les deux thèmes)
+  --accent-primary: var(--color-primary);
+  --accent-success: var(--color-success);
+  --accent-warning: var(--color-warning);
+  --accent-danger: var(--color-danger);
 
   // Espacements
   --spacing-sm: 0.5rem;
@@ -63,6 +62,10 @@
   max-width: 700px;
   margin: 0 auto;
   padding: var(--spacing-xl);
+  min-height: calc(100vh - 57px);
+  background: var(--bg-page);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 
   @media (max-width: 768px) {
     padding: var(--spacing-md);
@@ -180,7 +183,7 @@
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-lg);
   padding-bottom: var(--spacing-md);
-  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  border-bottom: 1px solid var(--border-color);
 
   .section-icon {
     font-size: 1.5rem;
@@ -396,8 +399,9 @@
   justify-content: space-between;
   align-items: center;
   padding: var(--spacing-md);
-  background: rgba(51, 65, 85, 0.3);
+  background: var(--bg-card-hover);
   border-radius: var(--radius-md);
+  transition: background-color 0.3s ease;
 
   .action-info {
     h3 {
@@ -470,11 +474,48 @@
 // ============================================================
 
 .planning-section {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  background: var(--bg-card);
   border: 1px solid rgba(139, 92, 246, 0.3);
+  transition: background-color 0.3s ease;
 
   .section-icon {
     color: #8b5cf6;
+  }
+}
+
+// ============================================================
+// APPEARANCE SECTION
+// ============================================================
+
+.appearance-section {
+  background: var(--bg-card);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  transition: background-color 0.3s ease;
+
+  .section-icon {
+    color: #3b82f6;
+  }
+}
+
+.theme-toggle {
+  padding: var(--spacing-md);
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  transition: all var(--transition-normal);
+
+  &:hover {
+    background: rgba(59, 130, 246, 0.15);
+  }
+
+  .theme-icon {
+    font-size: 1.25rem;
+    margin-right: var(--spacing-sm);
+  }
+
+  .label-text {
+    display: flex;
+    align-items: center;
   }
 }
 

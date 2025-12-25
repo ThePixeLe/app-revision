@@ -31,14 +31,10 @@
   display: block;
   min-height: 100vh;
 
-  // Couleurs de fond
-  --bg-body: #0f172a;        // Slate 900
-  --bg-sidebar: #1e293b;     // Slate 800
-  --bg-card: #334155;        // Slate 700
-
-  // Couleurs de texte
-  --text-primary: #f8fafc;   // Slate 50
-  --text-secondary: #94a3b8; // Slate 400
+  // Utilise les variables CSS globales de styles.scss
+  // Elles changent automatiquement selon le thème (theme-dark / theme-light)
+  --bg-body: var(--bg-page);
+  --bg-sidebar: var(--bg-card);
 
   // Tailles du layout
   --navbar-height: 57px;
@@ -63,8 +59,9 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: var(--bg-body);
+  background: var(--bg-page);
   color: var(--text-primary);
+  transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
 /**
@@ -140,15 +137,15 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-sidebar);
+  background: var(--bg-card);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--bg-card);
+  background: var(--text-muted);
   border-radius: 4px;
 
   &:hover {
-    background: #475569; // Slate 600
+    background: var(--text-secondary);
   }
 }
 

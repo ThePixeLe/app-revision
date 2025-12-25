@@ -25,29 +25,27 @@
 // ============================================================
 
 :host {
-  // Couleurs de base
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-card: #334155;
-  --bg-hover: #475569;
+  // Utilise les variables CSS globales pour le thème (styles.scss)
+  --bg-primary: var(--bg-page);
+  --bg-secondary: var(--bg-card);
+  --bg-card-local: var(--bg-card);
+  --bg-hover: var(--bg-card-hover);
 
-  // Couleurs de texte
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  // Couleurs de texte - héritent du thème global
+  // (les variables globales --text-primary, --text-secondary, --text-muted sont disponibles)
 
-  // Couleurs d'accent
+  // Couleurs d'accent (identiques pour les deux thèmes)
   --accent-purple: #a855f7;
-  --accent-blue: #3b82f6;
+  --accent-blue: var(--color-primary);
   --accent-orange: #f97316;
-  --accent-green: #22c55e;
-  --accent-red: #ef4444;
+  --accent-green: var(--color-success);
+  --accent-red: var(--color-danger);
 
   // Couleurs de statut
   --status-completed: var(--accent-green);
   --status-current: var(--accent-blue);
-  --status-available: #94a3b8;
-  --status-locked: #475569;
+  --status-available: var(--text-secondary);
+  --status-locked: var(--text-muted);
 
   // Espacements
   --spacing-xs: 0.25rem;
@@ -110,8 +108,9 @@
 .planning-container {
   min-height: 100vh;
   padding: var(--spacing-lg);
-  background: var(--bg-primary);
+  background: var(--bg-page);
   color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 
   display: flex;
   flex-direction: column;

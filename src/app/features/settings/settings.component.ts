@@ -41,6 +41,7 @@ import { RouterModule } from '@angular/router';
 import { StorageService } from '../../core/services/storage.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { PomodoroService } from '../../core/services/pomodoro.service';
+import { ThemeService, Theme } from '../../core/services/theme.service';
 
 /**
  * Interface pour les paramètres Pomodoro
@@ -133,7 +134,8 @@ export class SettingsComponent implements OnInit {
   constructor(
     private storageService: StorageService,
     private notificationService: NotificationService,
-    private pomodoroService: PomodoroService
+    private pomodoroService: PomodoroService,
+    public themeService: ThemeService
   ) {}
 
   // ============================================================
@@ -328,6 +330,17 @@ export class SettingsComponent implements OnInit {
       'Si tu vois ce message, les notifications fonctionnent ! 🎉',
       this.settings.notifications.sound
     );
+  }
+
+  /**
+   * Change le thème de l'application
+   * --------------------------------
+   * Toggle entre mode clair et mode sombre.
+   */
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
+    this.settings.theme = this.themeService.currentTheme;
+    this.saveSettings();
   }
 
   // ============================================================

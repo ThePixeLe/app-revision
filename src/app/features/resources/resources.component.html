@@ -40,6 +40,12 @@
       </p>
     </div>
 
+    <!-- Bouton Ajouter un PDF -->
+    <button class="upload-btn" (click)="openUploadModal()">
+      <span class="btn-icon">📤</span>
+      <span class="btn-text">Ajouter un PDF</span>
+    </button>
+
     <!-- Barre de recherche -->
     <div class="search-bar">
       <span class="search-icon">🔍</span>
@@ -246,6 +252,15 @@
 
     </div>
   </section>
+
+  <!-- ========================================== -->
+  <!-- MODAL UPLOAD PDF -->
+  <!-- ========================================== -->
+  <app-pdf-upload-modal
+    *ngIf="showUploadModal"
+    (close)="closeUploadModal()"
+    (uploaded)="onPdfUploaded($event)">
+  </app-pdf-upload-modal>
 
 </div>
 

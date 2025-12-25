@@ -1,0 +1,130 @@
+<!--
+  pdf-upload-modal.component.html
+
+  Modal d'upload de PDFs avec drag & drop.
+
+  Auteur: H1m0t3p3
+  Date: 25 décembre 2024
+-->
+
+<div class="modal-overlay" (click)="closeModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+
+    <!-- ========================================== -->
+    <!-- HEADER -->
+    <!-- ========================================== -->
+    <header class="modal-header">
+      <div class="header-title">
+        <span class="header-icon">📤</span>
+        <div>
+          <h2>Ajouter un PDF</h2>
+          <p class="header-subtitle">Le fichier sera ajouté à ta bibliothèque</p>
+        </div>
+      </div>
+      <button class="close-btn" (click)="closeModal()" aria-label="Fermer">
+        <span>✕</span>
+      </button>
+    </header>
+
+    <!-- ========================================== -->
+    <!-- WARNING SERVEUR NON DISPONIBLE -->
+    <!-- ========================================== -->
+    <div class="server-warning" *ngIf="!serverAvailable">
+      <div class="warning-icon">⚠️</div>
+      <div class="warning-content">
+        <h3>Serveur non disponible</h3>
+        <p>Pour uploader des PDFs, lance l'application avec :</p>
+        <code>npm run dev</code>
+        <button class="btn-refresh" (click)="checkServer()">
+          🔄 Réessayer
+        </button>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ZONE DE DROP -->
+    <!-- ========================================== -->
+    <div
+      *ngIf="serverAvailable && status !== 'success'"
+      class="drop-zone"
+      [class.drag-over]="isDragOver"
+      [class.has-file]="selectedFile"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)">
+
+      <!-- État initial -->
+      <div *ngIf="!selectedFile" class="drop-content">
+        <span class="drop-icon">📄</span>
+        <p class="drop-text">Glisse ton PDF ici</p>
+        <p class="drop-or">ou</p>
+        <label class="btn-browse">
+          <input
+            type="file"
+            accept=".pdf,application/pdf"
+            (change)="onFileSelected($event)"
+            hidden>
+          Parcourir les fichiers
+        </label>
+        <p class="drop-hint">PDF uniquement, max 50 MB</p>
+      </div>
+
+      <!-- Fichier sélectionné -->
+      <div *ngIf="selectedFile" class="file-preview">
+        <div class="file-info">
+          <span class="file-icon">📕</span>
+          <div class="file-details">
+            <span class="file-name">{{ selectedFile.name }}</span>
+            <span class="file-size">{{ formatFileSize(selectedFile.size) }}</span>
+          </div>
+          <button class="btn-remove" (click)="reset()" *ngIf="status !== 'uploading'">
+            ✕
+          </button>
+        </div>
+
+        <!-- Barre de progression -->
+        <div class="progress-container" *ngIf="status === 'uploading'">
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="progress"></div>
+          </div>
+          <span class="progress-text">{{ progress }}%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ÉTAT SUCCÈS -->
+    <!-- ========================================== -->
+    <div class="success-state" *ngIf="status === 'success'">
+      <div class="success-icon">✅</div>
+      <h3>PDF ajouté avec succès !</h3>
+      <p>{{ selectedFile?.name }}</p>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MESSAGE D'ERREUR -->
+    <!-- ========================================== -->
+    <div class="error-message" *ngIf="errorMessage && status === 'error'">
+      <span class="error-icon">❌</span>
+      <span>{{ errorMessage }}</span>
+      <button class="btn-retry" (click)="reset()">Réessayer</button>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ACTIONS -->
+    <!-- ========================================== -->
+    <div class="modal-actions" *ngIf="serverAvailable && status !== 'success'">
+      <button class="btn-cancel" (click)="closeModal()">
+        Annuler
+      </button>
+      <button
+        class="btn-upload"
+        [disabled]="!selectedFile || status === 'uploading'"
+        (click)="uploadFile()">
+        <span *ngIf="status !== 'uploading'">📤 Uploader</span>
+        <span *ngIf="status === 'uploading'">Envoi en cours...</span>
+      </button>
+    </div>
+
+  </div>
+</div>

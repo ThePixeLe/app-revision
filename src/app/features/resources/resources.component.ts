@@ -51,6 +51,9 @@ import { takeUntil } from 'rxjs/operators';
 // Service pour charger les ressources dynamiquement
 import { ResourceService, PDFResource, LinkResource } from '../../core/services/resource.service';
 
+// Modal d'upload PDF
+import { PdfUploadModalComponent } from '../../shared/components/pdf-upload-modal/pdf-upload-modal.component';
+
 /**
  * Interface pour un document/ressource
  */
@@ -81,7 +84,7 @@ interface CategoryInfo {
 @Component({
   selector: 'app-resources',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule],
+  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule, PdfUploadModalComponent],
   templateUrl: './resources.component.html',
   styleUrls: ['./resources.component.scss']
 })
@@ -128,6 +131,11 @@ export class ResourcesComponent implements OnInit, OnDestroy {
    * Ressource sélectionnée pour prévisualisation
    */
   selectedResource: Resource | null = null;
+
+  /**
+   * Affiche le modal d'upload PDF
+   */
+  showUploadModal: boolean = false;
 
   // ============================================================
   // CONSTRUCTEUR ET CYCLE DE VIE
@@ -402,6 +410,41 @@ export class ResourcesComponent implements OnInit, OnDestroy {
    */
   getFavoritesCount(): number {
     return this.allResources.filter(r => r.isFavorite).length;
+  }
+
+  // ============================================================
+  // UPLOAD PDF
+  // ============================================================
+
+  /**
+   * Ouvre le modal d'upload PDF
+   */
+  openUploadModal(): void {
+    this.showUploadModal = true;
+    console.log('📤 Ouverture du modal d\'upload');
+  }
+
+  /**
+   * Ferme le modal d'upload PDF
+   */
+  closeUploadModal(): void {
+    this.showUploadModal = false;
+    console.log('📤 Fermeture du modal d\'upload');
+  }
+
+  /**
+   * Callback quand un PDF est uploadé
+   * Recharge la liste des ressources
+   */
+  onPdfUploaded(filename: string): void {
+    console.log('✅ PDF uploadé:', filename);
+
+    // Recharge les ressources pour inclure le nouveau PDF
+    // Note: Le fichier resources.json doit être mis à jour par le serveur
+    // ou on peut ajouter le PDF manuellement à la liste
+    setTimeout(() => {
+      this.loadResources();
+    }, 500);
   }
 }
 

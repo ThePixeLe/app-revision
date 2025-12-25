@@ -85,17 +85,19 @@ import { ProgressService } from '../../../core/services/progress.service';
   styles: [`
     /**
      * Styles de la navbar
+     * Utilise les variables CSS globales pour le thème
      */
     .navbar {
       display: flex;
       align-items: center;
       gap: 1rem;
       padding: 0.75rem 1.5rem;
-      background: #1e293b;
-      border-bottom: 1px solid #334155;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
       position: sticky;
       top: 0;
       z-index: 100;
+      transition: background-color 0.3s, border-color 0.3s;
     }
 
     /* Logo et titre */
@@ -105,7 +107,7 @@ import { ProgressService } from '../../../core/services/progress.service';
         align-items: center;
         gap: 0.5rem;
         text-decoration: none;
-        color: #f8fafc;
+        color: var(--text-primary);
         font-weight: 700;
         font-size: 1.125rem;
         transition: opacity 0.2s;
@@ -132,14 +134,14 @@ import { ProgressService } from '../../../core/services/progress.service';
       padding: 0.5rem;
       background: transparent;
       border: none;
-      color: #f8fafc;
+      color: var(--text-primary);
       font-size: 1.5rem;
       cursor: pointer;
       transition: background 0.2s;
       border-radius: 0.5rem;
 
       &:hover {
-        background: #334155;
+        background: var(--bg-card-hover);
       }
 
       @media (max-width: 768px) {
@@ -165,7 +167,7 @@ import { ProgressService } from '../../../core/services/progress.service';
       align-items: center;
       gap: 0.25rem;
       padding: 0.375rem 0.75rem;
-      background: #334155;
+      background: var(--bg-card-hover);
       border-radius: 9999px;
       font-size: 0.875rem;
 
@@ -175,7 +177,7 @@ import { ProgressService } from '../../../core/services/progress.service';
 
       .stat-value {
         font-weight: 600;
-        color: #f8fafc;
+        color: var(--text-primary);
       }
     }
 
@@ -198,13 +200,13 @@ import { ProgressService } from '../../../core/services/progress.service';
       justify-content: center;
       width: 40px;
       height: 40px;
-      background: #334155;
+      background: var(--bg-card-hover);
       border-radius: 50%;
       text-decoration: none;
       transition: all 0.2s;
 
       &:hover {
-        background: #475569;
+        background: var(--bg-input);
         transform: scale(1.05);
       }
 

@@ -19,18 +19,14 @@
 :host {
   display: block;
 
-  --bg-page: #0f172a;
-  --bg-card: #1e293b;
-  --bg-card-hover: #334155;
-  --bg-input: #334155;
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  // Utilise les variables CSS globales pour le thème
+  // Les couleurs de base héritent du thème global (styles.scss)
 
-  --color-algebre: #3b82f6;
-  --color-algo: #8b5cf6;
-  --color-java: #10b981;
-  --color-favorite: #f59e0b;
+  // Couleurs des catégories (identiques pour les deux thèmes)
+  --color-algebre: var(--color-algebre);
+  --color-algo: var(--color-algo);
+  --color-java: var(--color-java);
+  --color-favorite: var(--color-warning);
 
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
@@ -87,6 +83,48 @@
   .page-subtitle {
     color: var(--text-secondary);
     margin: var(--spacing-sm) 0 0;
+  }
+}
+
+// ============================================================
+// BOUTON UPLOAD PDF
+// ============================================================
+
+.upload-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  .btn-icon {
+    font-size: 1.25rem;
+  }
+
+  .btn-text {
+    white-space: nowrap;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: center;
   }
 }
 

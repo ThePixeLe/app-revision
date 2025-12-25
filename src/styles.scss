@@ -3,28 +3,15 @@
  *
  * Styles globaux de l'application StudyTracker.
  *
- * THÈME : Dark Mode
- * ----------------
- * L'application utilise un thème sombre pour :
- * 1. Réduire la fatigue oculaire (sessions d'étude longues)
- * 2. Meilleure lisibilité du code
- * 3. Look moderne et professionnel
+ * THÈME : Light / Dark Mode
+ * -------------------------
+ * L'application supporte les deux modes :
+ * - Dark Mode : pour les sessions nocturnes (défaut)
+ * - Light Mode : pour les environnements lumineux
  *
- * Palette de couleurs :
- * --------------------
- * - Background principal : #0f172a (slate-900)
- * - Background cartes : #1e293b (slate-800)
- * - Background hover : #334155 (slate-700)
- * - Texte principal : #f8fafc (slate-50)
- * - Texte secondaire : #94a3b8 (slate-400)
- * - Texte muted : #64748b (slate-500)
- *
- * Couleurs d'accent :
- * ------------------
- * - Primary (bleu) : #3b82f6
- * - Success (vert) : #10b981
- * - Warning (orange) : #f59e0b
- * - Danger (rouge) : #ef4444
+ * Le thème est géré par ThemeService via une classe sur le body :
+ * - body.theme-dark → variables dark
+ * - body.theme-light → variables light
  *
  * Auteur: H1m0t3p3
  * Date: 24 décembre 2024
@@ -36,33 +23,11 @@
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 
 // ============================================================
-// VARIABLES CSS GLOBALES
+// VARIABLES CSS GLOBALES (valeurs par défaut)
 // ============================================================
 
 :root {
-  // Couleurs de fond
-  --bg-page: #0f172a;
-  --bg-card: #1e293b;
-  --bg-card-hover: #334155;
-  --bg-editor: #0d1117;
-
-  // Couleurs de texte
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-
-  // Couleurs d'accent
-  --color-primary: #3b82f6;
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-danger: #ef4444;
-
-  // Couleurs des catégories
-  --color-algebre: #3b82f6;
-  --color-algo: #8b5cf6;
-  --color-java: #10b981;
-
-  // Espacements
+  // Espacements (identiques pour les deux thèmes)
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
@@ -80,14 +45,78 @@
   --transition-fast: 150ms ease;
   --transition-normal: 300ms ease;
 
+  // Typographie
+  --font-sans: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Fira Code', 'Monaco', 'Consolas', monospace;
+
+  // Couleurs d'accent (identiques pour les deux thèmes)
+  --color-primary: #3b82f6;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+
+  // Couleurs des catégories
+  --color-algebre: #3b82f6;
+  --color-algo: #8b5cf6;
+  --color-java: #10b981;
+}
+
+// ============================================================
+// THÈME DARK (défaut)
+// ============================================================
+
+body, body.theme-dark {
+  // Couleurs de fond
+  --bg-page: #0f172a;
+  --bg-card: #1e293b;
+  --bg-card-hover: #334155;
+  --bg-editor: #0d1117;
+  --bg-input: #334155;
+
+  // Couleurs de texte
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  // Bordures
+  --border-color: #334155;
+
   // Ombres
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.3);
 
-  // Typographie
-  --font-sans: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'Fira Code', 'Monaco', 'Consolas', monospace;
+  // Overlay
+  --overlay-bg: rgba(0, 0, 0, 0.7);
+}
+
+// ============================================================
+// THÈME LIGHT
+// ============================================================
+
+body.theme-light {
+  // Couleurs de fond
+  --bg-page: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f1f5f9;
+  --bg-editor: #f8fafc;
+  --bg-input: #e2e8f0;
+
+  // Couleurs de texte
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+
+  // Bordures
+  --border-color: #e2e8f0;
+
+  // Ombres
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+
+  // Overlay
+  --overlay-bg: rgba(0, 0, 0, 0.5);
 }
 
 // ============================================================

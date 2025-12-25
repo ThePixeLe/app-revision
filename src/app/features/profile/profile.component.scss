@@ -31,20 +31,15 @@
 :host {
   display: block;
 
-  // Couleurs
-  --bg-page: #0f172a;
-  --bg-card: #1e293b;
-  --bg-card-hover: #334155;
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  // Utilise les variables CSS globales pour le thème (styles.scss)
+  // Les couleurs de base héritent automatiquement du thème
 
-  // Couleurs d'accent
-  --accent-primary: #3b82f6;
+  // Couleurs d'accent (identiques pour les deux thèmes)
+  --accent-primary: var(--color-primary);
   --accent-secondary: #8b5cf6;
-  --accent-success: #10b981;
-  --accent-warning: #f59e0b;
-  --accent-xp: #f59e0b;
+  --accent-success: var(--color-success);
+  --accent-warning: var(--color-warning);
+  --accent-xp: var(--color-warning);
 
   // Espacements
   --spacing-xs: 0.25rem;
@@ -73,6 +68,9 @@
   margin: 0 auto;
   padding: var(--spacing-xl);
   min-height: calc(100vh - 57px);
+  background: var(--bg-page);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 
   @media (max-width: 768px) {
     padding: var(--spacing-md);

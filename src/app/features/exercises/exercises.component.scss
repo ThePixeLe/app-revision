@@ -17,16 +17,14 @@
 // ============================================================
 
 :host {
-  // Couleurs de base
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-card: #334155;
-  --bg-hover: #475569;
+  // Utilise les variables CSS globales pour le thème
+  --bg-primary: var(--bg-page);
+  --bg-secondary: var(--bg-card);
+  --bg-card-local: var(--bg-card);
+  --bg-hover: var(--bg-card-hover);
 
-  // Couleurs de texte
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  // Couleurs de texte - héritent du thème global
+  // (les variables globales sont déjà disponibles)
 
   // Couleurs par type d'exercice
   --type-boole: #a855f7;    // Violet

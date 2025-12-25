@@ -54,7 +54,7 @@
  * un seul endroit, pas toute la recette.
  */
 :host {
-  // Couleurs de base du Pomodoro
+  // Couleurs spécifiques du Pomodoro (identiques pour les deux thèmes)
   --pomodoro-red: #ef4444;      // Rouge tomate (travail)
   --pomodoro-green: #22c55e;    // Vert détente (pause courte)
   --pomodoro-blue: #3b82f6;     // Bleu calme (pause longue)
@@ -62,16 +62,14 @@
   --pomodoro-gray: #6b7280;     // Gris neutre (idle)
   --pomodoro-indigo: #6366f1;   // Indigo accent
 
-  // Couleurs de fond
-  --bg-primary: #0f172a;        // Fond principal (slate-900)
-  --bg-secondary: #1e293b;      // Fond secondaire (slate-800)
-  --bg-card: #334155;           // Fond des cartes (slate-700)
-  --bg-hover: #475569;          // Fond au survol (slate-600)
+  // Utilise les variables CSS globales pour le thème (styles.scss)
+  --bg-primary: var(--bg-page);
+  --bg-secondary: var(--bg-card);
+  --bg-card-local: var(--bg-card);
+  --bg-hover: var(--bg-card-hover);
 
-  // Couleurs de texte
-  --text-primary: #f8fafc;      // Texte principal (slate-50)
-  --text-secondary: #94a3b8;    // Texte secondaire (slate-400)
-  --text-muted: #64748b;        // Texte discret (slate-500)
+  // Couleurs de texte - héritent du thème global
+  // (les variables globales --text-primary, --text-secondary, --text-muted sont disponibles)
 
   // Espacements (basés sur 4px)
   --spacing-xs: 0.25rem;        // 4px
@@ -85,13 +83,10 @@
   --timer-size: 280px;          // Taille du cercle timer
   --timer-size-mobile: 220px;   // Taille mobile
 
-  // Bordures et ombres
+  // Bordures et ombres - héritent du thème global
   --border-radius: 1rem;
   --border-radius-lg: 1.5rem;
   --border-radius-full: 9999px;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.3);
 
   // Transitions
   --transition-fast: 150ms ease;
@@ -120,9 +115,10 @@
 .pomodoro-container {
   min-height: 100vh;
   padding: var(--spacing-lg);
-  background: var(--bg-primary);
+  background: var(--bg-page);
   color: var(--text-primary);
   font-family: var(--font-display);
+  transition: background-color 0.3s ease, color 0.3s ease;
 
   // Flexbox pour centrer et organiser le contenu
   display: flex;

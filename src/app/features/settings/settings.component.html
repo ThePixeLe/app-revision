@@ -308,6 +308,51 @@
   </section>
 
   <!-- ========================================== -->
+  <!-- SECTION APPARENCE -->
+  <!-- ========================================== -->
+  <!--
+    Configuration du thème de l'application.
+    Toggle entre mode clair et mode sombre.
+  -->
+  <section class="settings-section appearance-section">
+    <div class="section-header">
+      <span class="section-icon">🎨</span>
+      <div class="section-info">
+        <h2 class="section-title">Apparence</h2>
+        <p class="section-description">
+          Personnalise l'apparence de l'application
+        </p>
+      </div>
+    </div>
+
+    <div class="settings-group">
+
+      <!-- Toggle Light/Dark Mode -->
+      <div class="setting-item toggle-item theme-toggle">
+        <label class="setting-label">
+          <span class="label-text">
+            <span class="theme-icon">{{ themeService.isDarkMode ? '🌙' : '☀️' }}</span>
+            Mode {{ themeService.isDarkMode ? 'sombre' : 'clair' }}
+          </span>
+          <span class="label-hint">
+            {{ themeService.isDarkMode
+              ? 'Parfait pour les sessions nocturnes'
+              : 'Idéal pour les environnements lumineux' }}
+          </span>
+        </label>
+        <label class="toggle-switch">
+          <input
+            type="checkbox"
+            [checked]="themeService.isDarkMode"
+            (change)="toggleTheme()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================== -->
   <!-- SECTION DONNÉES -->
   <!-- ========================================== -->
   <section class="settings-section">

@@ -78,7 +78,9 @@ Le programme couvre :
 ### 📚 Bibliothèque de ressources
 
 - **Tous les PDFs** organisés par catégorie (Algo, Java, POO, BDD)
-- **Scan automatique** - Déposez vos PDFs dans `assets/docs/`, ils sont détectés automatiquement
+- **Upload de PDFs** - Bouton "Ajouter un PDF" avec drag & drop
+- **Détection automatique** de la catégorie selon le nom du fichier
+- **Scan automatique** - Les PDFs dans `assets/docs/` sont détectés automatiquement
 - **Marque-pages** personnalisés (favoris)
 - **6 catégories** : Algèbre, Algo, Java, POO, BDD, Général
 
@@ -109,6 +111,14 @@ Le programme couvre :
 - **Compare tes performances** (avec toi-même ou d'autres)
 - **Stats détaillées** : heures de travail, exercices complétés, scores
 - **Graphiques de progression** (Chart.js)
+
+### 🎨 Mode Light / Dark
+
+- **Thème sombre** par défaut (idéal pour les sessions nocturnes)
+- **Thème clair** pour les environnements lumineux
+- **Toggle dans les paramètres** → Section Apparence
+- **Sauvegarde automatique** de la préférence
+- **Détection système** (respecte prefers-color-scheme)
 
 ---
 
@@ -196,11 +206,36 @@ npm install
 5. Prévisualisez l'exercice, puis **"Sauvegarder"** ou **"Régénérer"**
 6. L'exercice est ajouté à votre liste avec les XP correspondants !
 
+### Ajouter des PDFs via l'interface
+
+1. Lancez l'application avec `npm run dev` (inclut le serveur d'upload)
+2. Allez sur la page **Ressources**
+3. Cliquez sur le bouton **"Ajouter un PDF"** (vert)
+4. Glissez-déposez votre PDF ou cliquez pour parcourir
+5. Cliquez sur **"Uploader"**
+6. Le PDF est automatiquement :
+   - Copié dans `src/assets/docs/`
+   - Ajouté à `resources.json`
+   - Catégorisé selon son nom (Algo, Java, POO, etc.)
+7. Le PDF apparaît immédiatement dans la bibliothèque !
+
 ---
 
 ## 🎮 Lancer l'application
 
-### Mode développement
+### Mode développement (recommandé)
+
+```bash
+npm run dev
+```
+
+Cette commande lance **simultanément** :
+- Le serveur Angular sur **http://localhost:4200**
+- Le serveur d'upload PDF sur **http://localhost:3001**
+
+Tu pourras ainsi uploader des PDFs directement depuis l'interface !
+
+### Mode simple (sans upload)
 
 ```bash
 ng serve
@@ -307,6 +342,18 @@ app-revision/
 | **ChatbotService** | Chatbot IA avec Ollama + FAQ fallback |
 | **ExerciseGeneratorService** | Générateur d'exercices IA avec Ollama |
 | **ResourceService** | Chargement dynamique des PDFs |
+| **ThemeService** | Gestion du thème Light/Dark avec persistance |
+
+### Serveur Express (server.js)
+
+Un mini serveur Node.js pour l'upload de PDFs :
+
+| Route | Description |
+|-------|-------------|
+| `GET /api/health` | Vérifie que le serveur est actif |
+| `GET /api/pdfs` | Liste tous les PDFs du dossier docs |
+| `POST /api/upload` | Upload un PDF (multipart/form-data) |
+| `DELETE /api/pdfs/:filename` | Supprime un PDF |
 
 ### Modèles de données
 
@@ -321,6 +368,22 @@ app-revision/
 ---
 
 ## 🎨 Thème et couleurs
+
+### Mode Light / Dark
+
+L'application supporte les deux modes :
+
+- 🌙 **Mode Sombre** (par défaut) - Idéal pour les sessions nocturnes
+- ☀️ **Mode Clair** - Parfait pour les environnements lumineux
+
+Pour changer de thème :
+1. Allez dans **Paramètres** (⚙️)
+2. Section **Apparence**
+3. Cliquez sur le **toggle** pour basculer
+
+Le thème est sauvegardé automatiquement et respecte aussi la préférence système.
+
+### Code couleur par matière
 
 L'application utilise un code couleur cohérent :
 
@@ -468,7 +531,7 @@ Ce projet est sous licence **MIT**. Voir le fichier [LICENSE](LICENSE) pour plus
 
 ## 🎯 Roadmap
 
-### Version actuelle : 1.0.4
+### Version actuelle : 1.0.6
 
 - ✅ Dashboard interactif avec graphiques (Chart.js)
 - ✅ Planning avec calendrier (FullCalendar)
@@ -485,6 +548,8 @@ Ce projet est sous licence **MIT**. Voir le fichier [LICENSE](LICENSE) pour plus
 - ✅ **5 templates de planning** - Algo/Java, POO/BDD, Web Dev, Python, Personnalisé
 - ✅ **Export/Import** - Sauvegardez et restaurez votre progression
 - ✅ **Générateur d'exercices IA** - Crée des exercices personnalisés avec Ollama
+- ✅ **Upload de PDFs** - Ajoute des PDFs via l'interface avec drag & drop
+- ✅ **Mode Light/Dark** - Bascule entre thème clair et sombre dans les paramètres
 
 ### Version 1.1.0 (à venir)
 
