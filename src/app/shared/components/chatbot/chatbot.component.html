@@ -1,0 +1,101 @@
+<!--
+  chatbot.component.html
+
+  Structure :
+  - Bouton flottant (toujours visible)
+  - Fenêtre de chat (visible si isOpen)
+-->
+
+<!-- ============================================================ -->
+<!-- BOUTON FLOTTANT (BULLE) -->
+<!-- ============================================================ -->
+<button
+  class="chat-bubble"
+  [class.open]="isOpen"
+  (click)="toggleChat()"
+  aria-label="Ouvrir l'assistant">
+  <span class="bubble-icon" *ngIf="!isOpen">💬</span>
+  <span class="bubble-icon close" *ngIf="isOpen">✕</span>
+</button>
+
+<!-- ============================================================ -->
+<!-- FENÊTRE DE CHAT -->
+<!-- ============================================================ -->
+<div class="chat-window" [class.open]="isOpen">
+
+  <!-- Header -->
+  <div class="chat-header">
+    <div class="header-info">
+      <span class="header-icon">🤖</span>
+      <div class="header-text">
+        <span class="header-title">Assistant</span>
+        <span class="header-status">En ligne</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="action-btn" (click)="resetChat()" title="Nouvelle conversation">
+        🔄
+      </button>
+      <button class="action-btn" (click)="closeChat()" title="Fermer">
+        ✕
+      </button>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="chat-messages" #messagesContainer>
+    <div
+      *ngFor="let message of messages"
+      class="message"
+      [class.user]="message.sender === 'user'"
+      [class.bot]="message.sender === 'bot'">
+
+      <!-- Avatar -->
+      <div class="message-avatar">
+        <span *ngIf="message.sender === 'bot'">🤖</span>
+        <span *ngIf="message.sender === 'user'">👤</span>
+      </div>
+
+      <!-- Contenu -->
+      <div class="message-content">
+        <div
+          class="message-text"
+          [class.loading]="message.isLoading"
+          [innerHTML]="formatText(message.text)">
+        </div>
+        <span class="message-time" *ngIf="!message.isLoading">{{ formatTime(message.timestamp) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Suggestions (visibles seulement si peu de messages) -->
+  <div class="chat-suggestions" *ngIf="messages.length <= 2">
+    <span class="suggestions-label">Questions fréquentes :</span>
+    <div class="suggestions-list">
+      <button
+        *ngFor="let suggestion of suggestions"
+        class="suggestion-btn"
+        (click)="sendSuggestion(suggestion)">
+        {{ suggestion }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Zone de saisie -->
+  <div class="chat-input">
+    <input
+      type="text"
+      [(ngModel)]="inputText"
+      (keydown)="onKeydown($event)"
+      placeholder="Pose ta question..."
+      class="input-field"
+      maxlength="500">
+    <button
+      class="send-btn"
+      (click)="sendMessage()"
+      [disabled]="!inputText.trim()">
+      ➤
+    </button>
+  </div>
+
+</div>

@@ -165,6 +165,7 @@ interface NavItem {
 
       &.secondary {
         margin-top: auto;
+        padding-top: 22rem;
       }
     }
 

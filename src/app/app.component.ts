@@ -43,6 +43,7 @@ import { RouterOutlet, RouterModule } from '@angular/router';
 // Import des composants shared
 import { NavbarComponent } from './shared/components/navbar/navbar.component';
 import { SidebarComponent } from './shared/components/sidebar/sidebar.component';
+import { ChatbotComponent } from './shared/components/chatbot/chatbot.component';
 
 // Import des services pour l'initialisation
 import { ProgressService } from './core/services/progress.service';
@@ -67,7 +68,8 @@ import { StorageService } from './core/services/storage.service';
     RouterOutlet,
     RouterModule,
     NavbarComponent,
-    SidebarComponent
+    SidebarComponent,
+    ChatbotComponent
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
