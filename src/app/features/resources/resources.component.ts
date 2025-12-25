@@ -40,10 +40,16 @@
  * Date: 24 décembre 2024
  */
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { HttpClientModule } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+
+// Service pour charger les ressources dynamiquement
+import { ResourceService, PDFResource, LinkResource } from '../../core/services/resource.service';
 
 /**
  * Interface pour un document/ressource
@@ -52,7 +58,7 @@ interface Resource {
   id: string;
   title: string;
   description: string;
-  category: 'algebre' | 'algo' | 'java' | 'general';
+  category: 'algebre' | 'algo' | 'java' | 'poo' | 'bdd' | 'general';
   type: 'pdf' | 'link' | 'video';
   path: string;
   fileSize?: string;
@@ -75,11 +81,14 @@ interface CategoryInfo {
 @Component({
   selector: 'app-resources',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule],
   templateUrl: './resources.component.html',
   styleUrls: ['./resources.component.scss']
 })
-export class ResourcesComponent implements OnInit {
+export class ResourcesComponent implements OnInit, OnDestroy {
+
+  /** Subject pour nettoyer les subscriptions */
+  private destroy$ = new Subject<void>();
 
   // ============================================================
   // PROPRIÉTÉS
@@ -124,10 +133,15 @@ export class ResourcesComponent implements OnInit {
   // CONSTRUCTEUR ET CYCLE DE VIE
   // ============================================================
 
+  constructor(private resourceService: ResourceService) {}
+
   ngOnInit(): void {
     this.loadResources();
-    this.calculateCategories();
-    this.applyFilters();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   // ============================================================
@@ -135,127 +149,64 @@ export class ResourcesComponent implements OnInit {
   // ============================================================
 
   /**
-   * Charge les ressources disponibles
-   * --------------------------------
-   * En production, ça viendrait d'un fichier JSON ou d'un service.
-   * Pour l'instant, on définit la liste en dur.
+   * Charge les ressources depuis le fichier JSON
+   * --------------------------------------------
+   * Utilise le ResourceService pour charger dynamiquement
+   * les PDFs depuis assets/data/resources.json
+   *
+   * Pour ajouter un PDF :
+   * 1. Copier le PDF dans assets/docs/
+   * 2. Ajouter une entrée dans assets/data/resources.json
+   * 3. C'est tout ! Le PDF apparaîtra automatiquement.
+   *
+   * Philosophie David J. Malan :
+   * "Separate data from logic. It makes maintenance a breeze."
    */
   private loadResources(): void {
-    this.allResources = [
-      // ===== ALGORITHMIQUE =====
-      {
-        id: 'algo-01',
-        title: 'Introduction aux Algorithmes',
-        description: 'Les bases de l\'algorithmique : définitions, pseudo-code, organigrammes',
-        category: 'algo',
-        type: 'pdf',
-        path: 'assets/docs/Algo 03 - Algorithmes Introduction - 1.0.1 MD.pdf',
-        fileSize: '450 Ko',
-        pageCount: 25,
-        isFavorite: false
-      },
-      {
-        id: 'algo-02',
-        title: 'Algorithmes Simples (AFPA)',
-        description: 'Exercices corrigés sur les structures de base',
-        category: 'algo',
-        type: 'pdf',
-        path: 'assets/docs/Algo A2 - Algorithmes simples - AFPA.pdf',
-        fileSize: '900 Ko',
-        pageCount: 40,
-        isFavorite: false
-      },
-      {
-        id: 'algo-03',
-        title: 'Exercices - Les Conditions',
-        description: '9 exercices sur les structures conditionnelles',
-        category: 'algo',
-        type: 'pdf',
-        path: 'assets/docs/exercice_algo_lesConditions_Mad_V1.0.0 1.pdf',
-        fileSize: '310 Ko',
-        pageCount: 15,
-        isFavorite: true
-      },
-      {
-        id: 'algo-04',
-        title: 'Exercices - Les Boucles',
-        description: '9 exercices sur les boucles (for, while, do-while)',
-        category: 'algo',
-        type: 'pdf',
-        path: 'assets/docs/exercice_algo_les boucles_mad_v1.0.0 1.pdf',
-        fileSize: '270 Ko',
-        pageCount: 14,
-        isFavorite: false
-      },
-      {
-        id: 'algo-05',
-        title: 'Exercices - Les Tableaux',
-        description: '9 exercices sur les tableaux et structures de données',
-        category: 'algo',
-        type: 'pdf',
-        path: 'assets/docs/exercice_algorithme_les_tableaux_Mad_V1.0.0.pdf',
-        fileSize: '280 Ko',
-        pageCount: 16,
-        isFavorite: false
-      },
+    this.resourceService.getPDFs()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(pdfs => {
+        // Convertit les PDFResource en Resource (format interne)
+        this.allResources = pdfs.map(pdf => ({
+          id: pdf.id,
+          title: pdf.title,
+          description: pdf.description,
+          category: pdf.category as 'algebre' | 'algo' | 'java' | 'general',
+          type: 'pdf' as const,
+          path: this.resourceService.getPDFPath(pdf.filename),
+          fileSize: pdf.pages ? `${pdf.pages} pages` : undefined,
+          pageCount: pdf.pages,
+          isFavorite: this.loadFavoriteStatus(pdf.id)
+        }));
 
-      // ===== JAVA =====
-      {
-        id: 'java-01',
-        title: 'Bases de Java',
-        description: 'Introduction à Java : environnement, compilation, exécution',
-        category: 'java',
-        type: 'pdf',
-        path: 'assets/docs/Java 01 - Bases Java - MD v1.0.0.pdf',
-        fileSize: '600 Ko',
-        pageCount: 30,
-        isFavorite: false
-      },
-      {
-        id: 'java-02',
-        title: 'Syntaxe Java',
-        description: 'Variables, types, opérateurs, structures de contrôle',
-        category: 'java',
-        type: 'pdf',
-        path: 'assets/docs/Java 02 - Base Syntaxe - MD v1.0.0.pdf',
-        fileSize: '580 Ko',
-        pageCount: 28,
-        isFavorite: true
-      },
-      {
-        id: 'java-03',
-        title: 'Java Scanner',
-        description: 'Lecture d\'entrées utilisateur avec Scanner',
-        category: 'java',
-        type: 'pdf',
-        path: 'assets/docs/Java 03 - Scanner - MD v1.0.0.pdf',
-        fileSize: '340 Ko',
-        pageCount: 12,
-        isFavorite: false
-      },
-      {
-        id: 'java-04',
-        title: 'Tableaux en Java',
-        description: 'Déclaration, manipulation et parcours des tableaux',
-        category: 'java',
-        type: 'pdf',
-        path: 'assets/docs/Java 10 - Programmation_Java_Tableaux.pdf',
-        fileSize: '660 Ko',
-        pageCount: 35,
-        isFavorite: false
-      },
-      {
-        id: 'java-05',
-        title: 'Exercices - Tableaux Java',
-        description: 'Exercices pratiques sur les tableaux en Java',
-        category: 'java',
-        type: 'pdf',
-        path: 'assets/docs/Java 11 - Exercice Tableau en java MA.pdf',
-        fileSize: '250 Ko',
-        pageCount: 10,
-        isFavorite: false
-      }
-    ];
+        console.log(`📚 ${this.allResources.length} PDFs chargés depuis resources.json`);
+
+        // Calcule les catégories et applique les filtres
+        this.calculateCategories();
+        this.applyFilters();
+      });
+  }
+
+  /**
+   * Charge le statut favori depuis le localStorage
+   */
+  private loadFavoriteStatus(resourceId: string): boolean {
+    try {
+      const favorites = JSON.parse(localStorage.getItem('resource-favorites') || '[]');
+      return favorites.includes(resourceId);
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Sauvegarde les favoris dans le localStorage
+   */
+  private saveFavorites(): void {
+    const favorites = this.allResources
+      .filter(r => r.isFavorite)
+      .map(r => r.id);
+    localStorage.setItem('resource-favorites', JSON.stringify(favorites));
   }
 
   /**
@@ -287,9 +238,23 @@ export class ResourcesComponent implements OnInit {
       {
         id: 'java',
         label: 'Java',
-        icon: '🟢',
-        color: '#10b981',
+        icon: '☕',
+        color: '#f97316',
         count: this.allResources.filter(r => r.category === 'java').length
+      },
+      {
+        id: 'poo',
+        label: 'POO',
+        icon: '🧩',
+        color: '#ec4899',
+        count: this.allResources.filter(r => r.category === 'poo').length
+      },
+      {
+        id: 'bdd',
+        label: 'Base de données',
+        icon: '🗄️',
+        color: '#06b6d4',
+        count: this.allResources.filter(r => r.category === 'bdd').length
       }
     ];
   }
@@ -383,7 +348,8 @@ export class ResourcesComponent implements OnInit {
   toggleFavorite(resource: Resource, event: Event): void {
     event.stopPropagation();
     resource.isFavorite = !resource.isFavorite;
-    // TODO: Sauvegarder dans le storage
+    // Sauvegarde dans le localStorage
+    this.saveFavorites();
   }
 
   /**
@@ -423,7 +389,9 @@ export class ResourcesComponent implements OnInit {
     const colors: Record<string, string> = {
       'algebre': '#3b82f6',
       'algo': '#8b5cf6',
-      'java': '#10b981',
+      'java': '#f97316',
+      'poo': '#ec4899',
+      'bdd': '#06b6d4',
       'general': '#64748b'
     };
     return colors[category] || '#64748b';

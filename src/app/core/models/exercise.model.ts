@@ -524,6 +524,30 @@ export interface Exercise {
    * Exemples : ["examen", "difficile", "à-revoir"]
    */
   tags?: string[];
+
+  // ===== EXERCICES EXTERNES =====
+
+  /**
+   * Est-ce un exercice fait sur un site externe ?
+   * --------------------------------------------
+   * true = exercice fait sur TMC MOOC.fi, GeeksforGeeks, etc.
+   * false/undefined = exercice interne de l'app
+   */
+  isExternal?: boolean;
+
+  /**
+   * Source externe de l'exercice
+   * ---------------------------
+   * Informations sur le site où l'exercice a été fait.
+   */
+  externalSource?: {
+    /** Nom du site (ex: "TMC MOOC.fi", "GeeksforGeeks") */
+    siteName: string;
+    /** URL du site */
+    siteUrl: string;
+    /** Icône/emoji du site */
+    icon: string;
+  };
 }
 
 // ============================================================
@@ -873,6 +897,117 @@ export function createExercise(
     // Métadonnées
     createdAt: data.createdAt || now,
     updatedAt: data.updatedAt || now
+  };
+}
+
+// ============================================================
+// SITES EXTERNES POUR EXERCICES
+// ============================================================
+
+/**
+ * LISTE DES SITES EXTERNES RECONNUS
+ * --------------------------------
+ * Sites d'exercices externes que l'utilisateur peut utiliser.
+ * Ces exercices comptent dans la progression, les quêtes et les XP.
+ *
+ * Philosophie David J. Malan :
+ * "Learning doesn't happen in a vacuum."
+ * L'apprentissage se fait partout - pas seulement dans une seule app !
+ */
+export const EXTERNAL_SITES = [
+  {
+    id: 'tmc-mooc',
+    name: 'TMC MOOC.fi',
+    url: 'https://tmc.mooc.fi/org/mooc',
+    icon: '🇫🇮',
+    category: 'java' as ExerciseType,
+    description: 'Cours Java interactif - Université d\'Helsinki'
+  },
+  {
+    id: 'geeksforgeeks',
+    name: 'GeeksforGeeks',
+    url: 'https://www.geeksforgeeks.org/java/',
+    icon: '👨‍💻',
+    category: 'java' as ExerciseType,
+    description: 'Tutoriel Java avec exemples'
+  },
+  {
+    id: 'ukonline',
+    name: 'UKonline',
+    url: 'https://www.ukonline.be/cours/java/apprendre-java',
+    icon: '🇧🇪',
+    category: 'java' as ExerciseType,
+    description: 'Cours Java en français'
+  },
+  {
+    id: 'baeldung',
+    name: 'Baeldung',
+    url: 'https://www.baeldung.com/get-started-with-java-series',
+    icon: '📖',
+    category: 'java' as ExerciseType,
+    description: 'Série d\'articles Java'
+  },
+  {
+    id: 'maxicours',
+    name: 'Maxicours',
+    url: 'https://www.maxicours.com/se/cours/algebre-de-boole/',
+    icon: '🧮',
+    category: 'boole' as ExerciseType,
+    description: 'Cours Algèbre de Boole'
+  }
+] as const;
+
+/**
+ * Type pour un site externe
+ */
+export type ExternalSite = typeof EXTERNAL_SITES[number];
+
+/**
+ * CRÉER UN EXERCICE EXTERNE
+ * ------------------------
+ * Factory function pour créer un exercice fait sur un site externe.
+ *
+ * @param siteId - ID du site externe
+ * @param data - Données de l'exercice
+ * @returns Exercice externe complet
+ */
+export function createExternalExercise(
+  siteId: string,
+  data: {
+    title: string;
+    type: ExerciseType;
+    difficulty: ExerciseDifficulty;
+    notes?: string;
+    score?: number;
+  }
+): Exercise {
+  const site = EXTERNAL_SITES.find(s => s.id === siteId);
+  const now = new Date();
+
+  return {
+    id: `ext-${siteId}-${Date.now()}`,
+    type: data.type,
+    title: data.title,
+    description: `Exercice fait sur ${site?.name || 'site externe'}`,
+    difficulty: data.difficulty,
+    document: site?.url || '',
+    pageNumber: 1,
+    status: 'completed',
+    timeSpent: 0,
+    attempts: 1,
+    attemptHistory: [],
+    notes: data.notes || '',
+    tags: ['externe', site?.id || 'autre'],
+    score: data.score,
+    completedAt: now,
+    createdAt: now,
+    updatedAt: now,
+    isExternal: true,
+    externalSource: site ? {
+      siteName: site.name,
+      siteUrl: site.url,
+      icon: site.icon
+    } : undefined
   };
 }
 

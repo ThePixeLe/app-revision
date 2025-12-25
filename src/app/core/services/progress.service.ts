@@ -383,7 +383,10 @@ export class ProgressService {
       // === ÉTAPE 5 : Vérifie et met à jour le streak ===
       const checkedProgress = this.updateStreak(updatedProgress);
 
-      // === ÉTAPE 6 : Sauvegarde et émet ===
+      // === ÉTAPE 6 : Met à jour le graphique de progression ===
+      this.updateProgressChart(checkedProgress, amount);
+
+      // === ÉTAPE 7 : Sauvegarde et émet ===
       this.progressSubject.next(checkedProgress);
       this.saveProgress(checkedProgress);
 
@@ -416,6 +419,121 @@ export class ProgressService {
     if (lowerDesc.includes('bonus')) return 'bonus';
 
     return 'bonus'; // Par défaut
+  }
+
+  /**
+   * METTRE À JOUR LE GRAPHIQUE DE PROGRESSION
+   * -----------------------------------------
+   * Ajoute ou met à jour les données du jour dans progressChart.
+   *
+   * Philosophie David J. Malan :
+   * "Visualize your progress. Data tells a story."
+   *
+   * @param progress - Progression à mettre à jour
+   * @param xpGained - XP gagnés à ajouter
+   */
+  private updateProgressChart(progress: Progress, xpGained: number): void {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString().split('T')[0];
+
+    // Initialise progressChart s'il n'existe pas
+    if (!progress.stats.progressChart) {
+      progress.stats.progressChart = [];
+    }
+
+    // Cherche l'entrée du jour
+    const todayEntry = progress.stats.progressChart.find(entry => {
+      const entryDate = new Date(entry.date);
+      entryDate.setHours(0, 0, 0, 0);
+      return entryDate.toISOString().split('T')[0] === todayStr;
+    });
+
+    if (todayEntry) {
+      // Met à jour l'entrée existante
+      todayEntry.xp += xpGained;
+      todayEntry.exercises = progress.stats.exercisesCompleted;
+      todayEntry.time = progress.stats.totalHours;
+    } else {
+      // Crée une nouvelle entrée pour aujourd'hui
+      progress.stats.progressChart.push({
+        date: today,
+        xp: xpGained,
+        exercises: progress.stats.exercisesCompleted,
+        time: progress.stats.totalHours
+      });
+    }
+
+    // Garde seulement les 30 derniers jours
+    if (progress.stats.progressChart.length > 30) {
+      progress.stats.progressChart = progress.stats.progressChart.slice(-30);
+    }
+
+    // Trie par date
+    progress.stats.progressChart.sort((a, b) =>
+      new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+  }
+
+  /**
+   * OBTENIR LES DONNÉES DU GRAPHIQUE
+   * --------------------------------
+   * Retourne les données formatées pour les 7 derniers jours.
+   *
+   * @returns Observable avec les données du graphique
+   */
+  getChartData(): Observable<{
+    labels: string[];
+    xpData: number[];
+    exercisesData: number[];
+  }> {
+    return this.progress$.pipe(
+      map(progress => {
+        if (!progress) {
+          return { labels: [], xpData: [], exercisesData: [] };
+        }
+
+        // Génère les 7 derniers jours
+        const days: string[] = [];
+        const xpByDay: Map<string, number> = new Map();
+        const exercisesByDay: Map<string, number> = new Map();
+
+        // Initialise les 7 derniers jours avec 0
+        for (let i = 6; i >= 0; i--) {
+          const date = new Date();
+          date.setDate(date.getDate() - i);
+          date.setHours(0, 0, 0, 0);
+          const dayName = date.toLocaleDateString('fr-FR', { weekday: 'short' });
+          days.push(dayName);
+
+          const dateStr = date.toISOString().split('T')[0];
+          xpByDay.set(dateStr, 0);
+          exercisesByDay.set(dateStr, 0);
+        }
+
+        // Remplit avec les données réelles
+        if (progress.stats.progressChart) {
+          progress.stats.progressChart.forEach(entry => {
+            const entryDate = new Date(entry.date);
+            entryDate.setHours(0, 0, 0, 0);
+            const dateStr = entryDate.toISOString().split('T')[0];
+
+            if (xpByDay.has(dateStr)) {
+              xpByDay.set(dateStr, entry.xp);
+            }
+            if (exercisesByDay.has(dateStr)) {
+              exercisesByDay.set(dateStr, entry.exercises);
+            }
+          });
+        }
+
+        return {
+          labels: days,
+          xpData: Array.from(xpByDay.values()),
+          exercisesData: Array.from(exercisesByDay.values())
+        };
+      })
+    );
   }
 
   // ============================================================

@@ -465,6 +465,14 @@
   margin-bottom: var(--spacing-2xl);
 }
 
+// ============================================================
+// 5.5 SECTION GRAPHIQUES
+// ============================================================
+
+.charts-section {
+  margin-bottom: var(--spacing-2xl);
+}
+
 .subjects-grid {
   display: grid;
   grid-template-columns: repeat(1, 1fr);
@@ -865,7 +873,11 @@
   gap: var(--spacing-md);
 
   @media (min-width: 768px) {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(5, 1fr);
   }
 }
 
@@ -899,8 +911,20 @@
 
   &.action-pomodoro:hover { background: rgba(239, 68, 68, 0.1); }
   &.action-exercise:hover { background: rgba(34, 197, 94, 0.1); }
+  &.action-external:hover { background: rgba(16, 185, 129, 0.1); }
   &.action-revision:hover { background: rgba(59, 130, 246, 0.1); }
   &.action-resources:hover { background: rgba(139, 92, 246, 0.1); }
+
+  // Style spécifique pour le bouton exercice externe
+  &.action-external {
+    border: 2px dashed var(--border-color);
+    background: rgba(16, 185, 129, 0.05);
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--secondary-color);
+    }
+  }
 }
 
 // ============================================================

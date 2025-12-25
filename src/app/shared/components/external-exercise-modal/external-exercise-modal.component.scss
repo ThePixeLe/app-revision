@@ -1,0 +1,264 @@
+/**
+ * external-exercise-modal.component.scss
+ *
+ * Styles du modal pour exercices externes.
+ *
+ * Auteur: H1m0t3p3
+ * Date: 25 décembre 2024
+ */
+
+// ============================================================
+// OVERLAY
+// ============================================================
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+// ============================================================
+// MODAL CONTAINER
+// ============================================================
+
+.modal-container {
+  background: var(--bg-secondary, #1e293b);
+  border-radius: 16px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+// ============================================================
+// HEADER
+// ============================================================
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--text-primary, #f8fafc);
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted, #94a3b8);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    line-height: 1;
+    transition: color 0.2s;
+
+    &:hover {
+      color: var(--text-primary, #f8fafc);
+    }
+  }
+}
+
+// ============================================================
+// SUCCESS MESSAGE
+// ============================================================
+
+.success-message {
+  padding: 3rem;
+  text-align: center;
+
+  .success-icon {
+    display: block;
+    font-size: 4rem;
+    color: #10b981;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-primary, #f8fafc);
+    font-size: 1.25rem;
+  }
+
+  .xp-message {
+    margin-top: 0.5rem;
+    color: #fbbf24;
+    font-weight: 600;
+    font-size: 1.5rem;
+  }
+}
+
+// ============================================================
+// FORMULAIRE
+// ============================================================
+
+.modal-form {
+  padding: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary, #cbd5e1);
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--bg-tertiary, #0f172a);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: var(--text-primary, #f8fafc);
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+
+    &:focus {
+      outline: none;
+      border-color: var(--primary, #3b82f6);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    &::placeholder {
+      color: var(--text-muted, #64748b);
+    }
+  }
+
+  select {
+    cursor: pointer;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .site-description {
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-muted, #64748b);
+    font-style: italic;
+  }
+}
+
+// ============================================================
+// BOUTONS DE DIFFICULTÉ
+// ============================================================
+
+.difficulty-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+
+  .diff-btn {
+    flex: 1;
+    min-width: 100px;
+    padding: 0.75rem 1rem;
+    background: var(--bg-tertiary, #0f172a);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: var(--text-secondary, #cbd5e1);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: rgba(59, 130, 246, 0.1);
+      border-color: rgba(59, 130, 246, 0.3);
+    }
+
+    &.active {
+      background: var(--primary, #3b82f6);
+      border-color: var(--primary, #3b82f6);
+      color: white;
+    }
+  }
+}
+
+// ============================================================
+// BOUTONS D'ACTION
+// ============================================================
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+  button {
+    flex: 1;
+    padding: 0.875rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-cancel {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--text-secondary, #cbd5e1);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+  }
+
+  .btn-submit {
+    background: var(--primary, #3b82f6);
+    border: none;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: #2563eb;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// ============================================================
+// RESPONSIVE
+// ============================================================
+
+@media (max-width: 480px) {
+  .modal-container {
+    margin: 0.5rem;
+    max-height: 95vh;
+  }
+
+  .difficulty-buttons {
+    .diff-btn {
+      min-width: calc(50% - 0.25rem);
+    }
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+}

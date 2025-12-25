@@ -1,0 +1,140 @@
+<!--
+  external-exercise-modal.component.html
+
+  Modal pour enregistrer un exercice fait sur un site externe.
+
+  Structure :
+  ==========
+  - Overlay (fond sombre)
+  - Modal container
+    - Header (titre + bouton fermer)
+    - Formulaire
+      - Sélection du site
+      - Titre de l'exercice
+      - Type d'exercice
+      - Difficulté
+      - Notes (optionnel)
+    - Boutons d'action
+
+  Auteur: H1m0t3p3
+  Date: 25 décembre 2024
+-->
+
+<!-- Overlay -->
+<div class="modal-overlay" (click)="closeModal()">
+
+  <!-- Modal Container -->
+  <div class="modal-container" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <header class="modal-header">
+      <h2>Ajouter un exercice externe</h2>
+      <button class="close-btn" (click)="closeModal()">X</button>
+    </header>
+
+    <!-- Message de succès -->
+    <div *ngIf="showSuccess" class="success-message">
+      <span class="success-icon">&#10003;</span>
+      <p>Exercice ajoute avec succes !</p>
+      <p class="xp-message">+{{ calculateXP() }} XP</p>
+    </div>
+
+    <!-- Formulaire -->
+    <form *ngIf="!showSuccess" class="modal-form" (ngSubmit)="submitExercise()">
+
+      <!-- Sélection du site -->
+      <div class="form-group">
+        <label for="site">Site externe *</label>
+        <select
+          id="site"
+          [(ngModel)]="selectedSiteId"
+          name="site"
+          (change)="onSiteChange()"
+          required>
+          <option value="">-- Choisir un site --</option>
+          <option *ngFor="let site of externalSites" [value]="site.id">
+            {{ site.icon }} {{ site.name }}
+          </option>
+        </select>
+        <p *ngIf="getSelectedSite()" class="site-description">
+          {{ getSelectedSite()?.description }}
+        </p>
+      </div>
+
+      <!-- Titre de l'exercice -->
+      <div class="form-group">
+        <label for="title">Titre de l'exercice *</label>
+        <input
+          type="text"
+          id="title"
+          [(ngModel)]="exerciseTitle"
+          name="title"
+          placeholder="Ex: Variables en Java, Boucle for, etc."
+          required
+          maxlength="100">
+      </div>
+
+      <!-- Type d'exercice -->
+      <div class="form-group">
+        <label for="type">Type d'exercice *</label>
+        <select
+          id="type"
+          [(ngModel)]="exerciseType"
+          name="type"
+          required>
+          <option *ngFor="let type of exerciseTypes" [value]="type.value">
+            {{ type.label }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Difficulté -->
+      <div class="form-group">
+        <label for="difficulty">Difficulte *</label>
+        <div class="difficulty-buttons">
+          <button
+            *ngFor="let diff of difficulties"
+            type="button"
+            class="diff-btn"
+            [class.active]="exerciseDifficulty === diff.value"
+            (click)="exerciseDifficulty = diff.value">
+            {{ diff.label }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Notes (optionnel) -->
+      <div class="form-group">
+        <label for="notes">Notes (optionnel)</label>
+        <textarea
+          id="notes"
+          [(ngModel)]="exerciseNotes"
+          name="notes"
+          placeholder="Ce que tu as appris, difficultes rencontrees..."
+          rows="3"
+          maxlength="500">
+        </textarea>
+      </div>
+
+      <!-- Boutons d'action -->
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="btn-cancel"
+          (click)="closeModal()">
+          Annuler
+        </button>
+        <button
+          type="submit"
+          class="btn-submit"
+          [disabled]="!isFormValid() || isSubmitting">
+          <span *ngIf="!isSubmitting">Ajouter l'exercice</span>
+          <span *ngIf="isSubmitting">Ajout en cours...</span>
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

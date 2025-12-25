@@ -258,6 +258,30 @@
   </section>
 
   <!-- ========================================== -->
+  <!-- GRAPHIQUES DE PROGRESSION -->
+  <!-- ========================================== -->
+
+  <!--
+    Visualisation de la progression sur 7 jours.
+
+    Pourquoi des graphiques ?
+    -------------------------
+    Les humains comprennent mieux les IMAGES que les CHIFFRES.
+    Un graphique qui monte = motivation !
+
+    Philosophie David J. Malan :
+    "Show, don't tell. Data visualization makes progress tangible."
+  -->
+  <section class="charts-section">
+    <h2 class="section-title">
+      <span class="title-icon">📈</span>
+      Progression sur 7 jours
+    </h2>
+
+    <app-progress-chart></app-progress-chart>
+  </section>
+
+  <!-- ========================================== -->
   <!-- DOUBLE COLONNE : QUÊTES + PLANNING -->
   <!-- ========================================== -->
 
@@ -422,6 +446,22 @@
         <span class="action-label">Faire un exercice</span>
       </a>
 
+      <!--
+        Bouton Exercice Externe
+        -----------------------
+        Permet d'enregistrer un exercice fait sur un site externe
+        (TMC MOOC.fi, GeeksforGeeks, Baeldung, etc.)
+
+        Philosophie David J. Malan :
+        "Learning happens everywhere, not just in the classroom."
+      -->
+      <button
+        class="action-card action-external"
+        (click)="openExternalExerciseModal()">
+        <span class="action-icon">🌐</span>
+        <span class="action-label">Ajouter exercice externe</span>
+      </button>
+
       <a routerLink="/revision" class="action-card action-revision">
         <span class="action-icon">📚</span>
         <span class="action-label">Réviser</span>
@@ -435,3 +475,32 @@
   </section>
 
 </div>
+
+<!-- ============================================================ -->
+<!-- MODAL EXERCICE EXTERNE -->
+<!-- ============================================================ -->
+
+<!--
+  Modal pour enregistrer un exercice fait sur un site externe.
+
+  Pourquoi ce modal ?
+  -------------------
+  L'apprentissage ne se limite pas aux exercices intégrés dans l'app.
+  Tu peux aussi progresser en utilisant des sites comme :
+  - TMC MOOC.fi (cours Java de l'Université d'Helsinki)
+  - GeeksforGeeks (algorithmes et structures de données)
+  - Baeldung (tutoriels Java avancés)
+
+  Ces exercices comptent aussi pour :
+  - Les XP et le niveau
+  - Les quêtes (daily/weekly)
+  - Les statistiques de progression
+
+  Philosophie David J. Malan :
+  "Learning happens everywhere, not just in the classroom."
+-->
+<app-external-exercise-modal
+  *ngIf="showExternalExerciseModal"
+  (close)="closeExternalExerciseModal()"
+  (exerciseAdded)="onExternalExerciseAdded()">
+</app-external-exercise-modal>

@@ -53,6 +53,12 @@ import { Day } from '../../core/models/day.model';
 import { Quest } from '../../core/models/quest.model';
 import { Badge } from '../../core/models/badge.model';
 
+// Import du modal exercice externe
+import { ExternalExerciseModalComponent } from '../../shared/components/external-exercise-modal/external-exercise-modal.component';
+
+// Import du graphique de progression
+import { ProgressChartComponent } from '../../shared/components/progress-chart/progress-chart.component';
+
 /**
  * STATISTIQUES DU DASHBOARD
  * -------------------------
@@ -100,7 +106,9 @@ interface SubjectCard {
   standalone: true,
   imports: [
     CommonModule,    // *ngIf, *ngFor, pipes (date, number, etc.)
-    RouterModule     // routerLink, routerLinkActive
+    RouterModule,    // routerLink, routerLinkActive
+    ExternalExerciseModalComponent,  // Modal pour exercices externes
+    ProgressChartComponent           // Graphiques de progression
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
@@ -188,6 +196,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
    * État de chargement
    */
   isLoading: boolean = true;
+
+  /**
+   * Affichage du modal exercice externe
+   * -----------------------------------
+   * Permet d'enregistrer des exercices faits sur des sites externes
+   * comme TMC MOOC.fi, GeeksforGeeks, etc.
+   */
+  showExternalExerciseModal: boolean = false;
 
   // ============================================================
   // CONSTRUCTEUR
@@ -550,6 +566,43 @@ export class DashboardComponent implements OnInit, OnDestroy {
       java: '☕'
     };
     return icons[subjectId] || '📚';
+  }
+
+  // ============================================================
+  // EXERCICES EXTERNES
+  // ============================================================
+
+  /**
+   * OUVRIR LE MODAL D'EXERCICE EXTERNE
+   * ---------------------------------
+   * Permet d'enregistrer un exercice fait sur un site externe
+   * (TMC MOOC.fi, GeeksforGeeks, Baeldung, etc.)
+   *
+   * Philosophie David J. Malan :
+   * "Learning happens everywhere, not just in the classroom."
+   */
+  openExternalExerciseModal(): void {
+    this.showExternalExerciseModal = true;
+  }
+
+  /**
+   * FERMER LE MODAL D'EXERCICE EXTERNE
+   * ---------------------------------
+   */
+  closeExternalExerciseModal(): void {
+    this.showExternalExerciseModal = false;
+  }
+
+  /**
+   * GÉRER L'AJOUT D'UN EXERCICE EXTERNE
+   * ----------------------------------
+   * Appelé quand un exercice externe est ajouté avec succès.
+   * Rafraîchit les données du dashboard pour refléter les nouveaux XP.
+   */
+  onExternalExerciseAdded(): void {
+    console.log('✅ Exercice externe ajouté depuis le dashboard');
+    // Recharge les données pour mettre à jour les stats
+    this.loadDashboardData();
   }
 }
 

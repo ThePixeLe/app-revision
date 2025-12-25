@@ -1,0 +1,152 @@
+/**
+ * progress-chart.component.scss
+ *
+ * Styles des graphiques de progression.
+ *
+ * Auteur: H1m0t3p3
+ * Date: 25 décembre 2024
+ */
+
+// ============================================================
+// CONTAINER PRINCIPAL
+// ============================================================
+
+.charts-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+
+  @media (min-width: 1024px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+// ============================================================
+// CARTE DE GRAPHIQUE
+// ============================================================
+
+.chart-card {
+  background: var(--bg-card, #ffffff);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+// ============================================================
+// HEADER DU GRAPHIQUE
+// ============================================================
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chart-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .chart-icon {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary, #1e293b);
+
+    @media (min-width: 768px) {
+      font-size: 1.125rem;
+    }
+  }
+}
+
+.chart-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+
+  .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color, #6366f1);
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted, #94a3b8);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+// ============================================================
+// WRAPPER DU GRAPHIQUE
+// ============================================================
+
+.chart-wrapper {
+  position: relative;
+  height: 200px;
+  width: 100%;
+
+  @media (min-width: 768px) {
+    height: 250px;
+  }
+
+  canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+}
+
+// ============================================================
+// FOOTER DU GRAPHIQUE
+// ============================================================
+
+.chart-footer {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-color, #e2e8f0);
+  text-align: center;
+
+  .average {
+    font-size: 0.875rem;
+    color: var(--text-secondary, #64748b);
+  }
+
+  .motivation {
+    font-size: 0.875rem;
+    color: var(--secondary-color, #10b981);
+    font-weight: 500;
+  }
+}
+
+// ============================================================
+// THÈME SOMBRE (si supporté)
+// ============================================================
+
+@media (prefers-color-scheme: dark) {
+  .chart-card {
+    background: var(--bg-card, #1e293b);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  }
+
+  .chart-title h3 {
+    color: var(--text-primary, #f8fafc);
+  }
+
+  .chart-footer {
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+}

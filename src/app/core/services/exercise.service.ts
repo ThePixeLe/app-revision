@@ -574,6 +574,75 @@ export class ExerciseService {
   }
 
   /**
+   * AJOUTER UN EXERCICE EXTERNE
+   * --------------------------
+   * Ajoute un exercice fait sur un site externe (TMC MOOC.fi, GeeksforGeeks, etc.)
+   * Cet exercice compte dans la progression, les quêtes et les XP.
+   *
+   * @param exercise - L'exercice externe à ajouter
+   * @returns Observable de l'exercice ajouté
+   *
+   * Exemple d'utilisation :
+   * ```typescript
+   * const externalExercise = createExternalExercise('tmc-mooc', {
+   *   title: 'Variables en Java',
+   *   type: 'java',
+   *   difficulty: 'facile',
+   *   notes: 'Exercice sur les variables primitives'
+   * });
+   * exerciseService.addExternalExercise(externalExercise).subscribe();
+   * ```
+   */
+  addExternalExercise(exercise: Exercise): Observable<Exercise> {
+    const exercises = this.exercisesSubject.value;
+
+    // Vérifie que c'est bien un exercice externe
+    if (!exercise.isExternal) {
+      exercise.isExternal = true;
+    }
+
+    // Ajoute l'exercice à la liste
+    const updatedExercises = [...exercises, exercise];
+
+    // Sauvegarde et met à jour
+    this.exercisesSubject.next(updatedExercises);
+
+    return this.saveExercises(updatedExercises).pipe(
+      tap(() => {
+        console.log(`✅ Exercice externe ajouté: ${exercise.title} (${exercise.externalSource?.siteName})`);
+        this.updateReviewQueue();
+      }),
+      map(() => exercise)
+    );
+  }
+
+  /**
+   * OBTENIR LES EXERCICES EXTERNES
+   * -----------------------------
+   * Retourne tous les exercices faits sur des sites externes.
+   *
+   * @returns Observable de la liste des exercices externes
+   */
+  getExternalExercises(): Observable<Exercise[]> {
+    return this.exercises$.pipe(
+      map(exercises => exercises.filter(ex => ex.isExternal === true))
+    );
+  }
+
+  /**
+   * COMPTER LES EXERCICES EXTERNES
+   * -----------------------------
+   * Retourne le nombre d'exercices externes complétés.
+   *
+   * @returns Observable du nombre d'exercices externes
+   */
+  getExternalExercisesCount(): Observable<number> {
+    return this.getExternalExercises().pipe(
+      map(exercises => exercises.length)
+    );
+  }
+
+  /**
    * MARQUER UN EXERCICE COMME RÉVISÉ
    * -------------------------------
    * Met à jour les scores SM-2 et calcule la prochaine date de révision.
