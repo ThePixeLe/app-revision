@@ -10,11 +10,51 @@
 
 ---
 
+## 🚀 Quick Start
+
+```bash
+# 1. Cloner le projet
+git clone https://github.com/VOTRE_USERNAME/app-revision.git
+cd app-revision
+
+# 2. Installer les dépendances
+npm install
+
+# 3. Lancer l'application (Angular + serveur Express)
+npm run dev
+
+# 4. Ouvrir dans le navigateur
+# http://localhost:4200
+```
+
+**Optionnel** - Pour l'IA (chatbot, résumés, exercices) :
+```bash
+# Installer Ollama : https://ollama.com/download
+ollama pull llama3.2
+ollama serve
+```
+
+---
+
 ## 📖 À propos
 
 **Study Tracker Pro** est une application web interactive développée avec Angular 17, conçue pour accompagner un programme d'apprentissage intensif de 12 jours couvrant :
 
 > **Note** : Ce projet a démarré comme un outil personnel pour mes propres révisions. C'est pourquoi il n'intègre pas encore de pipeline CI/CD (GitHub Actions), de conteneurisation (Docker), ni d'infrastructure DevOps complète. Ces améliorations sont prévues dans les futures versions pour faciliter le déploiement et la contribution collaborative.
+>
+> **Tests non implémentés** :
+> - Tests Unitaires
+> - Tests d'Intégration
+> - Tests Fonctionnels
+> - Tests de Bout en Bout (E2E)
+> - Tests de Performance
+> - Tests de Charge
+> - Tests de Stress
+> - Tests de Sécurité
+> - Tests d'Acceptation (UAT)
+> - Tests de Régression
+> - Tests d'Interface Utilisateur (UI)
+> - Tests d'Accessibilité
 
 Le programme couvre :
 
@@ -420,9 +460,11 @@ app-revision/
 │       ├── sounds/            # Sons de notification
 │       └── images/            # Images & logos
 │
+├── server.js                  # Serveur Express (upload PDFs, API)
 ├── tailwind.config.js         # Config Tailwind CSS
 ├── angular.json               # Config Angular
-├── package.json               # Dépendances npm
+├── package.json               # Dépendances npm (v1.1.1)
+├── CHANGELOG.md               # Historique des versions
 └── README.md                  # Ce fichier !
 ```
 
@@ -474,14 +516,18 @@ app-revision/
 
 ### Serveur Express (server.js)
 
-Un mini serveur Node.js pour l'upload de PDFs :
+Un mini serveur Node.js pour la gestion des ressources :
 
-| Route | Description |
-|-------|-------------|
-| `GET /api/health` | Vérifie que le serveur est actif |
-| `GET /api/pdfs` | Liste tous les PDFs du dossier docs |
-| `POST /api/upload` | Upload un PDF (multipart/form-data) |
-| `DELETE /api/pdfs/:filename` | Supprime un PDF |
+| Route | Méthode | Description |
+|-------|---------|-------------|
+| `/api/health` | GET | Vérifie que le serveur est actif |
+| `/api/resources` | GET | Retourne le contenu de resources.json (sans cache) |
+| `/api/pdfs` | GET | Liste tous les PDFs du dossier docs |
+| `/api/upload` | POST | Upload un PDF (multipart/form-data, max 50MB) |
+| `/api/pdfs/:filename` | DELETE | Supprime un PDF et met à jour resources.json |
+| `/api/links` | POST | Ajoute un nouveau lien utile |
+| `/api/links/:id` | DELETE | Supprime un lien utile |
+| `/docs/:filename` | GET | Sert les fichiers PDF statiques |
 
 ### Modèles de données
 
@@ -622,6 +668,30 @@ Toutes les dates du planning seront automatiquement recalculées !
 
 1. Autorisez les notifications dans Préférences Système
 2. Utilisez un navigateur compatible (Chrome, Safari)
+
+### L'upload de PDF ne fonctionne pas
+
+1. Vérifiez que le serveur Express tourne sur le port 3001
+2. Lancez avec `npm run dev` (pas `ng serve` seul)
+3. Vérifiez les logs du serveur dans le terminal
+
+### Les PDFs ne s'affichent pas / Erreur "Cannot GET"
+
+1. Assurez-vous d'utiliser `npm run dev` pour lancer les deux serveurs
+2. Les PDFs sont servis via `http://localhost:3001/docs/`
+3. Vérifiez que le fichier existe dans `src/assets/docs/`
+
+### Le chatbot IA ne répond pas
+
+1. Vérifiez qu'Ollama est installé et lancé : `ollama serve`
+2. Vérifiez qu'un modèle est disponible : `ollama list`
+3. Le mode FAQ s'active automatiquement si Ollama n'est pas disponible
+
+### Les PDFs supprimés réapparaissent
+
+1. Assurez-vous d'utiliser `npm run dev` (serveur Express requis)
+2. La suppression met à jour `resources.json` via l'API
+3. Rafraîchissez la page pour voir les changements
 
 ---
 
