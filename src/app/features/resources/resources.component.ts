@@ -51,8 +51,24 @@ import { takeUntil } from 'rxjs/operators';
 // Service pour charger les ressources dynamiquement
 import { ResourceService, PDFResource, LinkResource } from '../../core/services/resource.service';
 
+// Interface pour un lien utile
+interface UsefulLink {
+  id: string;
+  title: string;
+  url: string;
+  description: string;
+  icon: string;
+  category?: string;
+}
+
 // Modal d'upload PDF
 import { PdfUploadModalComponent } from '../../shared/components/pdf-upload-modal/pdf-upload-modal.component';
+
+// Modal de resume PDF
+import { PDFSummaryModalComponent } from '../../shared/components/pdf-summary-modal/pdf-summary-modal.component';
+
+// Modal d'extraction d'exercices
+import { ExerciseExtractorModalComponent } from '../../shared/components/exercise-extractor-modal/exercise-extractor-modal.component';
 
 /**
  * Interface pour un document/ressource
@@ -84,7 +100,7 @@ interface CategoryInfo {
 @Component({
   selector: 'app-resources',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule, PdfUploadModalComponent],
+  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule, PdfUploadModalComponent, PDFSummaryModalComponent, ExerciseExtractorModalComponent],
   templateUrl: './resources.component.html',
   styleUrls: ['./resources.component.scss']
 })
@@ -137,6 +153,51 @@ export class ResourcesComponent implements OnInit, OnDestroy {
    */
   showUploadModal: boolean = false;
 
+  /**
+   * Affiche le modal de resume PDF
+   */
+  showSummaryModal: boolean = false;
+
+  /**
+   * Ressource selectionnee pour le resume
+   */
+  resourceForSummary: Resource | null = null;
+
+  /**
+   * Affiche le modal d'extraction d'exercices
+   */
+  showExerciseExtractorModal: boolean = false;
+
+  /**
+   * Ressource selectionnee pour l'extraction d'exercices
+   */
+  resourceForExercises: Resource | null = null;
+
+  // ============================================================
+  // LIENS UTILES
+  // ============================================================
+
+  /**
+   * Liste des liens utiles
+   */
+  usefulLinks: UsefulLink[] = [];
+
+  /**
+   * Affiche le modal d'ajout de lien
+   */
+  showAddLinkModal: boolean = false;
+
+  /**
+   * Nouveau lien en cours d'edition
+   */
+  newLink: UsefulLink = {
+    id: '',
+    title: '',
+    url: '',
+    description: '',
+    icon: '🔗'
+  };
+
   // ============================================================
   // CONSTRUCTEUR ET CYCLE DE VIE
   // ============================================================
@@ -145,6 +206,7 @@ export class ResourcesComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadResources();
+    this.loadLinks();
   }
 
   ngOnDestroy(): void {
@@ -327,6 +389,9 @@ export class ResourcesComponent implements OnInit, OnDestroy {
   // ACTIONS
   // ============================================================
 
+  /** URL du serveur Express pour les PDFs */
+  private readonly PDF_SERVER_URL = 'http://localhost:3001/docs';
+
   /**
    * Ouvre un PDF dans un nouvel onglet
    */
@@ -334,8 +399,10 @@ export class ResourcesComponent implements OnInit, OnDestroy {
     // Met à jour la date d'ouverture
     resource.lastOpened = new Date();
 
-    // Ouvre le PDF
-    window.open(resource.path, '_blank');
+    // Utilise le serveur Express pour servir les PDFs (gère mieux les espaces)
+    const filename = resource.path.split('/').pop() || '';
+    const pdfUrl = `${this.PDF_SERVER_URL}/${encodeURIComponent(filename)}`;
+    window.open(pdfUrl, '_blank');
   }
 
   /**
@@ -344,10 +411,59 @@ export class ResourcesComponent implements OnInit, OnDestroy {
   downloadResource(resource: Resource, event: Event): void {
     event.stopPropagation(); // Évite d'ouvrir en même temps
 
+    const filename = resource.path.split('/').pop() || '';
+    const pdfUrl = `${this.PDF_SERVER_URL}/${encodeURIComponent(filename)}`;
+
     const link = document.createElement('a');
-    link.href = resource.path;
+    link.href = pdfUrl;
     link.download = resource.title + '.pdf';
     link.click();
+  }
+
+  /**
+   * Supprime un PDF
+   */
+  deleteResource(resource: Resource, event: Event): void {
+    event.stopPropagation();
+
+    // Confirmation
+    if (!confirm(`Supprimer "${resource.title}" ?\n\nCette action est irréversible.`)) {
+      return;
+    }
+
+    // Retirer immediatement de l'affichage (optimistic update)
+    this.allResources = this.allResources.filter((r: Resource) => r.id !== resource.id);
+    this.filteredResources = this.filteredResources.filter((r: Resource) => r.id !== resource.id);
+    this.calculateCategories();
+
+    // Extraire le filename du path
+    const filename = resource.path.split('/').pop() || '';
+
+    // Créer un objet PDFResource pour le service
+    const pdfResource = {
+      id: resource.id,
+      title: resource.title,
+      filename: filename,
+      category: resource.category as any,
+      description: resource.description || ''
+    };
+
+    // Appeler le serveur pour supprimer le fichier (si le serveur est disponible)
+    this.resourceService.deletePDF(pdfResource).subscribe({
+      next: (result) => {
+        if (result.success) {
+          console.log('✅ PDF supprimé du serveur avec succès');
+        } else {
+          console.warn('⚠️ Fichier déjà supprimé ou serveur non disponible');
+        }
+      },
+      error: (err) => {
+        // Même en cas d'erreur, le PDF est déjà retiré de l'UI
+        console.warn('⚠️ Serveur non disponible, PDF retiré localement uniquement');
+      }
+    });
+
+    console.log('✅ PDF retiré de l\'affichage:', resource.title);
   }
 
   /**
@@ -445,6 +561,181 @@ export class ResourcesComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.loadResources();
     }, 500);
+  }
+
+  // ============================================================
+  // RESUME PDF
+  // ============================================================
+
+  /**
+   * Ouvre le modal de resume PDF
+   */
+  openSummaryModal(resource: Resource, event: Event): void {
+    event.stopPropagation();
+    this.resourceForSummary = resource;
+    this.showSummaryModal = true;
+    console.log('📋 Ouverture du modal de resume pour:', resource.title);
+  }
+
+  /**
+   * Ferme le modal de resume PDF
+   */
+  closeSummaryModal(): void {
+    this.showSummaryModal = false;
+    this.resourceForSummary = null;
+    console.log('📋 Fermeture du modal de resume');
+  }
+
+  /**
+   * Callback quand un resume est sauvegarde
+   */
+  onSummarySaved(summary: any): void {
+    console.log('✅ Resume sauvegarde:', summary.pdfTitle);
+    // On pourrait afficher un toast ou mettre a jour l'UI
+  }
+
+  // ============================================================
+  // EXTRACTION D'EXERCICES
+  // ============================================================
+
+  /**
+   * Ouvre le modal d'extraction d'exercices
+   */
+  openExerciseExtractorModal(resource: Resource, event: Event): void {
+    event.stopPropagation();
+    this.resourceForExercises = resource;
+    this.showExerciseExtractorModal = true;
+    console.log('📝 Ouverture du modal d\'extraction pour:', resource.title);
+  }
+
+  /**
+   * Ferme le modal d'extraction d'exercices
+   */
+  closeExerciseExtractorModal(): void {
+    this.showExerciseExtractorModal = false;
+    this.resourceForExercises = null;
+    console.log('📝 Fermeture du modal d\'extraction');
+  }
+
+  /**
+   * Callback quand des exercices sont sauvegardes
+   */
+  onExercisesSaved(count: number): void {
+    console.log(`✅ ${count} exercices importes depuis le PDF`);
+    // On pourrait afficher un toast de confirmation
+  }
+
+  // ============================================================
+  // GESTION DES LIENS UTILES
+  // ============================================================
+
+  /**
+   * Charge les liens depuis le serveur
+   */
+  private loadLinks(): void {
+    this.resourceService.getLinks()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(links => {
+        this.usefulLinks = links.map(link => ({
+          id: link.id,
+          title: link.title,
+          url: link.url,
+          description: link.description,
+          icon: link.icon || '🔗',
+          category: link.category
+        }));
+        console.log(`🔗 ${this.usefulLinks.length} liens chargés`);
+      });
+  }
+
+  /**
+   * Ouvre le modal d'ajout de lien
+   */
+  openAddLinkModal(): void {
+    this.newLink = {
+      id: '',
+      title: '',
+      url: '',
+      description: '',
+      icon: '🔗'
+    };
+    this.showAddLinkModal = true;
+  }
+
+  /**
+   * Ferme le modal d'ajout de lien
+   */
+  closeAddLinkModal(): void {
+    this.showAddLinkModal = false;
+  }
+
+  /**
+   * Sauvegarde un nouveau lien
+   */
+  saveNewLink(): void {
+    if (!this.newLink.title || !this.newLink.url) {
+      alert('Veuillez remplir le titre et l\'URL');
+      return;
+    }
+
+    // Ajouter http:// si manquant
+    if (!this.newLink.url.startsWith('http://') && !this.newLink.url.startsWith('https://')) {
+      this.newLink.url = 'https://' + this.newLink.url;
+    }
+
+    this.resourceService.addLink({
+      title: this.newLink.title,
+      url: this.newLink.url,
+      description: this.newLink.description,
+      icon: this.newLink.icon
+    }).subscribe({
+      next: (result) => {
+        if (result.success) {
+          console.log('✅ Lien ajouté');
+          this.loadLinks(); // Recharge les liens
+          this.closeAddLinkModal();
+        } else {
+          alert('Erreur: ' + result.message);
+        }
+      },
+      error: (err) => {
+        console.error('Erreur ajout lien:', err);
+        alert('Erreur lors de l\'ajout. Vérifiez que le serveur est lancé.');
+      }
+    });
+  }
+
+  /**
+   * Supprime un lien
+   */
+  deleteLink(link: UsefulLink, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!confirm(`Supprimer le lien "${link.title}" ?`)) {
+      return;
+    }
+
+    // Suppression optimiste
+    this.usefulLinks = this.usefulLinks.filter(l => l.id !== link.id);
+
+    this.resourceService.deleteLink(link.id).subscribe({
+      next: (result) => {
+        if (result.success) {
+          console.log('✅ Lien supprimé');
+        }
+      },
+      error: (err) => {
+        console.warn('Serveur non disponible');
+      }
+    });
+  }
+
+  /**
+   * Ouvre un lien dans un nouvel onglet
+   */
+  openLink(link: UsefulLink): void {
+    window.open(link.url, '_blank');
   }
 }
 

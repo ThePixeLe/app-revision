@@ -1,0 +1,241 @@
+<!--
+  notes.component.html
+
+  Template de la page Notes.
+
+  Structure :
+  ==========
+
+  +-------------------------------------------------------------+
+  |                       HEADER                                |
+  |   Notes                    [+ Nouvelle] [Grid/List]        |
+  +-------------------------------------------------------------+
+  |   [Toutes] [Perso] [Resumes] [Flashcards] [Favoris]        |
+  +-------------------------------------------------------------+
+  |   [Recherche...]                    [Tri: Date modif v]     |
+  +-------------------------------------------------------------+
+  |                                                             |
+  |   +-------------------+ +-------------------+               |
+  |   |  Note epinglee    | |  Note             |               |
+  |   |  Titre            | |  Titre            |               |
+  |   |  Apercu...        | |  Apercu...        |               |
+  |   |  [Tags] [Actions] | |  [Tags] [Actions] |               |
+  |   +-------------------+ +-------------------+               |
+  |                                                             |
+  +-------------------------------------------------------------+
+
+  Auteur: H1m0t3p3
+  Date: 26 decembre 2024
+-->
+
+<div class="notes-container">
+
+  <!-- ========================================== -->
+  <!-- HEADER -->
+  <!-- ========================================== -->
+  <header class="notes-header">
+    <div class="header-left">
+      <h1 class="page-title">Notes</h1>
+      <span class="notes-count">{{ filteredNotes.length }} notes</span>
+    </div>
+
+    <div class="header-actions">
+      <!-- Bouton nouvelle note -->
+      <button class="btn-primary" (click)="createNote()">
+        <span class="btn-icon">+</span>
+        <span class="btn-text">Nouvelle note</span>
+      </button>
+
+      <!-- Toggle vue -->
+      <button
+        class="btn-icon-only"
+        (click)="toggleViewMode()"
+        [title]="viewMode === 'grid' ? 'Vue liste' : 'Vue grille'">
+        {{ viewMode === 'grid' ? '☰' : '▦' }}
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- FILTRES RAPIDES -->
+  <!-- ========================================== -->
+  <nav class="quick-filters">
+    <button
+      *ngFor="let filter of quickFilters"
+      class="filter-btn"
+      [class.active]="activeQuickFilter === filter.id"
+      (click)="selectQuickFilter(filter.id)">
+      <span class="filter-icon">{{ filter.icon }}</span>
+      <span class="filter-label">{{ filter.label }}</span>
+      <span class="filter-count">{{ getQuickFilterCount(filter.id) }}</span>
+    </button>
+  </nav>
+
+  <!-- ========================================== -->
+  <!-- BARRE DE RECHERCHE ET TRI -->
+  <!-- ========================================== -->
+  <div class="search-sort-bar">
+    <!-- Recherche -->
+    <div class="search-wrapper">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Rechercher dans les notes..."
+        [value]="searchTerm"
+        (input)="onSearch($event)">
+      <button
+        *ngIf="searchTerm"
+        class="clear-btn"
+        (click)="searchTerm = ''; onSearch($event)">
+        x
+      </button>
+    </div>
+
+    <!-- Tri -->
+    <div class="sort-wrapper">
+      <label class="sort-label">Trier par</label>
+      <select class="sort-select" (change)="onSortChange($any($event.target).value)">
+        <option
+          *ngFor="let option of sortFields"
+          [value]="option.value"
+          [selected]="sortOptions.by === option.value">
+          {{ option.label }}
+        </option>
+      </select>
+      <button
+        class="sort-direction"
+        (click)="sortOptions.order = sortOptions.order === 'asc' ? 'desc' : 'asc'; applyFilters()"
+        [title]="sortOptions.order === 'asc' ? 'Croissant' : 'Decroissant'">
+        {{ sortOptions.order === 'asc' ? '↑' : '↓' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- CONTENU PRINCIPAL -->
+  <!-- ========================================== -->
+  <main class="notes-content">
+
+    <!-- Chargement -->
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Chargement des notes...</p>
+    </div>
+
+    <!-- Etat vide -->
+    <div *ngIf="!isLoading && filteredNotes.length === 0" class="empty-state">
+      <span class="empty-icon">📝</span>
+      <h3>Aucune note</h3>
+      <p *ngIf="searchTerm">Aucun resultat pour "{{ searchTerm }}"</p>
+      <p *ngIf="!searchTerm && activeQuickFilter === 'favorites'">
+        Tu n'as pas encore de notes favorites
+      </p>
+      <p *ngIf="!searchTerm && activeQuickFilter === 'all'">
+        Commence par creer ta premiere note !
+      </p>
+      <button class="btn-create" (click)="createNote()" *ngIf="!searchTerm">
+        + Creer une note
+      </button>
+    </div>
+
+    <!-- Grille de notes -->
+    <div
+      *ngIf="!isLoading && filteredNotes.length > 0"
+      class="notes-grid"
+      [class.view-list]="viewMode === 'list'">
+
+      <!-- Carte de note -->
+      <article
+        *ngFor="let note of filteredNotes"
+        class="note-card"
+        [class.is-pinned]="note.isPinned"
+        [class.is-favorite]="note.isFavorite"
+        (click)="editNote(note)">
+
+        <!-- Badge epingle -->
+        <div class="pin-badge" *ngIf="note.isPinned">
+          📌
+        </div>
+
+        <!-- Badge type -->
+        <div class="type-badge" [title]="note.type">
+          {{ getTypeIcon(note.type) }}
+        </div>
+
+        <!-- Contenu -->
+        <div class="note-content">
+          <h3 class="note-title">{{ note.title }}</h3>
+          <p class="note-preview">{{ getContentPreview(note.content) }}</p>
+
+          <!-- Tags -->
+          <div class="note-tags" *ngIf="note.tags && note.tags.length > 0">
+            <span
+              *ngFor="let tag of note.tags.slice(0, 3)"
+              class="tag">
+              {{ tag }}
+            </span>
+            <span *ngIf="note.tags.length > 3" class="tag-more">
+              +{{ note.tags.length - 3 }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="note-footer">
+          <!-- Categorie -->
+          <span
+            class="note-category"
+            [style.background]="getCategoryColor(note.category)">
+            {{ getCategoryLabel(note.category) }}
+          </span>
+
+          <!-- Date -->
+          <span class="note-date">
+            {{ formatRelativeDate(note.updatedAt) }}
+          </span>
+        </div>
+
+        <!-- Actions -->
+        <div class="note-actions">
+          <button
+            class="action-btn"
+            [class.active]="note.isFavorite"
+            (click)="toggleFavorite(note, $event)"
+            title="Favori">
+            {{ note.isFavorite ? '⭐' : '☆' }}
+          </button>
+          <button
+            class="action-btn"
+            [class.active]="note.isPinned"
+            (click)="togglePin(note, $event)"
+            title="Epingler">
+            📌
+          </button>
+          <button
+            class="action-btn delete"
+            (click)="deleteNote(note, $event)"
+            title="Supprimer">
+            🗑️
+          </button>
+        </div>
+
+      </article>
+
+    </div>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODAL EDITEUR -->
+  <!-- ========================================== -->
+  <app-markdown-editor
+    *ngIf="isEditorOpen"
+    [note]="selectedNote"
+    [isCreating]="isCreating"
+    [categories]="categories"
+    (save)="saveNote($event)"
+    (close)="closeEditor()">
+  </app-markdown-editor>
+
+</div>

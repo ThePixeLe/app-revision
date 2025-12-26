@@ -1,0 +1,524 @@
+/**
+ * exercise-extractor-modal.component.scss
+ *
+ * Styles pour le modal d'extraction d'exercices.
+ *
+ * Auteur: H1m0t3p3
+ * Date: 26 decembre 2024
+ */
+
+// ============================================================
+// VARIABLES
+// ============================================================
+
+$modal-bg: #1e1e2e;
+$modal-border: #313244;
+$text-primary: #cdd6f4;
+$text-secondary: #a6adc8;
+$text-muted: #6c7086;
+$accent: #89b4fa;
+$accent-hover: #b4befe;
+$success: #a6e3a1;
+$error: #f38ba8;
+$surface: #313244;
+$surface-hover: #45475a;
+
+// ============================================================
+// OVERLAY
+// ============================================================
+
+.extractor-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+// ============================================================
+// MODAL
+// ============================================================
+
+.extractor-modal {
+  background: $modal-bg;
+  border: 1px solid $modal-border;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  animation: modalSlideIn 0.2s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// ============================================================
+// HEADER
+// ============================================================
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid $modal-border;
+
+  .header-title {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+
+    .header-icon {
+      font-size: 1.75rem;
+    }
+
+    .header-text {
+      h2 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: $text-primary;
+      }
+
+      .header-subtitle {
+        margin: 0.25rem 0 0;
+        font-size: 0.85rem;
+        color: $text-muted;
+      }
+    }
+  }
+
+  .btn-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: $surface;
+    color: $text-secondary;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+
+    &:hover {
+      background: $surface-hover;
+      color: $text-primary;
+    }
+  }
+}
+
+// ============================================================
+// BODY
+// ============================================================
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  min-height: 300px;
+}
+
+// ============================================================
+// ETATS
+// ============================================================
+
+// Loading
+.state-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+
+  .loading-animation {
+    .loading-icon {
+      font-size: 3rem;
+      display: block;
+      animation: pulse 1.5s infinite;
+    }
+  }
+
+  h3 {
+    margin: 1.5rem 0 0.5rem;
+    color: $text-primary;
+    font-size: 1.1rem;
+  }
+
+  .loading-hint {
+    color: $text-muted;
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  .progress-bar {
+    width: 200px;
+    height: 4px;
+    background: $surface;
+    border-radius: 2px;
+    margin-top: 1.5rem;
+    overflow: hidden;
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, $accent, $accent-hover);
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+// Error
+.state-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+
+  .error-icon {
+    font-size: 3rem;
+  }
+
+  h3 {
+    margin: 1rem 0 0.5rem;
+    color: $error;
+  }
+
+  p {
+    color: $text-muted;
+    margin: 0 0 1.5rem;
+  }
+
+  .btn-retry {
+    padding: 0.625rem 1.25rem;
+    background: $surface;
+    border: 1px solid $modal-border;
+    border-radius: 8px;
+    color: $text-primary;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: $surface-hover;
+    }
+  }
+}
+
+// Saving
+.state-saving {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+
+  .saving-animation {
+    .saving-icon {
+      font-size: 3rem;
+      display: block;
+      animation: bounce 0.6s infinite alternate;
+    }
+  }
+
+  h3 {
+    margin: 1.5rem 0 0.5rem;
+    color: $success;
+  }
+
+  p {
+    color: $text-muted;
+    margin: 0;
+  }
+}
+
+@keyframes bounce {
+  from { transform: translateY(0); }
+  to { transform: translateY(-10px); }
+}
+
+// ============================================================
+// LISTE DES EXERCICES
+// ============================================================
+
+.state-ready {
+  .no-exercises {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem 1rem;
+    text-align: center;
+
+    .empty-icon {
+      font-size: 3rem;
+    }
+
+    h3 {
+      margin: 1rem 0 0.5rem;
+      color: $text-secondary;
+    }
+
+    p {
+      color: $text-muted;
+      margin: 0;
+    }
+  }
+}
+
+.exercises-list {
+  .selection-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid $modal-border;
+
+    .exercises-count {
+      font-size: 0.9rem;
+      color: $text-secondary;
+      font-weight: 500;
+    }
+
+    .selection-buttons {
+      display: flex;
+      gap: 0.5rem;
+
+      .btn-select {
+        padding: 0.375rem 0.75rem;
+        background: transparent;
+        border: 1px solid $modal-border;
+        border-radius: 6px;
+        color: $text-secondary;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover {
+          background: $surface;
+          color: $text-primary;
+        }
+      }
+    }
+  }
+}
+
+.exercise-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.exercise-card {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: $surface;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: $surface-hover;
+  }
+
+  &.selected {
+    border-color: $accent;
+    background: rgba($accent, 0.1);
+  }
+
+  .exercise-checkbox {
+    display: flex;
+    align-items: flex-start;
+    padding-top: 0.25rem;
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: $accent;
+      cursor: pointer;
+    }
+  }
+
+  .exercise-content {
+    flex: 1;
+    min-width: 0;
+
+    .exercise-title {
+      margin: 0 0 0.25rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: $text-primary;
+    }
+
+    .exercise-description {
+      margin: 0 0 0.75rem;
+      font-size: 0.85rem;
+      color: $text-secondary;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .exercise-tags {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+
+      .tag {
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+
+      .type-tag {
+        color: white;
+      }
+
+      .difficulty-tag {
+        background: $surface-hover;
+        color: $text-secondary;
+
+        &.facile {
+          color: $success;
+        }
+
+        &.moyen {
+          color: #fab387;
+        }
+
+        &.difficile {
+          color: $error;
+        }
+
+        &.expert {
+          color: #f38ba8;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
+
+// ============================================================
+// FOOTER
+// ============================================================
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid $modal-border;
+  background: rgba($surface, 0.5);
+  border-radius: 0 0 16px 16px;
+
+  .footer-info {
+    .selected-count {
+      font-size: 0.9rem;
+      color: $accent;
+      font-weight: 500;
+    }
+  }
+
+  .footer-actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+}
+
+.btn-cancel {
+  padding: 0.625rem 1rem;
+  background: transparent;
+  border: 1px solid $modal-border;
+  border-radius: 8px;
+  color: $text-secondary;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: $surface;
+    color: $text-primary;
+  }
+}
+
+.btn-import {
+  padding: 0.625rem 1.25rem;
+  background: linear-gradient(135deg, $accent 0%, $accent-hover 100%);
+  border: none;
+  border-radius: 8px;
+  color: #1e1e2e;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba($accent, 0.3);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// ============================================================
+// RESPONSIVE
+// ============================================================
+
+@media (max-width: 480px) {
+  .extractor-modal {
+    max-height: 95vh;
+  }
+
+  .selection-actions {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.75rem;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+    gap: 1rem;
+
+    .footer-info,
+    .footer-actions {
+      width: 100%;
+    }
+
+    .footer-actions {
+      justify-content: flex-end;
+    }
+  }
+}

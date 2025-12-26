@@ -311,6 +311,29 @@ export const routes: Routes = [
   },
 
   /**
+   * NOTES
+   * -----
+   * Gestion des notes personnelles.
+   *
+   * Affiche :
+   * - Notes personnelles
+   * - Résumés générés par IA
+   * - Flashcards
+   * - Éditeur Markdown
+   */
+  {
+    path: 'notes',
+    loadComponent: () =>
+      import('./features/notes/notes.component')
+        .then(m => m.NotesComponent),
+    title: 'Notes | Study Tracker Pro',
+    data: {
+      icon: 'note',
+      label: 'Notes'
+    }
+  },
+
+  /**
    * PARAMÈTRES
    * ----------
    * Configuration de l'application.

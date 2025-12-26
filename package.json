@@ -1,6 +1,6 @@
 {
   "name": "study-tracker",
-  "version": "0.0.0",
+  "version": "1.1.1",
   "scripts": {
     "ng": "ng",
     "start": "node scripts/scan-pdfs.js && ng serve",
@@ -32,6 +32,7 @@
     "chart.js": "^4.5.1",
     "date-fns": "^4.1.0",
     "howler": "^2.2.4",
+    "jspdf": "^3.0.4",
     "localforage": "^1.10.0",
     "lucide-angular": "^0.562.0",
     "ng2-charts": "^5.0.0",

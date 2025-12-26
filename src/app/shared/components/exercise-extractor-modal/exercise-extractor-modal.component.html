@@ -1,0 +1,180 @@
+<!--
+  exercise-extractor-modal.component.html
+
+  Modal pour extraire des exercices depuis un PDF.
+
+  Structure :
+  ==========
+
+  +---------------------------------------------------------------+
+  |  HEADER                                               [X]     |
+  |  Extraire des exercices                                       |
+  +---------------------------------------------------------------+
+  |                                                                |
+  |  ETAT: Extraction / Analyse / Liste                           |
+  |                                                                |
+  |  +---------------------------------------------------------+  |
+  |  | [ ] Exercice 1 - Algo - Moyen                           |  |
+  |  | [ ] Exercice 2 - Java - Facile                          |  |
+  |  | [ ] Exercice 3 - Boole - Difficile                      |  |
+  |  +---------------------------------------------------------+  |
+  |                                                                |
+  +---------------------------------------------------------------+
+  |  FOOTER                                                        |
+  |  X selectionnes              [Annuler] [Importer]             |
+  +---------------------------------------------------------------+
+
+  Auteur: H1m0t3p3
+  Date: 26 decembre 2024
+-->
+
+<div class="extractor-overlay" (click)="closeModal()">
+  <div class="extractor-modal" (click)="$event.stopPropagation()">
+
+    <!-- ========================================== -->
+    <!-- HEADER -->
+    <!-- ========================================== -->
+    <header class="modal-header">
+      <div class="header-title">
+        <span class="header-icon">📚</span>
+        <div class="header-text">
+          <h2>Extraire des exercices</h2>
+          <p class="header-subtitle">{{ resource.title }}</p>
+        </div>
+      </div>
+      <button class="btn-close" (click)="closeModal()">x</button>
+    </header>
+
+    <!-- ========================================== -->
+    <!-- CONTENU -->
+    <!-- ========================================== -->
+    <div class="modal-body">
+
+      <!-- Etat: Extraction en cours -->
+      <div class="state-loading" *ngIf="status === 'extracting' || status === 'analyzing'">
+        <div class="loading-animation">
+          <span class="loading-icon">{{ status === 'extracting' ? '📄' : '🤖' }}</span>
+        </div>
+        <h3>{{ status === 'extracting' ? 'Extraction du texte...' : 'Analyse IA en cours...' }}</h3>
+        <p class="loading-hint">
+          {{ status === 'extracting' ? 'Lecture du PDF' : 'Detection des exercices' }}
+        </p>
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="progress"></div>
+        </div>
+      </div>
+
+      <!-- Etat: Erreur -->
+      <div class="state-error" *ngIf="status === 'error'">
+        <span class="error-icon">❌</span>
+        <h3>Erreur</h3>
+        <p>{{ errorMessage }}</p>
+        <button class="btn-retry" (click)="retry()">
+          🔄 Reessayer
+        </button>
+      </div>
+
+      <!-- Etat: Pret - Liste des exercices -->
+      <div class="state-ready" *ngIf="status === 'ready'">
+
+        <!-- Aucun exercice detecte -->
+        <div class="no-exercises" *ngIf="detectedExercises.length === 0">
+          <span class="empty-icon">📭</span>
+          <h3>Aucun exercice detecte</h3>
+          <p>Le PDF ne semble pas contenir d'exercices identifiables.</p>
+        </div>
+
+        <!-- Liste des exercices -->
+        <div class="exercises-list" *ngIf="detectedExercises.length > 0">
+
+          <!-- Actions de selection -->
+          <div class="selection-actions">
+            <span class="exercises-count">
+              {{ detectedExercises.length }} exercice{{ detectedExercises.length > 1 ? 's' : '' }} detecte{{ detectedExercises.length > 1 ? 's' : '' }}
+            </span>
+            <div class="selection-buttons">
+              <button class="btn-select" (click)="selectAll()">Tout selectionner</button>
+              <button class="btn-select" (click)="deselectAll()">Tout deselectionner</button>
+            </div>
+          </div>
+
+          <!-- Cards des exercices -->
+          <div class="exercise-cards">
+            <article
+              *ngFor="let exercise of detectedExercises"
+              class="exercise-card"
+              [class.selected]="exercise.selected"
+              (click)="toggleExercise(exercise)">
+
+              <!-- Checkbox -->
+              <div class="exercise-checkbox">
+                <input
+                  type="checkbox"
+                  [checked]="exercise.selected"
+                  (click)="$event.stopPropagation()">
+              </div>
+
+              <!-- Contenu -->
+              <div class="exercise-content">
+                <h4 class="exercise-title">{{ exercise.title }}</h4>
+                <p class="exercise-description">{{ exercise.description }}</p>
+
+                <!-- Tags -->
+                <div class="exercise-tags">
+                  <span
+                    class="tag type-tag"
+                    [style.background]="typeColors[exercise.type]">
+                    {{ typeLabels[exercise.type] }}
+                  </span>
+                  <span class="tag difficulty-tag"
+                    [class.facile]="exercise.difficulty === 'facile'"
+                    [class.moyen]="exercise.difficulty === 'moyen'"
+                    [class.difficile]="exercise.difficulty === 'difficile'"
+                    [class.expert]="exercise.difficulty === 'expert'">
+                    {{ difficultyLabels[exercise.difficulty] }}
+                  </span>
+                </div>
+              </div>
+
+            </article>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Etat: Sauvegarde -->
+      <div class="state-saving" *ngIf="status === 'saving'">
+        <div class="saving-animation">
+          <span class="saving-icon">💾</span>
+        </div>
+        <h3>Importation en cours...</h3>
+        <p>{{ selectedCount }} exercice{{ selectedCount > 1 ? 's' : '' }}</p>
+      </div>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- FOOTER -->
+    <!-- ========================================== -->
+    <footer class="modal-footer" *ngIf="status === 'ready' && detectedExercises.length > 0">
+      <div class="footer-info">
+        <span class="selected-count">
+          {{ selectedCount }} selectionne{{ selectedCount > 1 ? 's' : '' }}
+        </span>
+      </div>
+
+      <div class="footer-actions">
+        <button class="btn-cancel" (click)="closeModal()">
+          Annuler
+        </button>
+        <button
+          class="btn-import"
+          [disabled]="selectedCount === 0"
+          (click)="saveExercises()">
+          📥 Importer {{ selectedCount }} exercice{{ selectedCount > 1 ? 's' : '' }}
+        </button>
+      </div>
+    </footer>
+
+  </div>
+</div>

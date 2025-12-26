@@ -1,0 +1,295 @@
+<!--
+  pdf-export-modal.component.html
+
+  Modal de configuration pour l'export PDF.
+
+  Structure :
+  ==========
+
+  +---------------------------------------------------------------+
+  |  HEADER                                               [X]     |
+  |  Exporter en PDF                                              |
+  +---------------------------------------------------------------+
+  |                                                                |
+  |  CONTENU A INCLURE                                            |
+  |  [x] Resume  [x] Points cles  [x] Concepts  [ ] Exercices    |
+  |                                                                |
+  +---------------------------------------------------------------+
+  |                                                                |
+  |  MISE EN PAGE                                                  |
+  |  Titre: [________________]                                    |
+  |  [x] Table des matieres  [x] Date  [x] Numeros de page       |
+  |                                                                |
+  +---------------------------------------------------------------+
+  |                                                                |
+  |  STYLE                                                         |
+  |  Theme: [Clair] [Sombre] [Pro] [Minimal]                      |
+  |  Format: [A4 v]  Orientation: [Portrait] [Paysage]           |
+  |                                                                |
+  +---------------------------------------------------------------+
+  |  FOOTER                                                        |
+  |  ~3 pages | ~90 KB              [Annuler] [Exporter PDF]     |
+  +---------------------------------------------------------------+
+
+  Auteur: H1m0t3p3
+  Date: 26 decembre 2024
+-->
+
+<div class="export-overlay" (click)="closeModal()">
+  <div class="export-modal" (click)="$event.stopPropagation()">
+
+    <!-- ========================================== -->
+    <!-- HEADER -->
+    <!-- ========================================== -->
+    <header class="modal-header">
+      <div class="header-title">
+        <span class="header-icon">📥</span>
+        <h2>Exporter en PDF</h2>
+      </div>
+      <button class="btn-close" (click)="closeModal()">x</button>
+    </header>
+
+    <!-- ========================================== -->
+    <!-- CONTENU -->
+    <!-- ========================================== -->
+    <div class="modal-body">
+
+      <!-- Pas de contenu -->
+      <div class="no-content" *ngIf="!hasContent()">
+        <span class="no-content-icon">📭</span>
+        <p>Aucun contenu a exporter</p>
+      </div>
+
+      <!-- Configuration -->
+      <div class="config-sections" *ngIf="hasContent()">
+
+        <!-- Section: Contenu a inclure -->
+        <section class="config-section">
+          <h3 class="section-title">Contenu a inclure</h3>
+
+          <div class="checkbox-grid">
+            <!-- Resume -->
+            <label class="checkbox-item" *ngIf="summary">
+              <input
+                type="checkbox"
+                [(ngModel)]="config.includeSummary"
+                (ngModelChange)="onConfigChange()">
+              <span class="checkbox-label">
+                <span class="checkbox-icon">📝</span>
+                Resume
+              </span>
+            </label>
+
+            <!-- Points cles -->
+            <label class="checkbox-item" *ngIf="summary?.keyPoints?.length">
+              <input
+                type="checkbox"
+                [(ngModel)]="config.includeKeyPoints"
+                (ngModelChange)="onConfigChange()">
+              <span class="checkbox-label">
+                <span class="checkbox-icon">🎯</span>
+                Points cles ({{ summary.keyPoints.length }})
+              </span>
+            </label>
+
+            <!-- Concepts -->
+            <label class="checkbox-item" *ngIf="summary?.mainConcepts?.length">
+              <input
+                type="checkbox"
+                [(ngModel)]="config.includeConcepts"
+                (ngModelChange)="onConfigChange()">
+              <span class="checkbox-label">
+                <span class="checkbox-icon">💡</span>
+                Concepts ({{ summary.mainConcepts.length }})
+              </span>
+            </label>
+
+            <!-- Exercices -->
+            <label class="checkbox-item" *ngIf="summary?.suggestedExercises?.length">
+              <input
+                type="checkbox"
+                [(ngModel)]="config.includeExercises"
+                (ngModelChange)="onConfigChange()">
+              <span class="checkbox-label">
+                <span class="checkbox-icon">✏️</span>
+                Exercices ({{ summary.suggestedExercises.length }})
+              </span>
+            </label>
+
+            <!-- Notes -->
+            <label class="checkbox-item" *ngIf="notes.length > 0">
+              <input
+                type="checkbox"
+                [(ngModel)]="config.includeNotes"
+                (ngModelChange)="onConfigChange()">
+              <span class="checkbox-label">
+                <span class="checkbox-icon">📒</span>
+                Notes ({{ notes.length }})
+              </span>
+            </label>
+          </div>
+        </section>
+
+        <!-- Section: Mise en page -->
+        <section class="config-section">
+          <h3 class="section-title">Mise en page</h3>
+
+          <!-- Titre -->
+          <div class="form-field">
+            <label class="field-label">Titre du document</label>
+            <input
+              type="text"
+              class="field-input"
+              [(ngModel)]="config.title"
+              (ngModelChange)="onConfigChange()"
+              placeholder="Titre du PDF...">
+          </div>
+
+          <!-- Options de mise en page -->
+          <div class="checkbox-row">
+            <label class="checkbox-item compact">
+              <input
+                type="checkbox"
+                [(ngModel)]="config.includeTableOfContents"
+                (ngModelChange)="onConfigChange()">
+              <span class="checkbox-label">Table des matieres</span>
+            </label>
+
+            <label class="checkbox-item compact">
+              <input
+                type="checkbox"
+                [(ngModel)]="config.includeDate"
+                (ngModelChange)="onConfigChange()">
+              <span class="checkbox-label">Date</span>
+            </label>
+
+            <label class="checkbox-item compact">
+              <input
+                type="checkbox"
+                [(ngModel)]="config.includePageNumbers"
+                (ngModelChange)="onConfigChange()">
+              <span class="checkbox-label">N° pages</span>
+            </label>
+
+            <label class="checkbox-item compact">
+              <input
+                type="checkbox"
+                [(ngModel)]="config.includeLogo"
+                (ngModelChange)="onConfigChange()">
+              <span class="checkbox-label">Logo</span>
+            </label>
+          </div>
+        </section>
+
+        <!-- Section: Style -->
+        <section class="config-section">
+          <h3 class="section-title">Style</h3>
+
+          <!-- Theme -->
+          <div class="form-field">
+            <label class="field-label">Theme</label>
+            <div class="theme-selector">
+              <button
+                *ngFor="let theme of themeOptions"
+                class="theme-btn"
+                [class.active]="config.theme === theme.value"
+                [style.--theme-color]="theme.color"
+                (click)="config.theme = theme.value; onConfigChange()">
+                <span class="theme-preview" [style.background]="theme.color"></span>
+                <span class="theme-label">{{ theme.label }}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Format et Orientation -->
+          <div class="form-row">
+            <div class="form-field">
+              <label class="field-label">Format</label>
+              <select
+                class="field-select"
+                [(ngModel)]="config.pageFormat"
+                (ngModelChange)="onConfigChange()">
+                <option
+                  *ngFor="let format of formatOptions"
+                  [value]="format.value">
+                  {{ format.label }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">Orientation</label>
+              <div class="orientation-selector">
+                <button
+                  *ngFor="let orient of orientationOptions"
+                  class="orient-btn"
+                  [class.active]="config.orientation === orient.value"
+                  (click)="config.orientation = orient.value; onConfigChange()">
+                  <span class="orient-icon">{{ orient.icon }}</span>
+                  <span class="orient-label">{{ orient.label }}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Taille police -->
+          <div class="form-field">
+            <label class="field-label">Taille de police</label>
+            <div class="font-size-selector">
+              <button
+                *ngFor="let size of fontSizeOptions"
+                class="font-btn"
+                [class.active]="config.baseFontSize === size"
+                (click)="config.baseFontSize = size; onConfigChange()">
+                {{ size }}
+              </button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- FOOTER -->
+    <!-- ========================================== -->
+    <footer class="modal-footer">
+      <div class="footer-info">
+        <span class="estimate">
+          ~{{ estimatedPages }} page{{ estimatedPages > 1 ? 's' : '' }}
+        </span>
+        <span class="separator">|</span>
+        <span class="estimate">{{ estimatedSize }}</span>
+        <span class="separator" *ngIf="getSelectedContentCount() > 0">|</span>
+        <span class="content-count" *ngIf="getSelectedContentCount() > 0">
+          {{ getSelectedContentCount() }} section{{ getSelectedContentCount() > 1 ? 's' : '' }}
+        </span>
+      </div>
+
+      <div class="footer-actions">
+        <!-- Erreur -->
+        <span class="error-message" *ngIf="exportError">
+          {{ exportError }}
+        </span>
+
+        <!-- Succes -->
+        <span class="success-message" *ngIf="exportSuccess">
+          PDF telecharge !
+        </span>
+
+        <button class="btn-cancel" (click)="closeModal()">
+          Annuler
+        </button>
+
+        <button
+          class="btn-export"
+          [disabled]="isExporting || !hasContent() || getSelectedContentCount() === 0"
+          (click)="exportPDF()">
+          <span *ngIf="!isExporting">📥 Exporter PDF</span>
+          <span *ngIf="isExporting">⏳ Export...</span>
+        </button>
+      </div>
+    </footer>
+
+  </div>
+</div>

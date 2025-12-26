@@ -153,10 +153,28 @@
             {{ resource.isFavorite ? '⭐' : '☆' }}
           </button>
           <button
+            class="action-btn summary-btn"
+            (click)="openSummaryModal(resource, $event)"
+            title="Générer un résumé IA">
+            🤖
+          </button>
+          <button
+            class="action-btn extract-btn"
+            (click)="openExerciseExtractorModal(resource, $event)"
+            title="Extraire les exercices">
+            📝
+          </button>
+          <button
             class="action-btn download-btn"
             (click)="downloadResource(resource, $event)"
             title="Télécharger">
             📥
+          </button>
+          <button
+            class="action-btn delete-btn"
+            (click)="deleteResource(resource, $event)"
+            title="Supprimer">
+            🗑️
           </button>
         </div>
 
@@ -175,83 +193,91 @@
   <!-- SECTION LIENS UTILES -->
   <!-- ========================================== -->
   <section class="useful-links">
-    <h2>🔗 Liens utiles</h2>
+    <div class="links-header">
+      <h2>🔗 Liens utiles</h2>
+      <button class="add-link-btn" (click)="openAddLinkModal()">
+        <span>+</span> Ajouter un lien
+      </button>
+    </div>
+
     <div class="links-grid">
-
-      <a href="https://www.w3schools.com/java/" target="_blank" class="link-card">
-        <span class="link-icon">☕</span>
+      <!-- Liens dynamiques -->
+      <div
+        *ngFor="let link of usefulLinks"
+        class="link-card"
+        (click)="openLink(link)">
+        <span class="link-icon">{{ link.icon }}</span>
         <div class="link-info">
-          <h3>W3Schools Java</h3>
-          <p>Tutoriels et exemples Java</p>
+          <h3>{{ link.title }}</h3>
+          <p>{{ link.description }}</p>
         </div>
+        <button
+          class="delete-link-btn"
+          (click)="deleteLink(link, $event)"
+          title="Supprimer">
+          🗑️
+        </button>
         <span class="link-arrow">→</span>
-      </a>
+      </div>
 
-      <a href="https://visualgo.net/" target="_blank" class="link-card">
-        <span class="link-icon">🎨</span>
-        <div class="link-info">
-          <h3>VisuAlgo</h3>
-          <p>Visualisation d'algorithmes</p>
-        </div>
-        <span class="link-arrow">→</span>
-      </a>
-
-      <a href="https://cs50.harvard.edu/x/2024/" target="_blank" class="link-card">
-        <span class="link-icon">🎓</span>
-        <div class="link-info">
-          <h3>CS50 Harvard</h3>
-          <p>Le cours de David J. Malan</p>
-        </div>
-        <span class="link-arrow">→</span>
-      </a>
-
-      <a href="https://tmc.mooc.fi/org/mooc" target="_blank" class="link-card">
-        <span class="link-icon">🇫🇮</span>
-        <div class="link-info">
-          <h3>TMC MOOC.fi</h3>
-          <p>Cours Java interactif - Université d'Helsinki</p>
-        </div>
-        <span class="link-arrow">→</span>
-      </a>
-
-      <a href="https://www.geeksforgeeks.org/java/" target="_blank" class="link-card">
-        <span class="link-icon">👨‍💻</span>
-        <div class="link-info">
-          <h3>GeeksforGeeks Java</h3>
-          <p>Tutoriel Java complet avec exemples</p>
-        </div>
-        <span class="link-arrow">→</span>
-      </a>
-
-      <a href="https://www.ukonline.be/cours/java/apprendre-java" target="_blank" class="link-card">
-        <span class="link-icon">🇧🇪</span>
-        <div class="link-info">
-          <h3>UKonline - Java</h3>
-          <p>Cours Java en français</p>
-        </div>
-        <span class="link-arrow">→</span>
-      </a>
-
-      <a href="https://www.baeldung.com/get-started-with-java-series" target="_blank" class="link-card">
-        <span class="link-icon">📖</span>
-        <div class="link-info">
-          <h3>Baeldung Java</h3>
-          <p>Série d'articles pour débuter en Java</p>
-        </div>
-        <span class="link-arrow">→</span>
-      </a>
-
-      <a href="https://www.maxicours.com/se/cours/algebre-de-boole/" target="_blank" class="link-card">
-        <span class="link-icon">🧮</span>
-        <div class="link-info">
-          <h3>Maxicours - Algèbre de Boole</h3>
-          <p>Cours complet en français</p>
-        </div>
-        <span class="link-arrow">→</span>
-      </a>
-
+      <!-- Message si aucun lien -->
+      <div *ngIf="usefulLinks.length === 0" class="no-links">
+        <p>Aucun lien. Cliquez sur "Ajouter un lien" pour en créer.</p>
+      </div>
     </div>
   </section>
+
+  <!-- ========================================== -->
+  <!-- MODAL AJOUT LIEN -->
+  <!-- ========================================== -->
+  <div class="link-modal-overlay" *ngIf="showAddLinkModal" (click)="closeAddLinkModal()">
+    <div class="link-modal" (click)="$event.stopPropagation()">
+      <div class="link-modal-header">
+        <h3>🔗 Ajouter un lien</h3>
+        <button class="close-btn" (click)="closeAddLinkModal()">✕</button>
+      </div>
+
+      <div class="link-modal-body">
+        <div class="form-group">
+          <label>Titre *</label>
+          <input
+            type="text"
+            [(ngModel)]="newLink.title"
+            placeholder="Ex: Documentation Angular">
+        </div>
+
+        <div class="form-group">
+          <label>URL *</label>
+          <input
+            type="url"
+            [(ngModel)]="newLink.url"
+            placeholder="https://exemple.com">
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <input
+            type="text"
+            [(ngModel)]="newLink.description"
+            placeholder="Courte description du lien">
+        </div>
+
+        <div class="form-group">
+          <label>Icône (emoji)</label>
+          <input
+            type="text"
+            [(ngModel)]="newLink.icon"
+            placeholder="🔗"
+            maxlength="2">
+        </div>
+      </div>
+
+      <div class="link-modal-footer">
+        <button class="btn-cancel" (click)="closeAddLinkModal()">Annuler</button>
+        <button class="btn-save" (click)="saveNewLink()">Ajouter</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ========================================== -->
   <!-- MODAL UPLOAD PDF -->
@@ -261,6 +287,31 @@
     (close)="closeUploadModal()"
     (uploaded)="onPdfUploaded($event)">
   </app-pdf-upload-modal>
+
+  <!-- ========================================== -->
+  <!-- MODAL RESUME PDF (IA) -->
+  <!-- ========================================== -->
+  <app-pdf-summary-modal
+    *ngIf="showSummaryModal && resourceForSummary"
+    [resource]="resourceForSummary"
+    (close)="closeSummaryModal()"
+    (summarySaved)="onSummarySaved($event)">
+  </app-pdf-summary-modal>
+
+  <!-- ========================================== -->
+  <!-- MODAL EXTRACTION D'EXERCICES -->
+  <!-- ========================================== -->
+  <app-exercise-extractor-modal
+    *ngIf="showExerciseExtractorModal && resourceForExercises"
+    [resource]="{
+      id: resourceForExercises.id,
+      title: resourceForExercises.title,
+      path: resourceForExercises.path,
+      category: resourceForExercises.category
+    }"
+    (close)="closeExerciseExtractorModal()"
+    (exercisesSaved)="onExercisesSaved($event)">
+  </app-exercise-extractor-modal>
 
 </div>
 

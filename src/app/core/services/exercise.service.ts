@@ -630,6 +630,59 @@ export class ExerciseService {
   }
 
   /**
+   * AJOUTER UN EXERCICE DEPUIS UN PDF
+   * --------------------------------
+   * Ajoute un exercice extrait automatiquement d'un PDF.
+   *
+   * @param exerciseData - Données de l'exercice extrait
+   * @returns Observable de l'exercice ajouté
+   */
+  addPDFExercise(exerciseData: {
+    title: string;
+    description: string;
+    type: ExerciseType;
+    difficulty: ExerciseDifficulty;
+    pdfTitle: string;
+    pdfId?: string;
+  }): Observable<Exercise> {
+    const exercises = this.exercisesSubject.value;
+    const now = new Date();
+
+    // Crée l'exercice
+    const newExercise: Exercise = {
+      id: `pdf-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+      type: exerciseData.type,
+      title: exerciseData.title,
+      description: exerciseData.description,
+      difficulty: exerciseData.difficulty,
+      document: exerciseData.pdfTitle,
+      pageNumber: 1,
+      status: 'todo',
+      timeSpent: 0,
+      attempts: 0,
+      attemptHistory: [],
+      notes: `Extrait du PDF: ${exerciseData.pdfTitle}`,
+      tags: ['pdf-extrait', exerciseData.type],
+      createdAt: now,
+      updatedAt: now
+    };
+
+    // Ajoute l'exercice à la liste
+    const updatedExercises = [...exercises, newExercise];
+
+    // Sauvegarde et met à jour
+    this.exercisesSubject.next(updatedExercises);
+
+    return this.saveExercises(updatedExercises).pipe(
+      tap(() => {
+        console.log(`✅ Exercice PDF ajouté: ${newExercise.title}`);
+        this.updateReviewQueue();
+      }),
+      map(() => newExercise)
+    );
+  }
+
+  /**
    * COMPTER LES EXERCICES EXTERNES
    * -----------------------------
    * Retourne le nombre d'exercices externes complétés.

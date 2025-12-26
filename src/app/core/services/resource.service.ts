@@ -104,7 +104,10 @@ export class ResourceService {
   /** Observable public */
   resources$ = this.resourcesSubject.asObservable();
 
-  /** Chemin vers le fichier JSON */
+  /** URL du serveur Express pour les ressources */
+  private readonly API_URL = 'http://localhost:3001';
+
+  /** Chemin vers le fichier JSON (fallback si serveur non disponible) */
   private readonly RESOURCES_PATH = 'assets/data/resources.json';
 
   /** Chemin vers le dossier des PDFs */
@@ -124,38 +127,46 @@ export class ResourceService {
   // ============================================================
 
   /**
-   * Charge toutes les ressources depuis le fichier JSON
+   * Charge toutes les ressources depuis le serveur Express (ou fallback sur fichier statique)
    */
   loadResources(): Observable<ResourcesData> {
-    // Si déjà en cache, retourne le cache
-    if (this.resourcesCache) {
-      return of(this.resourcesCache);
-    }
-
-    return this.http.get<ResourcesData>(this.RESOURCES_PATH).pipe(
+    // Toujours charger depuis le serveur pour avoir les données fraîches
+    return this.http.get<ResourcesData>(`${this.API_URL}/api/resources`).pipe(
       tap(data => {
-        console.log('📚 Ressources chargées:', data);
+        console.log('📚 Ressources chargées depuis le serveur:', data);
         this.resourcesCache = data;
         this.resourcesSubject.next(data);
       }),
       catchError(error => {
-        console.error('❌ Erreur chargement ressources:', error);
-        // Retourne des données vides en cas d'erreur
-        const emptyData: ResourcesData = {
-          pdfs: [],
-          links: [],
-          videos: [],
-          tools: []
-        };
-        return of(emptyData);
+        console.warn('⚠️ Serveur non disponible, fallback sur fichier statique');
+        // Fallback: charge depuis le fichier statique
+        return this.http.get<ResourcesData>(this.RESOURCES_PATH).pipe(
+          tap(data => {
+            console.log('📚 Ressources chargées depuis fichier statique:', data);
+            this.resourcesCache = data;
+            this.resourcesSubject.next(data);
+          }),
+          catchError(fallbackError => {
+            console.error('❌ Erreur chargement ressources:', fallbackError);
+            const emptyData: ResourcesData = {
+              pdfs: [],
+              links: [],
+              videos: [],
+              tools: []
+            };
+            return of(emptyData);
+          })
+        );
       })
     );
   }
 
   /**
-   * Obtient tous les PDFs
+   * Obtient tous les PDFs (toujours frais)
    */
   getPDFs(): Observable<PDFResource[]> {
+    // Invalide le cache pour forcer le rechargement
+    this.resourcesCache = null;
     return this.loadResources().pipe(
       map(data => data.pdfs || [])
     );
@@ -230,6 +241,81 @@ export class ResourceService {
     link.href = path;
     link.download = pdf.filename;
     link.click();
+  }
+
+  /**
+   * Supprime un PDF
+   * Appelle l'API du serveur Express pour supprimer le fichier
+   */
+  deletePDF(pdf: PDFResource): Observable<{ success: boolean; message?: string }> {
+    const API_URL = 'http://localhost:3001';
+
+    return this.http.delete<{ success: boolean; message?: string }>(
+      `${API_URL}/api/pdfs/${encodeURIComponent(pdf.filename)}`
+    ).pipe(
+      tap(response => {
+        if (response.success) {
+          console.log(`🗑️ PDF supprimé: ${pdf.filename}`);
+          // Invalide le cache pour forcer le rechargement
+          this.resourcesCache = null;
+          // Recharge les ressources
+          this.loadResources().subscribe();
+        }
+      }),
+      catchError(error => {
+        console.error('❌ Erreur suppression PDF:', error);
+        return of({ success: false, message: error.message || 'Erreur lors de la suppression' });
+      })
+    );
+  }
+
+  /**
+   * Force le rechargement des ressources (invalide le cache)
+   */
+  refreshResources(): Observable<ResourcesData> {
+    this.resourcesCache = null;
+    return this.loadResources();
+  }
+
+  /**
+   * Ajoute un nouveau lien
+   */
+  addLink(link: { title: string; url: string; description: string; icon: string }): Observable<{ success: boolean; message?: string }> {
+    return this.http.post<{ success: boolean; message?: string }>(
+      `${this.API_URL}/api/links`,
+      link
+    ).pipe(
+      tap(response => {
+        if (response.success) {
+          console.log(`🔗 Lien ajouté: ${link.title}`);
+          this.resourcesCache = null;
+        }
+      }),
+      catchError(error => {
+        console.error('❌ Erreur ajout lien:', error);
+        return of({ success: false, message: error.message || 'Erreur lors de l\'ajout' });
+      })
+    );
+  }
+
+  /**
+   * Supprime un lien
+   */
+  deleteLink(linkId: string): Observable<{ success: boolean; message?: string }> {
+    return this.http.delete<{ success: boolean; message?: string }>(
+      `${this.API_URL}/api/links/${linkId}`
+    ).pipe(
+      tap(response => {
+        if (response.success) {
+          console.log(`🗑️ Lien supprimé: ${linkId}`);
+          this.resourcesCache = null;
+        }
+      }),
+      catchError(error => {
+        console.error('❌ Erreur suppression lien:', error);
+        return of({ success: false, message: error.message || 'Erreur lors de la suppression' });
+      })
+    );
   }
 
   /**

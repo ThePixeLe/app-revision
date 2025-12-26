@@ -248,6 +248,23 @@ export class QuestsComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Abandonne une quête en cours
+   */
+  abandonQuest(quest: Quest): void {
+    if (quest.status === 'in-progress') {
+      if (confirm(`Abandonner la quête "${quest.title}" ? Ta progression sera conservée.`)) {
+        this.gamificationService.abandonQuest(quest.id).subscribe({
+          next: () => {
+            console.log('🚫 Quête abandonnée:', quest.title);
+            this.closeDetails();
+          },
+          error: (err) => console.error('Erreur abandon:', err)
+        });
+      }
+    }
+  }
+
   // ============================================================
   // HELPERS (pour le template)
   // ============================================================

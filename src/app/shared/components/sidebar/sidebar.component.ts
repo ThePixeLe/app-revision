@@ -101,7 +101,7 @@ interface NavItem {
 
       <!-- Footer -->
       <footer class="sidebar-footer">
-        <span class="version">App Révision v1.0</span>
+        <span class="version">Study Tracker Pro v{{ appVersion }}</span>
         <span class="author">By H1m0t3p3</span>
       </footer>
     </aside>
@@ -257,6 +257,11 @@ interface NavItem {
 export class SidebarComponent {
 
   /**
+   * Version de l'application
+   */
+  readonly appVersion = '1.1.1';
+
+  /**
    * La sidebar est-elle ouverte ? (mobile)
    */
   @Input() isOpen: boolean = false;
@@ -276,7 +281,8 @@ export class SidebarComponent {
     { path: '/revision', icon: '📚', label: 'Révision' },
     { path: '/pomodoro', icon: '🍅', label: 'Pomodoro' },
     { path: '/quests', icon: '🎯', label: 'Quêtes' },
-    { path: '/resources', icon: '📄', label: 'Ressources' }
+    { path: '/resources', icon: '📄', label: 'Ressources' },
+    { path: '/notes', icon: '📝', label: 'Notes' }
   ];
 
   /**

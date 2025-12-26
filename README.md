@@ -6,6 +6,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.0-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/Version-1.1.1-blue.svg)](CHANGELOG.md)
 
 ---
 
@@ -33,6 +34,7 @@ Le programme couvre :
 - **Dashboard interactif** avec statistiques en temps réel
 - **Système XP et niveaux** pour gamifier l'apprentissage
 - **Badges et quêtes** à débloquer au fur et à mesure
+- **Gestion des quêtes** - Commencer, abandonner ou réclamer les récompenses
 - **Streak counter** pour maintenir la motivation
 
 ### 📅 Planning intelligent et flexible
@@ -79,10 +81,46 @@ Le programme couvre :
 
 - **Tous les PDFs** organisés par catégorie (Algo, Java, POO, BDD)
 - **Upload de PDFs** - Bouton "Ajouter un PDF" avec drag & drop
+- **Suppression de PDFs** - Bouton poubelle avec confirmation
 - **Détection automatique** de la catégorie selon le nom du fichier
 - **Scan automatique** - Les PDFs dans `assets/docs/` sont détectés automatiquement
 - **Marque-pages** personnalisés (favoris)
 - **6 catégories** : Algèbre, Algo, Java, POO, BDD, Général
+- **Résumé IA** - Génère des résumés intelligents de chaque PDF avec Ollama
+
+### 🤖 Résumé PDF avec IA
+
+- **Extraction de texte** automatique depuis les PDFs (pdf.js)
+- **Génération de résumés** avec Ollama (IA locale)
+- **3 longueurs** : Court (3-5 points), Moyen (5-8 points), Complet (8-12 points)
+- **Points clés** avec indicateurs d'importance (haute, moyenne, basse)
+- **Concepts principaux** avec descriptions détaillées
+- **Exercices suggérés** générés automatiquement
+- **Sauvegarde** des résumés dans IndexedDB pour accès hors-ligne
+
+### 📝 Système de Notes
+
+- **Éditeur Markdown** avec preview en temps réel
+- **3 types de notes** : Personnelles, Résumés IA, Flashcards
+- **Organisation** par catégorie (Algo, Java, POO, BDD...)
+- **Tags personnalisés** pour un filtrage précis
+- **Favoris et épinglage** pour accès rapide
+- **Recherche full-text** dans titres et contenus
+- **Auto-save** avec debounce (2 secondes)
+- **Export PDF** professionnel avec jsPDF
+
+### 📄 Export PDF
+
+- **Modal de configuration** - Interface intuitive pour personnaliser l'export
+- **4 thèmes** : Clair, Sombre, Professionnel, Minimaliste
+- **Sélection du contenu** - Choisir quelles sections inclure
+- **Page de titre** automatique avec date et logo
+- **Table des matières** générée automatiquement
+- **Sections formatées** : Résumé, Points clés, Concepts, Exercices
+- **Indicateurs colorés** par niveau d'importance
+- **Numérotation des pages** (X / Y)
+- **Formats supportés** : A4, Letter, A5 (portrait/paysage)
+- **Estimation** - Affiche le nombre de pages et la taille estimée
 
 ### 🤖 Chatbot IA intégré
 
@@ -98,6 +136,16 @@ Le programme couvre :
 - **4 niveaux de difficulté** : Facile, Moyen, Difficile, Expert
 - **5 formats** : QCM, Complétion de code, Debugging, Pseudo-code, Implémentation
 - **Options** : Inclure solution, inclure indices
+- **Sauvegarde** directe dans la liste d'exercices avec XP
+
+### 📝 Extracteur d'exercices depuis PDF
+
+- **Analyse automatique** du contenu des PDFs de cours
+- **Extraction intelligente** via IA (Ollama) des concepts clés
+- **Génération contextuelle** d'exercices basés sur le contenu du PDF
+- **Personnalisation** : nombre d'exercices, difficulté, types
+- **Options** : solutions incluses, indices pour guider l'étudiant
+- **Catégorisation auto** selon la matière du PDF source
 - **Sauvegarde** directe dans la liste d'exercices avec XP
 
 ### 🌐 Exercices externes
@@ -219,6 +267,62 @@ npm install
    - Catégorisé selon son nom (Algo, Java, POO, etc.)
 7. Le PDF apparaît immédiatement dans la bibliothèque !
 
+### Extraire des exercices depuis un PDF
+
+Cette fonctionnalité permet d'analyser un PDF de cours et d'en extraire automatiquement des exercices pratiques grâce à l'IA (Ollama).
+
+**Prérequis :**
+- Ollama doit être installé et lancé (`ollama serve`)
+- Un modèle doit être disponible (llama3.2, deepseek-v3, qwen3-coder...)
+
+**Étapes :**
+
+1. Allez sur la page **Ressources**
+2. Repérez le PDF dont vous voulez extraire les exercices
+3. Cliquez sur le bouton **📝** (Extraire les exercices) sur la carte du PDF
+4. Le modal d'extraction s'ouvre avec plusieurs options :
+
+   | Option | Description |
+   |--------|-------------|
+   | **Nombre d'exercices** | Combien d'exercices générer (1-10) |
+   | **Difficulté** | Facile, Moyen, Difficile ou Expert |
+   | **Types d'exercices** | QCM, Code, Pseudo-code, Analyse... |
+   | **Inclure solutions** | Ajoute les corrections aux exercices |
+   | **Inclure indices** | Ajoute des hints pour guider l'étudiant |
+
+5. Cliquez sur **"Extraire les exercices"**
+6. L'IA analyse le contenu du PDF :
+   - **Extraction** du texte (pdf.js)
+   - **Analyse** des concepts clés
+   - **Génération** d'exercices adaptés au contenu
+7. Prévisualisez les exercices générés
+8. Cliquez sur **"Sauvegarder"** pour les ajouter à votre liste d'exercices
+
+**Exemple concret :**
+
+```
+PDF : "Algo 03 - Les boucles.pdf"
+       ↓
+[Extraction du texte]
+       ↓
+[Analyse IA : boucles for, while, do-while, conditions d'arrêt]
+       ↓
+[Génération de 5 exercices]
+       ↓
+Exercices créés :
+  1. QCM sur les différences entre for et while
+  2. Compléter une boucle for qui calcule une somme
+  3. Débugger une boucle infinie
+  4. Écrire un algorithme de recherche avec while
+  5. Convertir un for en while équivalent
+```
+
+**Conseils :**
+- Les exercices sont automatiquement catégorisés selon le PDF source
+- Chaque exercice généré rapporte des **XP** une fois complété
+- Vous pouvez régénérer si les exercices ne conviennent pas
+- Les exercices sont sauvegardés dans IndexedDB (persistent)
+
 ---
 
 ## 🎮 Lancer l'application
@@ -273,8 +377,18 @@ app-revision/
 ├── src/
 │   ├── app/
 │   │   ├── core/              # Services, modèles, guards
-│   │   │   ├── services/      # 8 services principaux
-│   │   │   ├── models/        # 7 interfaces TypeScript
+│   │   │   ├── services/      # 15+ services principaux
+│   │   │   │   ├── pdf-extraction.service.ts     # Extraction texte PDF
+│   │   │   │   ├── pdf-summarization.service.ts  # Résumés IA (Ollama)
+│   │   │   │   ├── pdf-export.service.ts         # Export PDF (jsPDF)
+│   │   │   │   ├── notes.service.ts              # CRUD notes
+│   │   │   │   ├── summary-storage.service.ts    # Stockage résumés
+│   │   │   │   └── ...                           # Autres services
+│   │   │   ├── models/        # 10+ interfaces TypeScript
+│   │   │   │   ├── pdf-summary.model.ts          # Modèles résumés
+│   │   │   │   ├── note.model.ts                 # Modèles notes
+│   │   │   │   ├── pdf-export.model.ts           # Config export
+│   │   │   │   └── ...                           # Autres modèles
 │   │   │   ├── guards/        # Route guards
 │   │   │   └── interceptors/  # HTTP interceptors
 │   │   │
@@ -286,11 +400,17 @@ app-revision/
 │   │   │   ├── revision/      # Flashcards & Quiz
 │   │   │   ├── pomodoro/      # Timer Pomodoro
 │   │   │   ├── profile/       # Profil & Stats
-│   │   │   ├── resources/     # Bibliothèque PDF
+│   │   │   ├── resources/     # Bibliothèque PDF + Résumés IA
+│   │   │   ├── notes/         # Gestionnaire de notes (NEW)
 │   │   │   └── settings/      # Paramètres (planning flexible)
 │   │   │
 │   │   └── shared/            # Composants réutilisables
 │   │       ├── components/
+│   │       │   ├── pdf-summary-modal/    # Modal résumé IA
+│   │       │   ├── pdf-export-modal/     # Modal export PDF
+│   │       │   ├── markdown-editor/      # Éditeur Markdown
+│   │       │   ├── chatbot/              # Assistant IA flottant
+│   │       │   └── ...                   # Autres composants
 │   │       ├── pipes/
 │   │       └── directives/
 │   │
@@ -322,6 +442,9 @@ app-revision/
 | **LocalForage** | 1.10+ | Stockage local avancé |
 | **date-fns** | 3.0+ | Manipulation de dates |
 | **Lucide Angular** | Latest | Icônes modernes |
+| **pdfjs-dist** | 5.4+ | Extraction texte PDF |
+| **jsPDF** | 2.5+ | Génération de PDF |
+| **Ollama** | - | IA locale (résumés, exercices) |
 
 ---
 
@@ -343,6 +466,11 @@ app-revision/
 | **ExerciseGeneratorService** | Générateur d'exercices IA avec Ollama |
 | **ResourceService** | Chargement dynamique des PDFs |
 | **ThemeService** | Gestion du thème Light/Dark avec persistance |
+| **PDFExtractionService** | Extraction de texte depuis les PDFs (pdf.js) |
+| **PDFSummarizationService** | Génération de résumés IA (Ollama) |
+| **PDFExportService** | Export en PDF professionnel (jsPDF) |
+| **NotesService** | CRUD notes avec recherche et filtres |
+| **SummaryStorageService** | Persistance des résumés (IndexedDB) |
 
 ### Serveur Express (server.js)
 
@@ -364,6 +492,10 @@ Un mini serveur Node.js pour l'upload de PDFs :
 - **Progress** : Progression globale de l'utilisateur
 - **Badge** : Un badge débloqué
 - **Quest** : Une quête à accomplir
+- **PDFSummary** : Résumé généré par IA (points clés, concepts, exercices)
+- **Note** : Note personnelle avec support Markdown
+- **Flashcard** : Carte question/réponse pour révision
+- **PDFExportConfig** : Configuration d'export PDF (thème, sections, format)
 
 ---
 
@@ -531,7 +663,7 @@ Ce projet est sous licence **MIT**. Voir le fichier [LICENSE](LICENSE) pour plus
 
 ## 🎯 Roadmap
 
-### Version actuelle : 1.0.6
+### Version actuelle : 1.1.1
 
 - ✅ Dashboard interactif avec graphiques (Chart.js)
 - ✅ Planning avec calendrier (FullCalendar)
@@ -550,8 +682,18 @@ Ce projet est sous licence **MIT**. Voir le fichier [LICENSE](LICENSE) pour plus
 - ✅ **Générateur d'exercices IA** - Crée des exercices personnalisés avec Ollama
 - ✅ **Upload de PDFs** - Ajoute des PDFs via l'interface avec drag & drop
 - ✅ **Mode Light/Dark** - Bascule entre thème clair et sombre dans les paramètres
+- ✅ **Résumé PDF avec IA** - Génère des résumés intelligents depuis les PDFs
+- ✅ **Système de Notes** - Éditeur Markdown avec preview et tags
+- ✅ **Export PDF** - Génère des PDFs professionnels (4 thèmes)
+- ✅ **Page Notes** - Gestion centralisée de toutes les notes
+- ✅ **Modal Export PDF** - Interface de configuration pour l'export (thème, sections, format)
+- ✅ **Abandon de quêtes** - Possibilité d'abandonner une quête en cours
+- ✅ **Chatbot toujours visible** - Bouton flottant avec z-index optimisé
+- ✅ **Suppression de PDFs** - Bouton poubelle avec confirmation pour supprimer des ressources
+- ✅ **Extracteur d'exercices PDF** - Génère des exercices depuis le contenu des PDFs avec l'IA
+- ✅ **Gestion des liens utiles** - Ajout et suppression de liens dans la section Ressources
 
-### Version 1.1.0 (à venir)
+### Version 1.2.0 (à venir)
 
 - [ ] Mode collaboratif (partage de progression)
 - [ ] Export du code vers GitHub automatique
@@ -577,10 +719,11 @@ Ce projet est sous licence **MIT**. Voir le fichier [LICENSE](LICENSE) pour plus
 
 Besoin d'aide ? Plusieurs options :
 
-1. 📖 Consultez la [Documentation complète](docs/)
-2. 🐛 Ouvrez une [Issue](https://github.com/VOTRE_USERNAME/app-revision/issues)
-3. 💬 Rejoignez les [Discussions](https://github.com/VOTRE_USERNAME/app-revision/discussions)
-4. 📧 Contactez-moi par email
+1. 📖 Consultez le [Changelog](CHANGELOG.md) pour l'historique des versions
+2. 📚 Lisez ce README pour la documentation complète
+3. 🐛 Ouvrez une [Issue](https://github.com/VOTRE_USERNAME/app-revision/issues)
+4. 💬 Rejoignez les [Discussions](https://github.com/VOTRE_USERNAME/app-revision/discussions)
+5. 📧 Contactez-moi par email
 
 ---
 

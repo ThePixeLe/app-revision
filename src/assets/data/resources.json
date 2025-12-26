@@ -2,17 +2,7 @@
   "_comment": "Ressources et liens utiles - App Revision",
   "_author": "H1m0t3p3",
   "_date": "24 décembre 2024",
-
   "pdfs": [
-    {
-      "id": "pdf-algo-intro",
-      "title": "Introduction aux Algorithmes",
-      "filename": "Algo 03 - Algorithmes Introduction - 1.0.1 MD.pdf",
-      "category": "algo",
-      "description": "Cours complet sur les bases de l'algorithmique, les variables, les entrées/sorties.",
-      "pages": 25,
-      "tags": ["introduction", "bases", "variables"]
-    },
     {
       "id": "pdf-algo-simple",
       "title": "Algorithmes Simples - AFPA",
@@ -20,16 +10,10 @@
       "category": "algo",
       "description": "Exemples d'algorithmes simples avec explications détaillées.",
       "pages": 15,
-      "tags": ["exemples", "pratique"]
-    },
-    {
-      "id": "pdf-conditions",
-      "title": "Exercices - Les Conditions",
-      "filename": "exercice_algo_lesConditions_Mad_V1.0.0 1.pdf",
-      "category": "algo",
-      "description": "9 exercices progressifs sur les structures conditionnelles.",
-      "pages": 5,
-      "tags": ["exercices", "conditions", "si-alors-sinon"]
+      "tags": [
+        "exemples",
+        "pratique"
+      ]
     },
     {
       "id": "pdf-boucles",
@@ -38,7 +22,25 @@
       "category": "algo",
       "description": "9 exercices progressifs sur les boucles (pour, tant que).",
       "pages": 6,
-      "tags": ["exercices", "boucles", "for", "while"]
+      "tags": [
+        "exercices",
+        "boucles",
+        "for",
+        "while"
+      ]
+    },
+    {
+      "id": "pdf-conditions",
+      "title": "Exercices - Les Conditions",
+      "filename": "exercice_algo_lesConditions_Mad_V1.0.0 1.pdf",
+      "category": "algo",
+      "description": "9 exercices progressifs sur les structures conditionnelles.",
+      "pages": 5,
+      "tags": [
+        "exercices",
+        "conditions",
+        "si-alors-sinon"
+      ]
     },
     {
       "id": "pdf-tableaux",
@@ -47,7 +49,24 @@
       "category": "algo",
       "description": "9 exercices sur la manipulation des tableaux.",
       "pages": 5,
-      "tags": ["exercices", "tableaux", "arrays"]
+      "tags": [
+        "exercices",
+        "tableaux",
+        "arrays"
+      ]
+    },
+    {
+      "id": "pdf-algo-intro",
+      "title": "Introduction aux Algorithmes",
+      "filename": "Algo 03 - Algorithmes Introduction - 1.0.1 MD.pdf",
+      "category": "algo",
+      "description": "Cours complet sur les bases de l'algorithmique, les variables, les entrées/sorties.",
+      "pages": 25,
+      "tags": [
+        "introduction",
+        "bases",
+        "variables"
+      ]
     },
     {
       "id": "pdf-java-bases",
@@ -56,34 +75,11 @@
       "category": "java",
       "description": "Introduction à Java : JDK, JRE, JVM, premier programme.",
       "pages": 20,
-      "tags": ["java", "introduction", "hello-world"]
-    },
-    {
-      "id": "pdf-java-syntaxe",
-      "title": "Syntaxe Java",
-      "filename": "Java 02 - Base Syntaxe - MD v1.0.0.pdf",
-      "category": "java",
-      "description": "Types, variables, opérateurs en Java.",
-      "pages": 25,
-      "tags": ["java", "syntaxe", "types", "variables"]
-    },
-    {
-      "id": "pdf-java-scanner",
-      "title": "Scanner Java",
-      "filename": "Java 03 - Scanner - MD v1.0.0.pdf",
-      "category": "java",
-      "description": "Utilisation de Scanner pour les entrées utilisateur.",
-      "pages": 10,
-      "tags": ["java", "scanner", "entrées"]
-    },
-    {
-      "id": "pdf-java-tableaux",
-      "title": "Tableaux en Java",
-      "filename": "Java 10 - Programmation_Java_Tableaux.pdf",
-      "category": "java",
-      "description": "Cours complet sur les tableaux en Java.",
-      "pages": 30,
-      "tags": ["java", "tableaux", "arrays"]
+      "tags": [
+        "java",
+        "introduction",
+        "hello-world"
+      ]
     },
     {
       "id": "pdf-java-tableaux-ex",
@@ -92,10 +88,60 @@
       "category": "java",
       "description": "Exercices pratiques sur les tableaux Java.",
       "pages": 8,
-      "tags": ["java", "exercices", "tableaux"]
+      "tags": [
+        "java",
+        "exercices",
+        "tableaux"
+      ]
+    },
+    {
+      "id": "pdf-java-scanner",
+      "title": "Scanner Java",
+      "filename": "Java 03 - Scanner - MD v1.0.0.pdf",
+      "category": "java",
+      "description": "Utilisation de Scanner pour les entrées utilisateur.",
+      "pages": 10,
+      "tags": [
+        "java",
+        "scanner",
+        "entrées"
+      ]
+    },
+    {
+      "id": "pdf-java-syntaxe",
+      "title": "Syntaxe Java",
+      "filename": "Java 02 - Base Syntaxe - MD v1.0.0.pdf",
+      "category": "java",
+      "description": "Types, variables, opérateurs en Java.",
+      "pages": 25,
+      "tags": [
+        "java",
+        "syntaxe",
+        "types",
+        "variables"
+      ]
+    },
+    {
+      "id": "pdf-java-tableaux",
+      "title": "Tableaux en Java",
+      "filename": "Java 10 - Programmation_Java_Tableaux.pdf",
+      "category": "java",
+      "description": "Cours complet sur les tableaux en Java.",
+      "pages": 30,
+      "tags": [
+        "java",
+        "tableaux",
+        "arrays"
+      ]
+    },
+    {
+      "id": "pdf-1766754944353",
+      "title": "algebre de boole",
+      "description": "Document ajouté le 26/12/2025",
+      "category": "algebre",
+      "filename": "algebre de boole.pdf"
     }
   ],
-
   "links": [
     {
       "id": "link-1",
@@ -188,7 +234,6 @@
       "recommended": false
     }
   ],
-
   "videos": [
     {
       "id": "video-1",
@@ -218,7 +263,6 @@
       "language": "fr"
     }
   ],
-
   "tools": [
     {
       "id": "tool-1",

@@ -1,0 +1,220 @@
+<!--
+  pdf-summary-modal.component.html
+
+  Modal pour generer des resumes de PDF avec l'IA.
+
+  Etats :
+  - pending : Configuration
+  - extracting : Extraction du texte
+  - summarizing : Generation IA
+  - completed : Apercu du resume
+  - error : Affichage erreur
+-->
+
+<div class="modal-overlay" (click)="closeModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <header class="modal-header">
+      <div class="header-content">
+        <h2 class="modal-title">Resume IA</h2>
+        <p class="modal-subtitle">{{ resource.title }}</p>
+      </div>
+      <button class="btn-close" (click)="closeModal()" aria-label="Fermer">
+        <span class="close-icon">x</span>
+      </button>
+    </header>
+
+    <!-- Warning Ollama indisponible -->
+    <div class="ollama-warning" *ngIf="!isOllamaAvailable && status === 'pending'">
+      <span class="warning-icon">!</span>
+      <div class="warning-content">
+        <strong>Ollama non disponible</strong>
+        <p>Lancez <code>ollama serve</code> dans le terminal pour activer l'IA.</p>
+      </div>
+    </div>
+
+    <!-- Resume existant -->
+    <div class="existing-summary" *ngIf="existingSummary && status === 'pending'">
+      <span class="info-icon">i</span>
+      <div class="info-content">
+        <strong>Resume existant trouve</strong>
+        <p>Genere le {{ existingSummary.summarizedAt | date:'dd/MM/yyyy HH:mm' }}</p>
+      </div>
+      <button class="btn-use-existing" (click)="useExistingSummary()">
+        Utiliser
+      </button>
+    </div>
+
+    <!-- Contenu principal -->
+    <div class="modal-body">
+
+      <!-- ========== CONFIGURATION (status === pending) ========== -->
+      <div class="config-section" *ngIf="status === 'pending'">
+
+        <!-- Longueur du resume -->
+        <div class="form-group">
+          <label class="form-label">Longueur du resume</label>
+          <div class="length-options">
+            <button
+              *ngFor="let option of lengthOptions"
+              class="length-option"
+              [class.selected]="selectedLength === option.value"
+              (click)="selectedLength = option.value">
+              <span class="option-emoji">{{ option.emoji }}</span>
+              <span class="option-label">{{ option.label }}</span>
+              <span class="option-points">{{ option.pointCount }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Options -->
+        <div class="form-group">
+          <label class="form-label">Options</label>
+          <div class="options-grid">
+            <label class="checkbox-option">
+              <input type="checkbox" [(ngModel)]="includeConcepts">
+              <span class="checkbox-label">Inclure les concepts principaux</span>
+            </label>
+            <label class="checkbox-option">
+              <input type="checkbox" [(ngModel)]="includeExercises">
+              <span class="checkbox-label">Suggerer des exercices</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Bouton Generer -->
+        <div class="action-buttons">
+          <button
+            class="btn-generate"
+            [disabled]="!isOllamaAvailable"
+            (click)="generateSummary()">
+            <span class="btn-icon">*</span>
+            Generer le resume
+          </button>
+        </div>
+      </div>
+
+      <!-- ========== EXTRACTION EN COURS ========== -->
+      <div class="loading-section" *ngIf="status === 'extracting'">
+        <div class="loading-animation">
+          <div class="loading-spinner"></div>
+        </div>
+        <h3 class="loading-title">Extraction du texte...</h3>
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="extractionProgress"></div>
+        </div>
+        <p class="loading-hint">Lecture du PDF {{ resource.title }}</p>
+      </div>
+
+      <!-- ========== RESUME EN COURS ========== -->
+      <div class="loading-section" *ngIf="status === 'summarizing'">
+        <div class="loading-animation">
+          <div class="loading-spinner ai"></div>
+        </div>
+        <h3 class="loading-title">L'IA resume...</h3>
+        <p class="loading-hint">Generation du resume avec Ollama</p>
+      </div>
+
+      <!-- ========== ERREUR ========== -->
+      <div class="error-section" *ngIf="status === 'error'">
+        <span class="error-icon">!</span>
+        <h3 class="error-title">Erreur</h3>
+        <p class="error-message">{{ errorMessage }}</p>
+        <button class="btn-retry" (click)="regenerate()">
+          Reessayer
+        </button>
+      </div>
+
+      <!-- ========== APERCU DU RESUME ========== -->
+      <div class="preview-section" *ngIf="status === 'completed' && summary">
+
+        <!-- Stats -->
+        <div class="summary-stats">
+          <span class="stat-item">
+            <span class="stat-icon">*</span>
+            {{ formatTime(generationTime) }}
+          </span>
+          <span class="stat-item">
+            <span class="stat-icon">#</span>
+            {{ summary.pageCount }} pages
+          </span>
+          <span class="stat-item">
+            <span class="stat-icon">+</span>
+            {{ summary.keyPoints.length }} points cles
+          </span>
+        </div>
+
+        <!-- Resume -->
+        <div class="summary-content">
+          <h3 class="section-title">Resume</h3>
+          <p class="summary-text">{{ summary.summary }}</p>
+        </div>
+
+        <!-- Points cles -->
+        <div class="key-points" *ngIf="summary.keyPoints.length > 0">
+          <h3 class="section-title">Points Cles</h3>
+          <ul class="points-list">
+            <li
+              *ngFor="let point of summary.keyPoints"
+              class="point-item"
+              [style.border-left-color]="getImportanceColor(point.importance)">
+              {{ point.text }}
+            </li>
+          </ul>
+        </div>
+
+        <!-- Concepts -->
+        <div class="concepts" *ngIf="summary.mainConcepts.length > 0">
+          <h3 class="section-title">Concepts Principaux</h3>
+          <div class="concepts-grid">
+            <div *ngFor="let concept of summary.mainConcepts" class="concept-card">
+              <h4 class="concept-title">{{ concept.title }}</h4>
+              <p class="concept-desc">{{ concept.description }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Exercices suggeres -->
+        <div class="exercises" *ngIf="summary.suggestedExercises.length > 0">
+          <h3 class="section-title">Exercices Suggeres</h3>
+          <div class="exercises-list">
+            <div *ngFor="let ex of summary.suggestedExercises" class="exercise-item">
+              <span class="exercise-difficulty" [attr.data-difficulty]="ex.difficulty">
+                {{ ex.difficulty }}
+              </span>
+              <div class="exercise-content">
+                <strong>{{ ex.title }}</strong>
+                <p>{{ ex.description }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="preview-actions">
+          <button class="btn-secondary" (click)="regenerate()">
+            Regenerer
+          </button>
+          <button class="btn-secondary" (click)="saveAsNote()">
+            Sauvegarder comme Note
+          </button>
+          <button
+            class="btn-primary"
+            [disabled]="isSaving"
+            (click)="saveSummary()">
+            <span *ngIf="!isSaving">Sauvegarder</span>
+            <span *ngIf="isSaving">Sauvegarde...</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ========== SUCCES ========== -->
+      <div class="success-overlay" *ngIf="showSuccess">
+        <span class="success-icon">OK</span>
+        <p class="success-text">Resume sauvegarde !</p>
+      </div>
+
+    </div>
+  </div>
+</div>

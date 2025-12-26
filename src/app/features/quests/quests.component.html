@@ -306,9 +306,16 @@
 
           <div
             *ngIf="selectedQuest.status === 'in-progress'"
-            class="in-progress-hint">
-            <span>⏳</span>
-            <span>Cette quête est en cours. Continue !</span>
+            class="in-progress-section">
+            <div class="in-progress-hint">
+              <span>⏳</span>
+              <span>Cette quête est en cours. Continue !</span>
+            </div>
+            <button
+              class="btn-action abandon"
+              (click)="abandonQuest(selectedQuest)">
+              🚫 Abandonner
+            </button>
           </div>
 
           <div

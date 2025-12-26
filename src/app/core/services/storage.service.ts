@@ -77,7 +77,13 @@ export enum StorageKeys {
 
   // Cache
   LAST_SYNC = 'last_sync',
-  APP_VERSION = 'app_version'
+  APP_VERSION = 'app_version',
+
+  // PDF Summaries et Notes
+  PDF_SUMMARIES = 'pdf_summaries',
+  PDF_NOTES = 'pdf_notes',
+  PDF_TEXT_CACHE = 'pdf_text_cache',
+  NOTES_PREFERENCES = 'notes_preferences'
 }
 
 /**

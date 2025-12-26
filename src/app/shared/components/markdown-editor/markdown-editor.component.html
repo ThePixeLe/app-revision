@@ -1,0 +1,196 @@
+<!--
+  markdown-editor.component.html
+
+  Modal d'edition de notes Markdown.
+
+  Structure :
+  ==========
+
+  +---------------------------------------------------------------+
+  |  HEADER                                               [X]     |
+  |  [Titre de la note]                                           |
+  +---------------------------------------------------------------+
+  |  TOOLBAR                                                      |
+  |  [B] [I] [<>] [H] [•] [☑] [🔗] [{ }]  |  [Preview] [Full]    |
+  +---------------------------------------------------------------+
+  |                          |                                    |
+  |       EDITEUR            |         PREVIEW                    |
+  |                          |                                    |
+  |  Ecris ton markdown...   |   Apercu formate...               |
+  |                          |                                    |
+  +---------------------------------------------------------------+
+  |  FOOTER                                                       |
+  |  [Type] [Categorie] [Tags]              [Annuler] [Sauver]   |
+  +---------------------------------------------------------------+
+
+  Auteur: H1m0t3p3
+  Date: 26 decembre 2024
+-->
+
+<div class="editor-overlay" (click)="onClose()">
+  <div
+    class="editor-modal"
+    [class.fullscreen]="isFullscreen"
+    (click)="$event.stopPropagation()">
+
+    <!-- ========================================== -->
+    <!-- HEADER -->
+    <!-- ========================================== -->
+    <header class="editor-header">
+      <input
+        type="text"
+        class="title-input"
+        placeholder="Titre de la note..."
+        [(ngModel)]="form.title"
+        (ngModelChange)="onFormChange()">
+
+      <div class="header-actions">
+        <button
+          class="action-btn"
+          [class.active]="form.isFavorite"
+          (click)="form.isFavorite = !form.isFavorite; onFormChange()"
+          title="Favori">
+          {{ form.isFavorite ? '⭐' : '☆' }}
+        </button>
+        <button
+          class="action-btn"
+          [class.active]="form.isPinned"
+          (click)="form.isPinned = !form.isPinned; onFormChange()"
+          title="Epingler">
+          📌
+        </button>
+        <button class="btn-close" (click)="onClose()">x</button>
+      </div>
+    </header>
+
+    <!-- ========================================== -->
+    <!-- TOOLBAR -->
+    <!-- ========================================== -->
+    <div class="editor-toolbar">
+      <div class="toolbar-left">
+        <button
+          *ngFor="let action of toolbarActions"
+          class="toolbar-btn"
+          [title]="action.label + (action.shortcut ? ' (' + action.shortcut + ')' : '')"
+          (click)="action.action()">
+          {{ action.icon }}
+        </button>
+      </div>
+
+      <div class="toolbar-right">
+        <button
+          class="toolbar-btn"
+          [class.active]="showPreview"
+          (click)="togglePreview()"
+          title="Toggle Preview">
+          {{ showPreview ? '📖' : '👁️' }}
+          <span class="btn-label">Apercu</span>
+        </button>
+        <button
+          class="toolbar-btn"
+          [class.active]="isFullscreen"
+          (click)="toggleFullscreen()"
+          title="Toggle Fullscreen">
+          {{ isFullscreen ? '⬇️' : '⬆️' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ZONE D'EDITION -->
+    <!-- ========================================== -->
+    <div class="editor-body" [class.split-view]="showPreview">
+
+      <!-- Editeur -->
+      <div class="editor-pane">
+        <textarea
+          class="editor-textarea"
+          placeholder="Ecris ta note en Markdown...
+
+# Titre
+## Sous-titre
+
+**Gras** et *italique*
+
+- Liste a puces
+- [ ] Checklist
+
+`code inline`"
+          [(ngModel)]="form.content"
+          (ngModelChange)="onFormChange()">
+        </textarea>
+      </div>
+
+      <!-- Preview -->
+      <div class="preview-pane" *ngIf="showPreview">
+        <div
+          class="preview-content"
+          [innerHTML]="renderMarkdown(form.content)">
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- FOOTER -->
+    <!-- ========================================== -->
+    <footer class="editor-footer">
+      <div class="footer-left">
+
+        <!-- Type -->
+        <div class="form-field">
+          <label class="field-label">Type</label>
+          <select
+            class="field-select"
+            [(ngModel)]="form.type"
+            (ngModelChange)="onFormChange()">
+            <option value="personal">Personnelle</option>
+            <option value="summary">Resume</option>
+            <option value="flashcard">Flashcard</option>
+          </select>
+        </div>
+
+        <!-- Categorie -->
+        <div class="form-field">
+          <label class="field-label">Categorie</label>
+          <select
+            class="field-select"
+            [(ngModel)]="form.category"
+            (ngModelChange)="onFormChange()"
+            [style.border-left-color]="getCategoryColor(form.category)">
+            <option
+              *ngFor="let cat of categories"
+              [value]="cat.value">
+              {{ cat.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Tags -->
+        <div class="form-field tags-field">
+          <label class="field-label">Tags</label>
+          <input
+            type="text"
+            class="field-input"
+            placeholder="tag1, tag2, tag3..."
+            [(ngModel)]="tagsInput"
+            (ngModelChange)="onTagsChange()">
+        </div>
+
+      </div>
+
+      <div class="footer-right">
+        <span class="dirty-indicator" *ngIf="isDirty">
+          Modifications non sauvegardees
+        </span>
+        <button class="btn-cancel" (click)="onClose()">
+          Annuler
+        </button>
+        <button class="btn-save" (click)="onSave()">
+          {{ isCreating ? 'Creer' : 'Sauvegarder' }}
+        </button>
+      </div>
+    </footer>
+
+  </div>
+</div>
